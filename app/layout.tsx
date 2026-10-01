@@ -3,6 +3,7 @@ import "./globals.css";
 import { CAFE } from "@/lib/config";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://sushi-bar-no1.vercel.app"),
   title: {
     default: `${CAFE.name} — суши и роллы в Оше`,
     template: `%s | ${CAFE.name}`,
@@ -11,9 +12,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: `${CAFE.name} — суши и роллы в Оше`,
     description: `${CAFE.slogan}. Заказы: ${CAFE.phone}.`,
-    images: [{ url: "/images/favicon.jpg", alt: `${CAFE.name} — логотип` }],
     type: "website",
     locale: "ru_RU",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${CAFE.name} — суши и роллы в Оше`,
+    description: `${CAFE.slogan}. Заказы: ${CAFE.phone}.`,
   },
   icons: {
     icon: "/images/favicon.jpg",

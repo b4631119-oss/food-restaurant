@@ -2,16 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
-  ArrowDown,
-  ArrowLeft,
   Bike,
   Check,
-  Clock3,
   Instagram,
   MapPin,
   MessageCircle,
   Minus,
   Plus,
+  Search,
   ShoppingBag,
   Store,
   X,
@@ -51,8 +49,10 @@ export function MenuShop() {
   const [cartReady, setCartReady] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartPulse, setCartPulse] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(menuData.categories[0] ?? "");
+  const [activeCategory, setActiveCategory] = useState("Популярное");
+  const [searchQuery, setSearchQuery] = useState("");
   const [notice, setNotice] = useState("");
+  const menuListRef = useRef<HTMLDivElement>(null);
   const [fulfillment, setFulfillment] = useState<Fulfillment>("delivery");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -103,6 +103,26 @@ export function MenuShop() {
   );
   const itemCount = cartLines.reduce((sum, line) => sum + line.quantity, 0);
   const total = cartLines.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
+  const categories = ["Популярное", ...menuData.categories];
+  const search = searchQuery.trim().toLocaleLowerCase("ru");
+  const visibleProducts = availableProducts.filter((product) => {
+    if (search) return `${product.name} ${product.description}`.toLocaleLowerCase("ru").includes(search);
+    if (activeCategory === "Популярное") return "popular" in product && product.popular;
+    return product.category === activeCategory;
+  });
+
+  function selectCategory(category: string) {
+    setActiveCategory(category);
+    setSearchQuery("");
+    window.setTimeout(() => menuListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  }
+
+  function portionInfo(product: Product): string {
+    const match = product.description.match(/(?:—|,\s*)(\d+\s*шт\.?|\d+(?:[,.]\d+)?\s*л)/i);
+    return ("weight" in product && typeof product.weight === "number")
+      ? `${product.weight} г`
+      : match?.[1] ?? "";
+  }
 
   function addProduct(productId: string) {
     setCart((current) => ({ ...current, [productId]: (current[productId] ?? 0) + 1 }));
@@ -197,149 +217,121 @@ export function MenuShop() {
         </button>
       </header>
 
-      <section id="top" className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 pb-16 pt-12 sm:px-8 sm:pb-24 sm:pt-16 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-12 lg:py-24">
-        <div className="relative z-10">
-          <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[.22em] text-muted">
-            <span className="h-px w-8 bg-accent" /> Свежие ингредиенты · Готовим к заказу
-          </p>
-          <h1 className="mt-7 max-w-2xl font-display text-5xl font-medium leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">
-            Sushi Bar №1<span className="text-accent">.</span>
-          </h1>
-          
-          <div className="mt-8 h-px w-16 bg-accent" aria-hidden="true" />
-          <div className="mt-8 flex flex-col gap-3 min-[420px]:flex-row">
-            <button type="button" onClick={startOrder} className="press accent-shadow inline-flex min-h-12 items-center justify-center gap-2 rounded-sm bg-accent px-6 font-semibold text-background hover:bg-accent-hover">
-              <MessageCircle className="size-5" aria-hidden="true" /> Заказать в WhatsApp
-            </button>
-            <a href={`tel:${CAFE.phoneDigits}`} className="press inline-flex min-h-12 items-center justify-center gap-2 rounded-sm border border-line bg-surface px-6 font-semibold hover:border-accent/50">
-              <span className="text-accent">↗</span> Позвонить
-            </a>
-          </div>
-          <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted">
-            <span className="inline-flex items-center gap-2"><Clock3 className="size-4 text-accent" aria-hidden="true" />Сегодня до 01:00</span>
-            <span className="inline-flex items-center gap-2"><Bike className="size-4 text-accent" aria-hidden="true" />Доставка и самовывоз</span>
-          </div>
-        </div>
-
-        <div className="relative mx-auto flex w-full max-w-xl flex-col items-center justify-center gap-5 py-4 lg:pl-5">
-          <div className="hero-logo-frame grid size-36 place-items-center overflow-hidden rounded-full sm:size-40">
+      <section id="top" className="mx-auto flex min-h-[250px] max-h-[50svh] w-full max-w-7xl flex-col justify-center gap-4 px-4 py-4 sm:px-8 lg:px-12">
+        <div className="flex items-center gap-4">
+          <div className="hero-logo-frame size-[88px] shrink-0 overflow-hidden rounded-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/favicon.jpg" alt="Логотип Sushi Bar №1" className="size-full rounded-full object-cover" />
           </div>
-          <p className="text-center font-display text-lg text-muted sm:text-xl">{CAFE.slogan}</p>
+          <div className="min-w-0">
+            <h1 className="font-display text-3xl font-medium leading-tight sm:text-4xl">Sushi Bar №1</h1>
+            <p className="mt-1 text-sm text-muted">Суши и роллы · {CAFE.city}</p>
+            <span className="mt-2 inline-flex items-center gap-2 text-xs font-medium text-accent"><span className="size-2 rounded-full bg-accent" />Открыто · {CAFE.openingHours}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" onClick={startOrder} className="press accent-shadow inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-accent px-3 text-sm font-semibold text-background hover:bg-accent-hover">
+            <MessageCircle className="size-4" aria-hidden="true" />Заказать
+          </button>
+          <a href={`tel:${CAFE.phoneDigits}`} className="press inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-line bg-surface px-3 text-sm font-semibold hover:border-accent/50">
+            <span className="text-accent" aria-hidden="true">↗</span>Позвонить
+          </a>
         </div>
       </section>
 
-      <section id="menu" className="scroll-mt-4 border-y border-accent/25">
-        <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-8 sm:py-24 lg:px-12">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div><p className="text-xs font-semibold uppercase tracking-[.22em] text-accent">Вкус Оша</p><h2 className="section-heading mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">Наше меню</h2><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted sm:text-base">Выбирайте любимое — каждое блюдо приготовим свежим к вашему заказу.</p></div>
-            <span className="hidden items-center gap-2 pb-1 text-sm text-muted sm:flex"><ArrowDown className="size-4 text-accent" aria-hidden="true" />Листайте и выбирайте</span>
-          </div>
-
-          <nav className="sticky top-0 z-20 -mx-4 mt-8 border-y border-line bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:mt-8 sm:border-0 sm:bg-transparent sm:p-0" aria-label="Категории меню">
-            <div className="no-scrollbar flex gap-6 overflow-x-auto border-b border-line sm:flex-wrap sm:gap-8">
-              {menuData.categories.map((category) => (
-                <button key={category} type="button" onClick={() => { setActiveCategory(category); document.getElementById(`category-${category}`)?.scrollIntoView({ behavior: "smooth", block: "start" }); }} aria-current={activeCategory === category ? "true" : undefined} className={`press relative shrink-0 border-b-2 border-x-0 border-t-0 px-0 py-3 text-sm font-semibold ${activeCategory === category ? "border-accent text-accent" : "border-transparent text-muted hover:text-text"}`}>
+      <section id="menu" className="scroll-mt-0 border-y border-accent/25">
+        <div className="mx-auto w-full max-w-7xl px-4 pb-28 sm:px-8 lg:px-12">
+          <nav className="sticky top-0 z-20 -mx-4 border-y border-line bg-background/95 px-4 backdrop-blur sm:mx-0 sm:border-x sm:px-3" aria-label="Категории меню">
+            <div className="no-scrollbar flex gap-6 overflow-x-auto border-b border-line sm:gap-8">
+              {categories.map((category) => (
+                <button key={category} type="button" onClick={() => selectCategory(category)} aria-current={activeCategory === category && !searchQuery ? "true" : undefined} className={`press min-h-12 shrink-0 border-b-2 px-0 text-sm font-semibold ${activeCategory === category && !searchQuery ? "border-accent text-accent" : "border-transparent text-muted hover:text-text"}`}>
                   {category}
                 </button>
               ))}
             </div>
           </nav>
 
-          <div className="mt-8 space-y-12 sm:mt-10 sm:space-y-14">
-            {menuData.categories.map((category) => {
-              const categoryProducts = availableProducts.filter((product) => product.category === category);
-              return (
-                <section key={category} id={`category-${category}`} className="scroll-mt-24 border-t border-accent/20 pt-5">
-                  <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
-                    <h3 className="font-display text-xl font-medium sm:text-2xl">{category}</h3>
-                    <span className="text-xs text-muted">{categoryProducts.length} позиций</span>
-                  </div>
-                  <div className="grid grid-cols-1 gap-5 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {categoryProducts.map((product) => (
-                      <article key={product.id} className="group flex min-w-0 flex-col overflow-hidden rounded-[20px] border border-line bg-surface transition-colors duration-200 hover:border-accent/40">
-                        <div className="relative w-full shrink-0 overflow-hidden bg-surface">
-                          {product.image.toLowerCase().endsWith(".svg") ? (
-                            <div className="photo-placeholder relative flex aspect-[4/3] items-center justify-center" aria-hidden="true">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src="/images/favicon.jpg" alt="" className="absolute size-full object-cover opacity-25" />
-                            </div>
-                          ) : (
-                            <>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={product.image} alt="" loading="lazy" className="aspect-[4/3] size-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" onError={(event) => { event.currentTarget.classList.add("hidden"); event.currentTarget.nextElementSibling?.classList.replace("hidden", "flex"); }} />
-                              <div className="photo-placeholder absolute inset-0 hidden items-center justify-center" aria-hidden="true">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src="/images/favicon.jpg" alt="" className="size-full object-cover opacity-25" />
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        <div className="flex min-w-0 flex-1 flex-col justify-between gap-4 p-4 sm:min-h-36 sm:p-5">
-                          <div><h4 className="font-bold leading-snug">{product.name}</h4><p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted sm:text-[13px]">{product.description}</p></div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-sm font-semibold text-accent">{money(product.price)}</span>
-                            <button type="button" onClick={() => addProduct(product.id)} className="press grid size-11 shrink-0 place-items-center rounded-sm bg-accent text-background hover:bg-accent-hover" aria-label={`Добавить ${product.name} в корзину`}><Plus className="size-5" aria-hidden="true" /></button>
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section id="delivery" className="mx-auto w-full max-w-7xl border-t border-accent/25 px-4 py-16 sm:px-8 sm:py-24 lg:px-12">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <article className="border border-line bg-surface p-6 sm:p-8">
-            <span className="grid size-12 place-items-center rounded-2xl border border-line bg-accent/10 text-accent"><Bike className="size-6" aria-hidden="true" /></span>
-            <p className="mt-5 text-xs font-bold uppercase tracking-[.18em] text-accent">Доставка</p>
-            <h2 className="section-heading mt-2 font-display text-2xl font-medium">Вкусное уже в пути</h2>
-            <p className="mt-3 leading-relaxed text-muted">Ориентировочное время доставки — <strong className="text-text">{CAFE.delivery.time}</strong>. Заказ можно забрать самостоятельно.</p>
-          </article>
-          <article className="border border-line bg-surface p-6 sm:p-8">
-            <span className="grid size-12 place-items-center rounded-2xl border border-line bg-accent/10 text-accent"><ShoppingBag className="size-6" aria-hidden="true" /></span>
-            <p className="mt-5 text-xs font-bold uppercase tracking-[.18em] text-accent">Условия</p>
-            <h2 className="section-heading mt-2 font-display text-2xl font-medium">Минимальный заказ</h2>
-            <p className="mt-3 leading-relaxed text-muted">Для доставки минимальная сумма заказа — <strong className="text-text">{money(CAFE.delivery.minimumOrder)}</strong>. Стоимость доставки уточним при подтверждении.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="contacts" className="border-t border-accent/25">
-        <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-8 sm:py-24 lg:px-12">
-          <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
-            <div><p className="text-xs font-bold uppercase tracking-[.22em] text-accent">Будем рады вас видеть</p><h2 className="section-heading mt-2 font-display text-3xl font-medium sm:text-4xl">Контакты</h2><p className="mt-3 text-muted">Звоните, пишите или заглядывайте к нам.</p></div>
-            <div className="grid gap-3 min-[480px]:grid-cols-2">
-              <a href={CAFE.mapUrl} target="_blank" rel="noopener noreferrer" className="press rounded-2xl border border-line bg-surface p-4 hover:border-accent/40"><MapPin className="size-5 text-accent" aria-hidden="true" /><span className="mt-3 block text-xs text-muted">Адрес</span><span className="mt-1 block font-semibold">{CAFE.address}, {CAFE.city}</span><span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-accent">Как проехать <ArrowLeft className="size-3 rotate-180" aria-hidden="true" /></span></a>
-              <div className="rounded-2xl border border-line bg-surface p-4"><Clock3 className="size-5 text-accent" aria-hidden="true" /><span className="mt-3 block text-xs text-muted">Ежедневно</span><span className="mt-1 block font-semibold">{CAFE.openingHours}</span><span className="mt-2 block text-xs text-muted">Ждём вас каждый день</span></div>
-              <a href={`tel:${CAFE.phoneDigits}`} className="press rounded-2xl border border-line bg-surface p-4 hover:border-accent/40"><span className="grid size-8 place-items-center rounded-full bg-accent/10 text-accent">↗</span><span className="mt-3 block text-xs text-muted">Телефон и заказы</span><span className="mt-1 block font-semibold">{CAFE.phone}</span></a>
-              <a href={CAFE.instagramUrl} target="_blank" rel="noopener noreferrer" className="press rounded-2xl border border-line bg-surface p-4 hover:border-accent/40"><Instagram className="size-5 text-accent" aria-hidden="true" /><span className="mt-3 block text-xs text-muted">Мы в Instagram</span><span className="mt-1 block font-semibold">@{CAFE.instagramHandle}</span></a>
+          <div ref={menuListRef} className="scroll-mt-14 pt-4">
+            <label className="flex min-h-11 items-center gap-3 rounded-xl border border-line bg-surface px-3.5 focus-within:border-accent">
+              <Search className="size-4 shrink-0 text-muted" aria-hidden="true" />
+              <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} type="search" placeholder="Найти блюдо" aria-label="Поиск по меню" className="min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-muted" />
+              {searchQuery && <button type="button" onClick={() => setSearchQuery("")} aria-label="Очистить поиск" className="grid size-8 shrink-0 place-items-center text-muted hover:text-text"><X className="size-4" aria-hidden="true" /></button>}
+            </label>
+            <div className="mb-3 mt-4 flex items-center justify-between">
+              <h2 className="section-heading font-display text-xl font-medium">{search ? "Результаты поиска" : activeCategory}</h2>
+              <span className="text-xs text-muted">{visibleProducts.length} блюд</span>
             </div>
+            {visibleProducts.length > 0 ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {visibleProducts.map((product) => (
+                  <article key={product.id} className="group flex min-w-0 flex-col overflow-hidden rounded-[20px] border border-line bg-surface">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={product.image} alt="" loading="lazy" className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" onError={(event) => { event.currentTarget.classList.add("hidden"); event.currentTarget.nextElementSibling?.classList.replace("hidden", "flex"); }} />
+                      <div className="photo-placeholder absolute inset-0 hidden items-center justify-center" aria-hidden="true">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/images/favicon.jpg" alt="" className="size-full object-cover opacity-25" />
+                      </div>
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col gap-2 p-3">
+                      <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-5">{product.name}</h3>
+                      {portionInfo(product) && <p className="text-xs text-muted">{portionInfo(product)}</p>}
+                      <div className="mt-auto flex items-center justify-between gap-2 pt-1">
+                        <span className="text-sm font-semibold text-accent">{money(product.price)}</span>
+                        <button type="button" onClick={() => addProduct(product.id)} className="press grid size-11 shrink-0 place-items-center rounded-sm bg-accent text-background hover:bg-accent-hover" aria-label={`Добавить ${product.name} в корзину`}><Plus className="size-5" aria-hidden="true" /></button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-xl border border-line bg-surface px-4 py-8 text-center text-sm text-muted">Ничего не найдено. Попробуйте изменить запрос.</p>
+            )}
           </div>
-          <footer className="mt-12 flex flex-col gap-3 border-t border-accent/25 pt-5 text-xs text-muted min-[480px]:flex-row min-[480px]:items-center min-[480px]:justify-between"><span className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/favicon.jpg" alt="" className="size-8 rounded-full border border-accent/40 object-cover" />
-            <span>Sushi Bar №1 · {CAFE.city}</span>
-          </span><span>Свежие роллы и суши в Оше</span></footer>
+
+          <details className="mt-6 rounded-xl border border-line bg-surface px-4 py-3">
+            <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold">Доставка и контакты</summary>
+            <div className="space-y-3 border-t border-line py-4 text-sm text-muted">
+              <p>Доставка: {CAFE.delivery.time}. Минимальный заказ — {money(CAFE.delivery.minimumOrder)}. Стоимость уточняйте при подтверждении.</p>
+              <p>{CAFE.address}, {CAFE.city} · ежедневно {CAFE.openingHours}</p>
+              <div className="flex flex-wrap gap-4">
+                <a href={`tel:${CAFE.phoneDigits}`} className="inline-flex min-h-11 items-center gap-2 font-semibold text-accent"><MessageCircle className="size-4" aria-hidden="true" />{CAFE.phone}</a>
+                <a href={CAFE.mapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 font-semibold text-accent"><MapPin className="size-4" aria-hidden="true" />Открыть карту</a>
+                <a href={CAFE.instagramUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 font-semibold text-accent"><Instagram className="size-4" aria-hidden="true" />Instagram</a>
+              </div>
+            </div>
+          </details>
         </div>
       </section>
 
-      {notice && <div role="status" className="fixed inset-x-4 bottom-24 z-40 mx-auto w-fit max-w-[calc(100%-2rem)] border border-line bg-surface px-4 py-3 text-center text-sm shadow-lg">{notice}</div>}
+      <footer className="mx-auto w-full max-w-7xl px-4 pb-28 pt-5 text-xs text-muted sm:px-8 lg:px-12">
+        <span className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/favicon.jpg" alt="" className="size-8 rounded-full border border-accent/40 object-cover" />
+          <span>Sushi Bar №1 · {CAFE.city}</span>
+        </span>
+      </footer>
 
-      {itemCount > 0 && !cartOpen && (
-        <div className="fixed inset-x-0 bottom-0 z-30 safe-bottom border-t border-accent/25 bg-background/95 px-4 pb-3 pt-3 backdrop-blur">
-          <button type="button" onClick={() => setCartOpen(true)} className={`press accent-shadow mx-auto flex min-h-14 w-full max-w-xl items-center justify-center gap-3 rounded-2xl bg-accent px-5 text-center font-bold text-background hover:bg-accent-hover ${cartPulse ? "cart-pulse" : ""}`}>
-            <ShoppingBag className="size-5 shrink-0" aria-hidden="true" />
-            <span>Корзина · {itemCount} · {money(total)}</span>
-          </button>
+      {notice && <div role="status" className="fixed inset-x-4 bottom-28 z-40 mx-auto w-fit max-w-[calc(100%-2rem)] border border-line bg-surface px-4 py-3 text-center text-sm shadow-lg">{notice}</div>}
+
+      {!cartOpen && (
+        <div className="fixed inset-x-0 bottom-0 z-30 safe-bottom border-t border-accent/25 bg-background/95 px-2 pb-2 pt-2 backdrop-blur">
+          <div className="mx-auto grid w-full max-w-2xl grid-cols-[auto_auto_minmax(0,1fr)] gap-2">
+            <a href={`tel:${CAFE.phoneDigits}`} aria-label="Позвонить" className="press grid size-12 place-items-center rounded-xl border border-line bg-surface text-accent"><MessageCircle className="size-5" aria-hidden="true" /></a>
+            <a href={`https://wa.me/${CAFE.whatsappNumber}`} target="_blank" rel="noopener noreferrer" aria-label="Написать в WhatsApp" className="press grid size-12 place-items-center rounded-xl border border-line bg-surface text-accent"><MessageCircle className="size-5" aria-hidden="true" /></a>
+            {itemCount > 0 ? (
+              <button type="button" onClick={() => setCartOpen(true)} className={`press accent-shadow flex min-h-12 min-w-0 items-center justify-between gap-2 rounded-xl bg-accent px-3 text-sm font-bold text-background hover:bg-accent-hover ${cartPulse ? "cart-pulse" : ""}`}>
+                <span className="flex min-w-0 items-center gap-2"><ShoppingBag className="size-4 shrink-0" aria-hidden="true" /><span className="truncate">Корзина · {itemCount}</span></span>
+                <span className="shrink-0">{money(total)}</span>
+              </button>
+            ) : (
+              <button type="button" onClick={startOrder} className="press flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3 text-sm font-semibold text-text">
+                <ShoppingBag className="size-4 shrink-0 text-accent" aria-hidden="true" />Выбрать блюда
+              </button>
+            )}
+          </div>
         </div>
       )}
-
       {cartOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-[2px] sm:items-center sm:p-5" onClick={() => setCartOpen(false)}>
           <section ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="cart-title" className="sheet-enter flex max-h-[85dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-3xl border border-line bg-panel shadow-2xl outline-none sm:rounded-3xl" onClick={(event) => event.stopPropagation()}>

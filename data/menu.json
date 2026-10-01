@@ -8,7 +8,8 @@
       "price": 520,
       "category": "Роллы",
       "image": "/images/rolls.svg",
-      "inStock": true
+      "inStock": true,
+      "popular": true
     },
     {
       "id": "roll-california",
@@ -17,7 +18,8 @@
       "price": 390,
       "category": "Роллы",
       "image": "/images/rolls.svg",
-      "inStock": true
+      "inStock": true,
+      "popular": true
     },
     {
       "id": "roll-unagi",
@@ -26,7 +28,8 @@
       "price": 440,
       "category": "Роллы",
       "image": "/images/rolls.svg",
-      "inStock": true
+      "inStock": true,
+      "popular": true
     },
     {
       "id": "roll-tempura",
@@ -35,7 +38,8 @@
       "price": 460,
       "category": "Роллы",
       "image": "/images/rolls.svg",
-      "inStock": true
+      "inStock": true,
+      "popular": true
     },
     {
       "id": "roll-spicy-salmon",
@@ -44,7 +48,8 @@
       "price": 420,
       "category": "Роллы",
       "image": "/images/rolls.svg",
-      "inStock": true
+      "inStock": true,
+      "popular": true
     },
     {
       "id": "roll-veggie",
@@ -53,7 +58,8 @@
       "price": 300,
       "category": "Роллы",
       "image": "/images/rolls.svg",
-      "inStock": true
+      "inStock": true,
+      "popular": true
     },
     {
       "id": "sushi-salmon",
