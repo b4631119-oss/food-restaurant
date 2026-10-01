@@ -1,27 +1,15 @@
 # Sushi Bar №1
 
-Russian-language mobile-first menu site for a sushi cafe in Osh, Kyrgyzstan.
+Статичный мобильный демо-сайт суши-кафе в Оше. Меню находится в `data/menu.json`, контактные данные и условия доставки — в `lib/config.ts`. Корзина хранится в браузере и передаёт готовый чек в WhatsApp; заказы в базу не записываются.
 
-## Cafe details
+## Запуск
 
-- Address: Алымбек датка 702, Ош
-- Phone and WhatsApp: +996 990 435 943
-- Opening hours: ежедневно, 10:00–01:00
-- Currency: кыргызский сом (KGS)
-
-The homepage at `/` is the cafe menu entry point. Firebase menu data, ordering, and the admin workspace are being added in the following implementation stages.
-
-## Development
-
-Requires Node.js and pnpm.
+Требуются Node.js и npm.
 
 ```bash
-pnpm install
-pnpm dev
+npm install
+npm run dev
 ```
 
-Run `pnpm lint` and `pnpm build` for project checks.
 
-## Stack
-
-Next.js 16 App Router · React 19 · TypeScript · Tailwind CSS 4 · pnpm
+Фото блюд пока заменены SVG-заглушками в `public/images/`.

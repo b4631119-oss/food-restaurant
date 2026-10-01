@@ -7,19 +7,19 @@ export const metadata: Metadata = {
     default: `${CAFE.name} — суши и роллы в Оше`,
     template: `%s | ${CAFE.name}`,
   },
-  description: `Меню суши-кафе ${CAFE.name}. ${CAFE.address}, ${CAFE.city}. Заказы по телефону ${CAFE.phone}.`,
+  description: `${CAFE.slogan}. Адрес: ${CAFE.address}, ${CAFE.city}. Заказы: ${CAFE.phone}.`,
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#FBF7F0",
+  themeColor: "#0B1220",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
-      <body className="min-h-dvh bg-paper font-sans text-ink antialiased">{children}</body>
+      <body className="min-h-dvh bg-background font-sans text-text antialiased">{children}</body>
     </html>
   );
 }

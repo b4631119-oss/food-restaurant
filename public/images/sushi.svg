@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" fill="none">
+  <defs><linearGradient id="bg" x1="38" y1="17" x2="590" y2="410" gradientUnits="userSpaceOnUse"><stop stop-color="#4a293b"/><stop offset="1" stop-color="#161b2a"/></linearGradient><linearGradient id="fish" x1="191" y1="132" x2="415" y2="254" gradientUnits="userSpaceOnUse"><stop stop-color="#ffb18c"/><stop offset="1" stop-color="#d56558"/></linearGradient></defs>
+  <rect width="640" height="420" rx="32" fill="url(#bg)"/><circle cx="516" cy="76" r="149" fill="#e6a265" fill-opacity=".13"/><circle cx="70" cy="376" r="149" fill="#d0717e" fill-opacity=".1"/>
+  <ellipse cx="320" cy="244" rx="222" ry="106" fill="#090f19" fill-opacity=".6"/><ellipse cx="320" cy="222" rx="220" ry="106" fill="#f5efe0"/><ellipse cx="320" cy="218" rx="186" ry="78" fill="#ded3bd"/>
+  <g transform="rotate(-13 248 192)"><rect x="171" y="206" width="128" height="48" rx="22" fill="#fff5dd"/><path d="M167 197c8-38 24-74 66-82 43-9 72 19 75 56 3 25-13 39-39 42l-75 8c-18 2-30-8-27-24Z" fill="url(#fish)"/><path d="M187 183c32-26 66-39 100-32" stroke="#ffd0a8" stroke-width="7" stroke-linecap="round"/></g>
+  <g transform="rotate(12 381 190)"><rect x="328" y="205" width="126" height="48" rx="22" fill="#fff5dd"/><path d="M325 196c8-38 24-74 66-82 43-9 72 19 75 56 3 25-13 39-39 42l-75 8c-18 2-30-8-27-24Z" fill="#e88566"/><path d="M345 182c32-25 65-38 100-32" stroke="#ffcfaa" stroke-width="7" stroke-linecap="round"/></g>
+  <g fill="#f7e6ca" fill-opacity=".75"><circle cx="225" cy="150" r="3"/><circle cx="244" cy="141" r="3"/><circle cx="262" cy="138" r="3"/><circle cx="380" cy="145" r="3"/><circle cx="398" cy="139" r="3"/><circle cx="418" cy="143" r="3"/></g>
+  <text x="42" y="390" fill="#f5efe0" fill-opacity=".72" font-family="Arial,sans-serif" font-size="17" letter-spacing="4">NIGIRI · HANDCRAFTED</text>
+</svg>

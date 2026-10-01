@@ -6,10 +6,13 @@ export const CAFE = {
   phoneDigits: "996990435943",
   whatsappNumber: "996990435943",
   currency: "сом",
-  currencyCode: "KGS",
-  openingHours: {
-    opensAt: "10:00",
-    closesAt: "01:00",
-    label: "Ежедневно, 10:00–01:00",
+  slogan: "Свежие роллы и суши в Оше",
+  openingHours: "10:00–01:00",
+  delivery: {
+    time: "40–60 минут",
+    minimumOrder: 500,
   },
+  mapUrl: "https://2gis.kg/osh/search/Алымбек%20датка%20702",
+  instagramHandle: "sushi__bar__1",
+  instagramUrl: "https://www.instagram.com/sushi__bar__1/",
 } as const;
