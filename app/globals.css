@@ -72,6 +72,22 @@ button, input, textarea {
   background-color: var(--surface);
 }
 
+.category-strip::after {
+  position: absolute;
+  z-index: 35;
+  top: 1px;
+  right: 0;
+  bottom: 1px;
+  width: 2.5rem;
+  background: linear-gradient(90deg, transparent, var(--background) 88%);
+  content: "";
+  pointer-events: none;
+}
+
+.product-photo-failed .product-photo {
+  display: none;
+}
+
 .hero-logo-frame {
   border: 1px solid color-mix(in srgb, var(--accent) 78%, transparent);
   box-shadow: 0 0 32px color-mix(in srgb, var(--accent) 17%, transparent);
@@ -115,6 +131,19 @@ button, input, textarea {
   0% { transform: scale(1); }
   45% { transform: scale(1.025); }
   100% { transform: scale(1); }
+}
+
+@media (min-width: 1024px) {
+  .menu-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+@media (max-width: 1023px) {
+  .menu-grid {
+    grid-auto-rows: 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
