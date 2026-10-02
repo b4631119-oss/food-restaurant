@@ -21,7 +21,7 @@ export function ProductCard({ product, quantity, onAdd, onChange }: ProductCardP
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-3">
         <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-5">{product.name}</h3>
-        <p className="line-clamp-2 min-h-8 text-xs leading-4 text-muted">{product.description}</p>
+        <p className="line-clamp-2 min-h-8 text-sm leading-5 text-muted">{product.description}</p>
         <p className="text-xs text-muted">{portionInfo(product)}</p>
         <div className="mt-auto flex min-w-0 flex-nowrap items-center justify-between gap-1 pt-1">
           <span className="min-w-0 truncate text-sm font-semibold text-accent">{money(product.price)}</span>
