@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CartPanel } from "@/components/cart/cart-panel";
 import { CategoryNav } from "@/components/category-nav";
 import { Footer } from "@/components/footer";
@@ -15,14 +15,22 @@ import { useCustomer } from "@/hooks/use-customer";
 import { useShopUi } from "@/hooks/use-shop-ui";
 import menuData from "@/data/menu.json";
 import { buildReceipt, buildWhatsAppUrl } from "@/lib/order";
-import { getSettings, getOrders, setOrders } from "@/lib/demo-store";
+import { DEMO_DATA_EVENT, getProducts as getDemoProducts, getSettings, getOrders, setOrders } from "@/lib/demo-store";
 import type { Product } from "@/lib/types";
 
-const products = menuData.products as Product[];
-const categories = ["Популярное", "Все", ...menuData.categories];
+const defaults = menuData.products as Product[];
+const defaultCategories = menuData.categories as string[];
 
 export function MenuShop() {
-  const availableProducts = useMemo(() => products.filter((product) => product.inStock), []);
+  const [products, setProducts] = useState<Product[]>(defaults);
+  const [categories, setCategories] = useState<string[]>(defaultCategories);
+  useEffect(() => {
+    const refresh = () => { setProducts(getDemoProducts().filter((product) => product.inStock) as Product[]); setCategories(["Популярное", "Все", ...defaultCategories]); };
+    const timer = window.setTimeout(refresh, 0);
+    window.addEventListener(DEMO_DATA_EVENT, refresh); window.addEventListener("storage", refresh);
+    return () => { window.clearTimeout(timer); window.removeEventListener(DEMO_DATA_EVENT, refresh); window.removeEventListener("storage", refresh); };
+  }, []);
+  const availableProducts = useMemo(() => products, [products]);
   const cart = useCart(availableProducts);
   const customer = useCustomer();
   const ui = useShopUi(cart.itemCount, cart.addProduct);

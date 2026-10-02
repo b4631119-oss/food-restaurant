@@ -20,13 +20,22 @@ function write<T>(key: string, value: T): void {
 }
 export function getOrders(): DemoOrder[] { return read(KEYS.orders, []); }
 export function setOrders(value: DemoOrder[]): void { write(KEYS.orders, value); }
+function storedProducts(): DemoProduct[] { return read(KEYS.products, menuData.products as DemoProduct[]); }
 export function getProducts(): DemoProduct[] {
-  const products = read<DemoProduct[]>(KEYS.products, menuData.products as DemoProduct[]);
   const deleted = new Set(read<string[]>(KEYS.deleted, []));
-  return products.filter((product) => !deleted.has(product.id));
+  return storedProducts().filter((product) => !deleted.has(product.id));
 }
 export function setProducts(value: DemoProduct[]): void { write(KEYS.products, value); }
-export function removeProduct(id: string): void { write(KEYS.deleted, [...new Set([...read<string[]>(KEYS.deleted, []), id])]); }
+export function removeProduct(product: DemoProduct): void {
+  const baseIds = new Set(menuData.products.map((item) => item.id));
+  if (baseIds.has(product.id)) write(KEYS.deleted, [...new Set([...read<string[]>(KEYS.deleted, []), product.id])]);
+  else write(KEYS.products, storedProducts().filter((item) => item.id !== product.id));
+}
+export function restoreProduct(product: DemoProduct): void {
+  const baseIds = new Set(menuData.products.map((item) => item.id));
+  if (baseIds.has(product.id)) write(KEYS.deleted, read<string[]>(KEYS.deleted, []).filter((id) => id !== product.id));
+  else write(KEYS.products, [...storedProducts().filter((item) => item.id !== product.id), product]);
+}
 export function getCategories(): string[] { return read(KEYS.categories, menuData.categories); }
 export function setCategories(value: string[]): void { write(KEYS.categories, value); }
 export function getSettings(): DemoSettings { return { ...DEFAULT_SETTINGS, ...read<Partial<DemoSettings>>(KEYS.settings, {}) }; }
