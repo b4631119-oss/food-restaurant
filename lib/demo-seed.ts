@@ -22,7 +22,7 @@ export function seedDemoData(): void {
       const product = products[index % products.length];
       const quantity = index % 2 + 1;
       return {
-        id: `demo-${index + 1}`, number: 1001 + index, createdAt: created.toISOString(), name,
+        id: `demo-${index + 1}`, number: 1001 + index, createdAt: created.toISOString(), name, source: "demo",
         phone: `+996 700 12${String(index).padStart(2, "0")} 34`, fulfillment: "delivery",
         address, comment: index % 2 ? "Позвонить при доставке" : "", status: status as OrderStatus,
         items: [{ productId: product.id, productName: product.name, price: product.price, quantity }], total: product.price * quantity,

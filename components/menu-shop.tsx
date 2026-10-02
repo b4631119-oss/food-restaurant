@@ -15,7 +15,7 @@ import { useCustomer } from "@/hooks/use-customer";
 import { useShopUi } from "@/hooks/use-shop-ui";
 import menuData from "@/data/menu.json";
 import { buildReceipt, buildWhatsAppUrl } from "@/lib/order";
-import { CAFE } from "@/lib/config";
+import { getSettings, getOrders, setOrders } from "@/lib/demo-store";
 import type { Product } from "@/lib/types";
 
 const products = menuData.products as Product[];
@@ -39,8 +39,11 @@ export function MenuShop() {
   const sendOrder = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!customer.validateForm()) return;
-    if (customer.fulfillment === "delivery" && cart.total < CAFE.delivery.minimumOrder) return;
+    if (!getSettings().acceptingOrders) return;
+    if (customer.fulfillment === "delivery" && cart.total < getSettings().minimumOrder) return;
     const receipt = buildReceipt({ cartLines: cart.cartLines, total: cart.total, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.address });
+    const orders = getOrders();
+    setOrders([{ id: crypto.randomUUID(), number: Math.max(1000, ...orders.map((order) => order.number)) + 1, createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.address.trim(), comment: "", items: cart.cartLines.map(({ product, quantity }) => ({ productId: product.id, productName: product.name, price: product.price, quantity })), total: cart.total, status: "new", source: "website" }, ...orders]);
     setReceiptUrl(buildWhatsAppUrl(receipt));
     ui.setOrderSent(true);
   };
