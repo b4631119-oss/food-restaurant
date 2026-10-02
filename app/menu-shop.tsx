@@ -17,33 +17,13 @@ import {
 } from "lucide-react";
 import menuData from "@/data/menu.json";
 import { CAFE } from "@/lib/config";
+import { readCart, CART_KEY } from "@/lib/cart-storage";
+import { money, portionInfo } from "@/lib/format";
+import { buildReceipt, buildWhatsAppUrl } from "@/lib/order";
+import { validateAddress, validateName, validatePhone } from "@/lib/validation";
+import type { Cart, CartLine, Fulfillment, Product } from "@/lib/types";
 
-type Product = (typeof menuData.products)[number];
-type Fulfillment = "delivery" | "pickup";
-type Cart = Record<string, number>;
-
-const CART_KEY = "sushi-bar-no1-cart";
 const products = menuData.products as Product[];
-
-function money(amount: number): string {
-  return `${new Intl.NumberFormat("ru-RU").format(amount)} ${CAFE.currency}`;
-}
-
-function readCart(): Cart {
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(CART_KEY) ?? "{}");
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-    const next: Cart = {};
-    for (const [id, value] of Object.entries(parsed)) {
-      if (products.some((product) => product.id === id && product.inStock) && Number.isInteger(value) && Number(value) > 0) {
-        next[id] = Number(value);
-      }
-    }
-    return next;
-  } catch {
-    return {};
-  }
-}
 
 export function MenuShop() {
   const [cart, setCart] = useState<Cart>({});
@@ -96,7 +76,7 @@ export function MenuShop() {
   }, [cartOpen]);
 
   const availableProducts = useMemo(() => products.filter((product) => product.inStock), []);
-  const cartLines = useMemo(
+  const cartLines = useMemo<CartLine[]>(
     () => availableProducts
       .filter((product) => (cart[product.id] ?? 0) > 0)
       .map((product) => ({ product, quantity: cart[product.id] })),
@@ -134,10 +114,6 @@ export function MenuShop() {
     window.setTimeout(() => menuListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
   }
 
-  function portionInfo(product: Product): string {
-    return typeof product.weight === "string" ? product.weight : "";
-  }
-
   function addProduct(productId: string) {
     setCart((current) => ({ ...current, [productId]: (current[productId] ?? 0) + 1 }));
     setOrderSent(false);
@@ -170,38 +146,30 @@ export function MenuShop() {
   function sendOrder(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const cleanPhone = phone.trim();
-    const phoneDigits = cleanPhone.replace(/\D/g, "");
-    if (name.trim().length < 2) {
-      setFormError("Укажите имя (минимум 2 символа).");
+    const nameError = validateName(name);
+    if (nameError) {
+      setFormError(nameError);
       return;
     }
-    if (phoneDigits.length < 7) {
-      setFormError("Укажите корректный номер телефона.");
+    const phoneError = validatePhone(cleanPhone);
+    if (phoneError) {
+      setFormError(phoneError);
       return;
     }
-    if (fulfillment === "delivery" && address.trim().length < 5) {
-      setFormError("Укажите адрес доставки подробнее.");
-      return;
+    if (fulfillment === "delivery") {
+      const addressError = validateAddress(address);
+      if (addressError) {
+        setFormError(addressError);
+        return;
+      }
     }
     if (cartLines.length === 0) {
       setFormError("Корзина пуста. Добавьте блюда из меню.");
       return;
     }
 
-    const receipt = [
-      `🍣 Заказ — ${CAFE.name}`,
-      "──────────────────",
-      ...cartLines.map(({ product, quantity }) => `${quantity} × ${product.name} — ${money(product.price * quantity)}`),
-      "──────────────────",
-      `Итого: ${money(total)}`,
-      `Имя: ${name.trim()}`,
-      `Телефон: ${cleanPhone}`,
-      `Получение: ${fulfillment === "delivery" ? "Доставка" : "Самовывоз"}`,
-      ...(fulfillment === "delivery" ? [`Адрес: ${address.trim()}`] : []),
-      "Оплата при получении. Пожалуйста, подтвердите заказ.",
-    ].join("\n");
-
-    const whatsappUrl = `https://wa.me/${CAFE.whatsappNumber}?text=${encodeURIComponent(receipt)}`;
+    const receipt = buildReceipt({ cartLines, total, fulfillment, name, phone: cleanPhone, address });
+    const whatsappUrl = buildWhatsAppUrl(receipt);
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
     setCart({});
     setOrderSent(true);
