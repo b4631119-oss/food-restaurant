@@ -10,6 +10,8 @@ type MobileBarProps = {
   total: number;
   pulse: boolean;
   onOpenCart: () => void;
+  phone?: string;
+  whatsappNumber?: string;
 };
 
 export function MobileBar({
@@ -17,6 +19,8 @@ export function MobileBar({
   total,
   pulse,
   onOpenCart,
+  phone = CAFE.phone,
+  whatsappNumber = CAFE.whatsappNumber,
 }: MobileBarProps) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 safe-bottom border-t border-accent/25 bg-background/95 px-2 pt-2 backdrop-blur lg:hidden">
@@ -24,14 +28,14 @@ export function MobileBar({
         className={`mx-auto grid w-full max-w-2xl gap-2 ${itemCount > 0 ? "grid-cols-[auto_auto_minmax(0,1fr)]" : "grid-cols-[auto_auto] justify-center"}`}
       >
         <a
-          href={`tel:${CAFE.phoneDigits}`}
+          href={`tel:${phone.replace(/\\D/g, "")}`}
           aria-label="Позвонить"
           className="press grid size-12 place-items-center rounded-xl border border-line bg-surface text-accent"
         >
           <Phone className="size-5" aria-hidden="true" />
         </a>
         <a
-          href={`https://wa.me/${CAFE.whatsappNumber}`}
+          href={`https://wa.me/${whatsappNumber.replace(/\\D/g, "")}`}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Написать в WhatsApp"
