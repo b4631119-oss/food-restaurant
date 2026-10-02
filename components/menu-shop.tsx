@@ -19,7 +19,7 @@ import { CAFE } from "@/lib/config";
 import type { Product } from "@/lib/types";
 
 const products = menuData.products as Product[];
-const categories = ["Популярное", ...menuData.categories];
+const categories = ["Популярное", "Все", ...menuData.categories];
 
 export function MenuShop() {
   const availableProducts = useMemo(() => products.filter((product) => product.inStock), []);
@@ -30,7 +30,12 @@ export function MenuShop() {
   const search = ui.searchQuery.trim().toLocaleLowerCase("ru");
   const visibleProducts = availableProducts.filter((product) => search
     ? `${product.name} ${product.description}`.toLocaleLowerCase("ru").includes(search)
-    : ui.activeCategory === "Популярное" ? "popular" in product && product.popular : product.category === ui.activeCategory);
+    : ui.activeCategory === "Популярное" ? "popular" in product && product.popular
+      : ui.activeCategory === "Все" || product.category === ui.activeCategory);
+  const productGroups = menuData.categories.map((category) => ({
+    category,
+    products: visibleProducts.filter((product) => product.category === category),
+  })).filter((group) => group.products.length > 0);
   const sendOrder = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!customer.validateForm()) return;
@@ -46,7 +51,7 @@ export function MenuShop() {
       <section id="menu" className="scroll-mt-16 border-y border-accent/25">
         <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 gap-8 px-4 pb-10 pt-6 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:px-6">
           <CategoryNav categories={categories} active={ui.activeCategory} searchActive={Boolean(ui.searchQuery)} onSelect={ui.selectCategory}>
-            <ProductGrid products={visibleProducts} title={ui.activeCategory} query={ui.searchQuery} onQuery={ui.setSearchQuery} cart={cart.cart} onAdd={ui.addProduct} onChange={cart.changeQuantity} listRef={ui.menuListRef} />
+            <ProductGrid products={visibleProducts} title={ui.activeCategory} groups={productGroups} isAll={!search && ui.activeCategory === "Все"} onShowAll={() => ui.selectCategory("Все")} query={ui.searchQuery} onQuery={ui.setSearchQuery} cart={cart.cart} onAdd={ui.addProduct} onChange={cart.changeQuantity} listRef={ui.menuListRef} />
           </CategoryNav>
           <InfoSection />
         </div>

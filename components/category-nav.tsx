@@ -14,9 +14,9 @@ export function CategoryNav({ categories, active, searchActive, onSelect, childr
   return (
     <>
       <aside className="hidden lg:block">
-        <nav className="sticky top-20 flex flex-col gap-1" aria-label="Категории меню">
+        <nav className="sticky top-[69px] flex flex-col gap-1" aria-label="Категории меню">
           {categories.map((category) => (
-            <button key={category} type="button" onClick={() => onSelect(category)} aria-current={active === category && !searchActive ? "true" : undefined} className={`press min-h-12 rounded-lg px-4 text-left text-sm font-semibold ${active === category && !searchActive ? "bg-accent/10 text-accent" : "text-muted hover:bg-surface hover:text-text"}`}>
+            <button key={category} type="button" onClick={() => onSelect(category)} aria-current={active === category && !searchActive ? "true" : undefined} className={`press min-h-11 rounded-lg px-4 text-left text-sm font-semibold ${active === category && !searchActive ? "bg-accent/10 text-accent" : "text-muted hover:bg-surface hover:text-text"}`}>
               {category}
             </button>
           ))}
@@ -24,10 +24,10 @@ export function CategoryNav({ categories, active, searchActive, onSelect, childr
       </aside>
       <div className="min-w-0">
         <div className="category-strip relative -mx-4 mb-4 lg:hidden">
-        <nav className="sticky top-16 z-30 border-y border-line bg-background/95 px-4 backdrop-blur" aria-label="Категории меню">
+        <nav className="sticky top-[69px] z-30 border-y border-line bg-background/95 px-4 backdrop-blur" aria-label="Категории меню">
           <div className="no-scrollbar flex gap-6 overflow-x-auto border-b border-line pr-8">
             {categories.map((category) => (
-              <button key={category} type="button" onClick={() => onSelect(category)} aria-current={active === category && !searchActive ? "true" : undefined} className={`press min-h-12 shrink-0 border-b-2 px-0 text-sm font-semibold ${active === category && !searchActive ? "border-accent text-accent" : "border-transparent text-muted hover:text-text"}`}>
+              <button key={category} type="button" onClick={() => onSelect(category)} aria-current={active === category && !searchActive ? "true" : undefined} className={`press min-h-11 shrink-0 border-b-2 px-0 text-sm font-semibold ${active === category && !searchActive ? "border-accent text-accent" : "border-transparent text-muted hover:text-text"}`}>
                 {category}
               </button>
             ))}
