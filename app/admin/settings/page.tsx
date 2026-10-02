@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { DEMO_DATA_EVENT, getSettings, resetDemoData, setSettings, type DemoSettings } from "@/lib/demo-store";
+import { seedDemoData } from "@/lib/demo-seed";
 
 export default function SettingsPage() {
   const [settings, setValues] = useState<DemoSettings>(() => getSettings());
@@ -24,5 +25,5 @@ export default function SettingsPage() {
     {error && <p role="alert" className="text-sm text-red-400">{error}</p>}{saved && <p role="status" className="text-sm text-accent">Настройки сохранены</p>}
     <button className="min-h-12 w-full rounded-lg bg-accent font-bold text-background">Сохранить настройки</button>
     <button type="button" onClick={() => setConfirm(true)} className="min-h-12 w-full rounded-lg border border-red-500/40 text-red-400">Сбросить все демо-данные</button>
-  </form><ConfirmDialog open={confirm} title="Сбросить демо-данные?" message="Будут удалены демо-заказы, меню и настройки. Начальные заказы будут созданы снова." confirmLabel="Сбросить данные" onCancel={() => setConfirm(false)} onConfirm={() => { resetDemoData(); setConfirm(false); setValues(getSettings()); }} /></section>;
+  </form><ConfirmDialog open={confirm} title="Сбросить демо-данные?" message="Будут удалены демо-заказы, меню и настройки. Начальные заказы будут созданы снова." confirmLabel="Сбросить данные" onCancel={() => setConfirm(false)} onConfirm={() => { resetDemoData(); seedDemoData(); setConfirm(false); setValues(getSettings()); }} /></section>;
 }

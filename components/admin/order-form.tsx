@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { getProducts, type DemoOrder, type OrderStatus } from "@/lib/demo-store";
 
 type Props = { order?: DemoOrder; onSave: (order: DemoOrder) => void; onCancel: () => void };
 export function OrderForm({ order, onSave, onCancel }: Props) {
-  const first = useRef<HTMLInputElement>(null);
   const products = getProducts();
   const [name, setName] = useState(order?.name ?? ""); const [phone, setPhone] = useState(order?.phone ?? "");
   const [fulfillment, setFulfillment] = useState<"delivery" | "pickup">(order?.fulfillment ?? "delivery");
@@ -13,7 +12,6 @@ export function OrderForm({ order, onSave, onCancel }: Props) {
   const [status, setStatus] = useState<OrderStatus>(order?.status ?? "new");
   const [quantities, setQuantities] = useState<Record<string, number>>(() => Object.fromEntries((order?.items ?? []).map((item) => [item.productId, item.quantity])));
   const total = products.reduce((sum, product) => sum + product.price * (quantities[product.id] ?? 0), 0);
-  useEffect(() => { first.current?.focus(); }, []);
   function submit(event: FormEvent) {
     event.preventDefault();
     const items = products.filter((product) => quantities[product.id] > 0).map((product) => ({ productId: product.id, productName: product.name, price: product.price, quantity: quantities[product.id] }));
@@ -21,7 +19,7 @@ export function OrderForm({ order, onSave, onCancel }: Props) {
     onSave({ id: order?.id ?? crypto.randomUUID(), number: order?.number ?? 0, createdAt: order?.createdAt ?? new Date().toISOString(), name: name.trim(), phone: phone.trim(), fulfillment, address: fulfillment === "delivery" ? address.trim() : "", comment, items, total, status });
   }
   const field = "mt-1 h-[52px] w-full rounded-lg border border-line bg-background px-3 text-base outline-none focus:border-accent";
-  return <form onSubmit={submit} className="space-y-4"><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm">Имя<input ref={first} required value={name} onChange={(e) => setName(e.target.value)} className={field} /></label><label className="text-sm">Телефон<input required value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" className={field} /></label></div>
+  return <form onSubmit={submit} className="space-y-4"><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm">Имя<input required value={name} onChange={(e) => setName(e.target.value)} className={field} /></label><label className="text-sm">Телефон<input required value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" className={field} /></label></div>
     <label className="block text-sm">Тип заказа<select value={fulfillment} onChange={(e) => setFulfillment(e.target.value as "delivery" | "pickup")} className={field}><option value="delivery">Доставка</option><option value="pickup">Самовывоз</option></select></label>
     {fulfillment === "delivery" && <label className="block text-sm">Адрес<input value={address} onChange={(e) => setAddress(e.target.value)} className={field} /></label>}
     <label className="block text-sm">Комментарий<textarea value={comment} onChange={(e) => setComment(e.target.value)} className={`${field} h-24 py-3`} /></label>

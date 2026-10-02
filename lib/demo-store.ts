@@ -40,4 +40,4 @@ export function getCategories(): string[] { return read(KEYS.categories, menuDat
 export function setCategories(value: string[]): void { write(KEYS.categories, value); }
 export function getSettings(): DemoSettings { return { ...DEFAULT_SETTINGS, ...read<Partial<DemoSettings>>(KEYS.settings, {}) }; }
 export function setSettings(value: DemoSettings): void { write(KEYS.settings, value); }
-export function resetDemoData(): void { Object.values(KEYS).forEach((key) => localStorage.removeItem(key)); window.dispatchEvent(new Event(DEMO_DATA_EVENT)); }
+export function resetDemoData(): void { Object.values(KEYS).forEach((key) => localStorage.removeItem(key)); localStorage.removeItem("demo-seed-v1"); window.dispatchEvent(new Event(DEMO_DATA_EVENT)); }
