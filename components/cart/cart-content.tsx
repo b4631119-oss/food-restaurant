@@ -13,14 +13,15 @@ export type CartContentProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
   total: number;
   fulfillment: Fulfillment;
-  setFulfillment: React.Dispatch<React.SetStateAction<Fulfillment>>;
+  setFulfillment: (value: Fulfillment) => void;
   name: string;
-  setName: React.Dispatch<React.SetStateAction<string>>;
+  setName: (value: string) => void;
   phone: string;
-  setPhone: React.Dispatch<React.SetStateAction<string>>;
+  setPhone: (value: string) => void;
   address: string;
-  setAddress: React.Dispatch<React.SetStateAction<string>>;
-  formError: string;
+  setAddress: (value: string) => void;
+  errors: { name: string; phone: string; address: string };
+  onBlur: (field: "name" | "phone" | "address") => void;
 };
 
 export function CartContent(props: CartContentProps) {
@@ -34,6 +35,8 @@ export function CartContent(props: CartContentProps) {
         </div>
         <div className="space-y-2 border-t border-line px-4 pt-3 sm:px-6">
           <CartForm
+            errors={props.errors}
+            onBlur={props.onBlur}
             fulfillment={props.fulfillment}
             setFulfillment={props.setFulfillment}
             name={props.name}
@@ -42,12 +45,11 @@ export function CartContent(props: CartContentProps) {
             setPhone={props.setPhone}
             address={props.address}
             setAddress={props.setAddress}
-            formError={props.formError}
           />
         </div>
       </div>
       <div className="shrink-0 space-y-2 border-t border-line bg-panel px-4 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] pt-3 sm:px-6">
-        <CartFooter total={props.total} />
+        <CartFooter total={props.total} fulfillment={props.fulfillment} />
       </div>
     </form>
   );

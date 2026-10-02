@@ -15,7 +15,7 @@ export function Header({ itemCount, onOpenCart }: HeaderProps) {
       </a>
       <button type="button" onClick={onOpenCart} aria-label={`Открыть корзину, ${itemCount} товаров`} className="press inline-flex min-h-11 shrink-0 items-center gap-2 px-2 text-sm font-semibold">
         <ShoppingBag className="size-4 text-accent" aria-hidden="true" />
-        <span>Корзина</span><span className="grid min-w-6 place-items-center text-xs font-semibold text-accent">{itemCount}</span>
+        <span>Корзина</span>{itemCount > 0 && <span className="grid min-w-6 place-items-center text-xs font-semibold text-accent">{itemCount}</span>}
       </button>
     </header>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type FormEventHandler, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, type FormEventHandler } from "react";
 import { useScrollLock } from "@/hooks/use-scroll-lock";
 import { X } from "lucide-react";
 import { CartContent, type CartContentProps } from "@/components/cart/cart-content";
@@ -9,12 +9,13 @@ import { CartSent } from "@/components/cart/cart-sent";
 import type { CartLine, Fulfillment } from "@/lib/types";
 
 type CartPanelProps = {
-  lines: CartLine[]; orderSent: boolean; onClose: () => void; onGoMenu: () => void; onReturn: () => void;
+  lines: CartLine[]; orderSent: boolean; receiptUrl: string; onClose: () => void; onGoMenu: () => void; onClearAndClose: () => void;
   onAdd: (productId: string) => void; onChange: (productId: string, amount: number) => void;
   onSubmit: FormEventHandler<HTMLFormElement>; total: number; fulfillment: Fulfillment;
-  setFulfillment: Dispatch<SetStateAction<Fulfillment>>; name: string; setName: Dispatch<SetStateAction<string>>;
-  phone: string; setPhone: Dispatch<SetStateAction<string>>; address: string;
-  setAddress: Dispatch<SetStateAction<string>>; formError: string;
+  setFulfillment: (value: Fulfillment) => void; name: string;  setName: (value: string) => void;
+  phone: string;  setPhone: (value: string) => void; address: string;
+  setAddress: (value: string) => void;
+  errors: { name: string; phone: string; address: string }; onBlur: (field: "name" | "phone" | "address") => void;
 };
 
 export function CartPanel(props: CartPanelProps) {
@@ -25,9 +26,10 @@ export function CartPanel(props: CartPanelProps) {
     lines: props.lines, onAdd: props.onAdd, onChange: props.onChange, onSubmit: props.onSubmit,
     total: props.total, fulfillment: props.fulfillment, setFulfillment: props.setFulfillment,
     name: props.name, setName: props.setName, phone: props.phone, setPhone: props.setPhone,
-    address: props.address, setAddress: props.setAddress, formError: props.formError,
+    address: props.address, setAddress: props.setAddress,
+    errors: props.errors, onBlur: props.onBlur,
   };
-  const { lines, orderSent, onReturn, onGoMenu } = props;
+  const { lines, orderSent, receiptUrl, onGoMenu, onClearAndClose } = props;
   useEffect(() => {
     panelRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
@@ -43,7 +45,7 @@ export function CartPanel(props: CartPanelProps) {
           <button type="button" onClick={props.onClose} className="press grid size-11 place-items-center border border-line bg-surface hover:border-accent/40" aria-label="Закрыть корзину"><X className="size-5" aria-hidden="true" /></button>
         </header>
         {orderSent ? (
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain"><CartSent onReturn={onReturn} /></div>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain"><CartSent receiptUrl={receiptUrl} onClearAndClose={onClearAndClose} /></div>
         ) : lines.length === 0 ? (
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain"><CartEmpty onGoMenu={onGoMenu} /></div>
         ) : (

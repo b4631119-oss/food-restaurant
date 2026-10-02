@@ -13,12 +13,12 @@ type CartLineProps = {
 export function CartLine({ line, onAdd, onChange }: CartLineProps) {
   const { product, quantity } = line;
   return (
-    <div className="flex items-center gap-2 rounded-2xl border border-line bg-surface p-2">
+    <div className="flex items-center gap-1 rounded-2xl border border-line bg-surface p-2">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={product.image}
         alt=""
-        className="size-14 shrink-0 rounded-xl object-cover"
+        className="size-16 shrink-0 rounded-xl object-cover"
         onError={(event) => {
           event.currentTarget.classList.add("hidden");
           event.currentTarget.nextElementSibling?.classList.replace(
@@ -28,7 +28,7 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
         }}
       />
       <div
-        className="photo-placeholder hidden size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl"
+        className="photo-placeholder hidden size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl"
         aria-hidden="true"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -39,14 +39,14 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
         />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-bold">{product.name}</p>
+        <p className="line-clamp-2 text-sm font-bold">{product.name}</p>
         <p className="mt-1 text-xs text-muted">{money(product.price)} за шт.</p>
       </div>
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="flex shrink-0 items-center gap-0.5">
         <button
           type="button"
           onClick={() => onChange(product.id, -1)}
-          className="press grid size-11 place-items-center rounded-full border border-line text-muted hover:border-accent/50 hover:text-text"
+          className="press grid size-10 shrink-0 place-items-center rounded-full border border-line text-muted hover:border-accent/50 hover:text-text"
           aria-label={`Убрать один: ${product.name}`}
         >
           <Minus className="size-4" aria-hidden="true" />
@@ -57,13 +57,13 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
         <button
           type="button"
           onClick={() => onAdd(product.id)}
-          className="press grid size-11 place-items-center rounded-full bg-accent text-background hover:bg-accent-hover"
+          className="press grid size-10 shrink-0 place-items-center rounded-full bg-accent text-background hover:bg-accent-hover"
           aria-label={`Добавить один: ${product.name}`}
         >
           <Plus className="size-4" aria-hidden="true" />
         </button>
       </div>
-      <span className="hidden min-w-20 text-right text-sm font-bold text-accent min-[480px]:block">
+      <span className="min-w-20 shrink-0 whitespace-nowrap text-right text-sm font-bold text-accent">
         {money(product.price * quantity)}
       </span>
     </div>

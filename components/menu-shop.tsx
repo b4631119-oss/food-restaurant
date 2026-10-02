@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { CartPanel } from "@/components/cart/cart-panel";
 import { CategoryNav } from "@/components/category-nav";
 import { Footer } from "@/components/footer";
@@ -15,6 +15,7 @@ import { useCustomer } from "@/hooks/use-customer";
 import { useShopUi } from "@/hooks/use-shop-ui";
 import menuData from "@/data/menu.json";
 import { buildReceipt, buildWhatsAppUrl } from "@/lib/order";
+import { CAFE } from "@/lib/config";
 import type { Product } from "@/lib/types";
 
 const products = menuData.products as Product[];
@@ -25,6 +26,7 @@ export function MenuShop() {
   const cart = useCart(availableProducts);
   const customer = useCustomer();
   const ui = useShopUi(cart.itemCount, cart.addProduct);
+  const [receiptUrl, setReceiptUrl] = useState("");
   const search = ui.searchQuery.trim().toLocaleLowerCase("ru");
   const visibleProducts = availableProducts.filter((product) => search
     ? `${product.name} ${product.description}`.toLocaleLowerCase("ru").includes(search)
@@ -32,12 +34,10 @@ export function MenuShop() {
   const sendOrder = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!customer.validateForm()) return;
-    if (cart.cartLines.length === 0) { customer.setFormError("Корзина пуста. Добавьте блюда из меню."); return; }
-    const receipt = buildReceipt({ cartLines: cart.cartLines, total: cart.total, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone.trim(), address: customer.address });
-    window.open(buildWhatsAppUrl(receipt), "_blank", "noopener,noreferrer");
-    cart.clearCart();
+    if (customer.fulfillment === "delivery" && cart.total < CAFE.delivery.minimumOrder) return;
+    const receipt = buildReceipt({ cartLines: cart.cartLines, total: cart.total, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.address });
+    setReceiptUrl(buildWhatsAppUrl(receipt));
     ui.setOrderSent(true);
-    customer.setFormError("");
   };
 
   return (
@@ -53,7 +53,7 @@ export function MenuShop() {
       </section>
       <Footer />{ui.notice && <Toast message={ui.notice} />}
       {!ui.cartDialogOpen && <MobileBar itemCount={cart.itemCount} total={cart.total} pulse={ui.cartPulse} onOpenCart={ui.openCart} />}
-      {ui.cartDialogOpen && <CartPanel lines={cart.cartLines} orderSent={ui.orderSent} onClose={ui.closeCart} onGoMenu={ui.closeAndGoToMenu} onReturn={ui.returnToMenu} onAdd={ui.addProduct} onChange={cart.changeQuantity} onSubmit={sendOrder} total={cart.total} fulfillment={customer.fulfillment} setFulfillment={customer.setFulfillment} name={customer.name} setName={customer.setName} phone={customer.phone} setPhone={customer.setPhone} address={customer.address} setAddress={customer.setAddress} formError={customer.formError} />}
+      {ui.cartDialogOpen && <CartPanel lines={cart.cartLines} orderSent={ui.orderSent} onClose={ui.closeCart} onGoMenu={ui.closeAndGoToMenu} onAdd={ui.addProduct} onChange={cart.changeQuantity} onSubmit={sendOrder} onClearAndClose={() => { cart.clearCart(); ui.setOrderSent(false); ui.closeCart(); }} receiptUrl={receiptUrl} total={cart.total} fulfillment={customer.fulfillment} setFulfillment={customer.setFulfillment} name={customer.name} setName={customer.setName} phone={customer.phone} setPhone={customer.setPhone} address={customer.address} setAddress={customer.setAddress} errors={customer.errors} onBlur={customer.blurField} />}
     </main>
   );
 }
