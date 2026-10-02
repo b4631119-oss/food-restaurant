@@ -10,11 +10,13 @@ type ProductGridProps = {
   title: string;
   query: string;
   onQuery: (query: string) => void;
+  cart: Record<string, number>;
   onAdd: (productId: string) => void;
+  onChange: (productId: string, amount: number) => void;
   listRef: RefObject<HTMLDivElement | null>;
 };
 
-export function ProductGrid({ products, title, query, onQuery, onAdd, listRef }: ProductGridProps) {
+export function ProductGrid({ products, title, query, onQuery, cart, onAdd, onChange, listRef }: ProductGridProps) {
   return (
     <div ref={listRef} className="scroll-mt-28 pt-1">
       <label className="flex min-h-11 items-center gap-3 rounded-xl border border-line bg-surface px-3.5 focus-within:border-accent">
@@ -28,7 +30,7 @@ export function ProductGrid({ products, title, query, onQuery, onAdd, listRef }:
       </div>
       {products.length > 0 ? (
         <div className="menu-grid grid grid-cols-2 items-stretch gap-3">
-          {products.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd} />)}
+          {products.map((product) => <ProductCard key={product.id} product={product} quantity={cart[product.id] ?? 0} onAdd={() => onAdd(product.id)} onChange={(amount) => onChange(product.id, amount)} />)}
         </div>
       ) : (
         <p className="rounded-xl border border-line bg-surface px-4 py-8 text-center text-sm text-muted">Ничего не найдено. Попробуйте изменить запрос.</p>

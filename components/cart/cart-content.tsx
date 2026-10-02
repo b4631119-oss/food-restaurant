@@ -25,39 +25,30 @@ export type CartContentProps = {
 
 export function CartContent(props: CartContentProps) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-6"
-        aria-label="Список блюд в корзине"
-      >
-        <div className="space-y-2">
+    <form onSubmit={props.onSubmit} className="flex min-h-0 flex-1 flex-col bg-panel">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="space-y-2 px-4 py-3 sm:px-6" aria-label="Список блюд в корзине">
           {props.lines.map((line) => (
-            <CartLine
-              key={line.product.id}
-              line={line}
-              onAdd={props.onAdd}
-              onChange={props.onChange}
-            />
+            <CartLine key={line.product.id} line={line} onAdd={props.onAdd} onChange={props.onChange} />
           ))}
         </div>
+        <div className="space-y-2 border-t border-line px-4 pt-3 sm:px-6">
+          <CartForm
+            fulfillment={props.fulfillment}
+            setFulfillment={props.setFulfillment}
+            name={props.name}
+            setName={props.setName}
+            phone={props.phone}
+            setPhone={props.setPhone}
+            address={props.address}
+            setAddress={props.setAddress}
+            formError={props.formError}
+          />
+        </div>
       </div>
-      <form
-        onSubmit={props.onSubmit}
-        className="shrink-0 space-y-2 border-t border-line bg-panel px-4 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] pt-3 sm:px-6"
-      >
-        <CartForm
-          fulfillment={props.fulfillment}
-          setFulfillment={props.setFulfillment}
-          name={props.name}
-          setName={props.setName}
-          phone={props.phone}
-          setPhone={props.setPhone}
-          address={props.address}
-          setAddress={props.setAddress}
-          formError={props.formError}
-        />
+      <div className="shrink-0 space-y-2 border-t border-line bg-panel px-4 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] pt-3 sm:px-6">
         <CartFooter total={props.total} />
-      </form>
-    </div>
+      </div>
+    </form>
   );
 }

@@ -46,7 +46,7 @@ export function MenuShop() {
       <section id="menu" className="scroll-mt-16 border-y border-accent/25">
         <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 gap-8 px-4 pb-10 pt-6 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:px-6">
           <CategoryNav categories={categories} active={ui.activeCategory} searchActive={Boolean(ui.searchQuery)} onSelect={ui.selectCategory}>
-            <ProductGrid products={visibleProducts} title={ui.activeCategory} query={ui.searchQuery} onQuery={ui.setSearchQuery} onAdd={ui.addProduct} listRef={ui.menuListRef} />
+            <ProductGrid products={visibleProducts} title={ui.activeCategory} query={ui.searchQuery} onQuery={ui.setSearchQuery} cart={cart.cart} onAdd={ui.addProduct} onChange={cart.changeQuantity} listRef={ui.menuListRef} />
           </CategoryNav>
           <InfoSection />
         </div>
