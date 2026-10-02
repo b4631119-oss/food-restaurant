@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
+import { Hero } from "@/components/hero";
+import { MobileBar } from "@/components/mobile-bar";
+import { Toast } from "@/components/toast";
 import {
   Bike,
   Check,
@@ -17,47 +22,26 @@ import {
 } from "lucide-react";
 import menuData from "@/data/menu.json";
 import { CAFE } from "@/lib/config";
-import { readCart, CART_KEY } from "@/lib/cart-storage";
 import { money, portionInfo } from "@/lib/format";
 import { buildReceipt, buildWhatsAppUrl } from "@/lib/order";
-import { validateAddress, validateName, validatePhone } from "@/lib/validation";
-import type { Cart, CartLine, Fulfillment, Product } from "@/lib/types";
+import type { Product } from "@/lib/types";
+import { useCart } from "@/hooks/use-cart";
+import { useCustomer } from "@/hooks/use-customer";
 
 const products = menuData.products as Product[];
 
 export function MenuShop() {
-  const [cart, setCart] = useState<Cart>({});
-  const [cartReady, setCartReady] = useState(false);
+  const availableProducts = useMemo(() => products.filter((product) => product.inStock), []);
+  const { cartLines, itemCount, total, addProduct: addToCart, changeQuantity, clearCart } = useCart(availableProducts);
+  const { name, setName, phone, setPhone, address, setAddress, fulfillment, setFulfillment, formError, setFormError, validateForm } = useCustomer();
   const [cartOpen, setCartOpen] = useState(false);
   const [cartPulse, setCartPulse] = useState(false);
   const [activeCategory, setActiveCategory] = useState("Популярное");
   const [searchQuery, setSearchQuery] = useState("");
   const [notice, setNotice] = useState("");
   const menuListRef = useRef<HTMLDivElement>(null);
-  const [fulfillment, setFulfillment] = useState<Fulfillment>("delivery");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [formError, setFormError] = useState("");
   const [orderSent, setOrderSent] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setCart(readCart());
-      setCartReady(true);
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!cartReady) return;
-    try {
-      localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    } catch {
-      // Keep the cart usable for this visit if storage is unavailable.
-    }
-  }, [cart, cartReady]);
 
   useEffect(() => {
     if (!notice) return;
@@ -75,25 +59,11 @@ export function MenuShop() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [cartOpen]);
 
-  const availableProducts = useMemo(() => products.filter((product) => product.inStock), []);
-  const cartLines = useMemo<CartLine[]>(
-    () => availableProducts
-      .filter((product) => (cart[product.id] ?? 0) > 0)
-      .map((product) => ({ product, quantity: cart[product.id] })),
-    [availableProducts, cart],
-  );
-  const itemCount = cartLines.reduce((sum, line) => sum + line.quantity, 0);
-  const total = cartLines.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
   const categories = ["Популярное", ...menuData.categories];
   const cartDialogOpen = cartOpen && (itemCount > 0 || orderSent);
   const openCart = () => {
     if (itemCount > 0) setCartOpen(true);
   };
-  const whatsAppIcon = (
-    <svg viewBox="0 0 448 512" aria-hidden="true" className="size-5 fill-current">
-      <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32 101.5 32 1.9 131.6 1.8 254c0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 222.1-99.6 222.1-222 0-59.3-23.1-115.1-65.1-157Zm-157 341.3c-33.2 0-65.7-8.9-94.1-25.7l-6.7-4-69.8 18.3 18.6-68.1-4.4-7c-18.5-29.4-28.2-63.4-28.2-98 0-101.6 82.7-184.3 184.4-184.3 49.2 0 95.5 19.2 130.3 54 34.8 34.8 54 81.1 53.9 130.4 0 101.6-82.8 184.4-184.3 184.4Zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.4 18-17.7 21.7-3.2 3.7-6.5 4.2-12 1.4-32.7-16.3-54.1-29.1-75.6-65.9-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3s19.9 53.7 22.7 57.4c2.8 3.7 39.1 59.7 94.7 83.7 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.4-5-3.8-10.5-6.5Z" />
-    </svg>
-  );
   const contactLinks = (
     <>
       <a href={`tel:${CAFE.phoneDigits}`} className="press inline-flex min-h-11 items-center gap-2 font-semibold text-accent"><Phone className="size-4" aria-hidden="true" />{CAFE.phone}</a>
@@ -115,22 +85,10 @@ export function MenuShop() {
   }
 
   function addProduct(productId: string) {
-    setCart((current) => ({ ...current, [productId]: (current[productId] ?? 0) + 1 }));
+    addToCart(productId);
     setOrderSent(false);
     setCartPulse(true);
     window.setTimeout(() => setCartPulse(false), 450);
-  }
-
-  function changeQuantity(productId: string, amount: number) {
-    setCart((current) => {
-      const quantity = (current[productId] ?? 0) + amount;
-      if (quantity <= 0) {
-        const next = { ...current };
-        delete next[productId];
-        return next;
-      }
-      return { ...current, [productId]: quantity };
-    });
   }
 
   function goToMenu() {
@@ -146,23 +104,7 @@ export function MenuShop() {
   function sendOrder(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const cleanPhone = phone.trim();
-    const nameError = validateName(name);
-    if (nameError) {
-      setFormError(nameError);
-      return;
-    }
-    const phoneError = validatePhone(cleanPhone);
-    if (phoneError) {
-      setFormError(phoneError);
-      return;
-    }
-    if (fulfillment === "delivery") {
-      const addressError = validateAddress(address);
-      if (addressError) {
-        setFormError(addressError);
-        return;
-      }
-    }
+    if (!validateForm()) return;
     if (cartLines.length === 0) {
       setFormError("Корзина пуста. Добавьте блюда из меню.");
       return;
@@ -171,48 +113,15 @@ export function MenuShop() {
     const receipt = buildReceipt({ cartLines, total, fulfillment, name, phone: cleanPhone, address });
     const whatsappUrl = buildWhatsAppUrl(receipt);
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-    setCart({});
+    clearCart();
     setOrderSent(true);
     setFormError("");
   }
 
   return (
     <main className="min-h-dvh overflow-x-clip pb-20 text-text lg:pb-0">
-      <header className="sticky top-0 z-40 mx-auto flex w-full max-w-[1200px] items-center justify-between gap-3 border-b border-line bg-background/95 px-4 py-3 backdrop-blur sm:px-8 lg:px-6">
-        <a href="#top" className="flex min-w-0 items-center gap-3" aria-label={`${CAFE.name} — главная`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/favicon.jpg" alt="" className="size-9 shrink-0 rounded-full border border-accent/50 object-cover" />
-          <span className="truncate font-bold leading-tight">Sushi Bar №1</span>
-        </a>
-        <button type="button" onClick={openCart} aria-label={`Открыть корзину, ${itemCount} товаров`} className="press inline-flex min-h-11 shrink-0 items-center gap-2 px-2 text-sm font-semibold">
-          <ShoppingBag className="size-4 text-accent" aria-hidden="true" />
-          <span>Корзина</span><span className="grid min-w-6 place-items-center text-xs font-semibold text-accent">{itemCount}</span>
-        </button>
-      </header>
-
-      <section id="top" className="relative mx-auto grid w-full max-w-[1200px] grid-cols-1 items-center gap-4 overflow-hidden px-4 py-4 sm:px-8 lg:min-h-[320px] lg:grid-cols-[1fr_300px] lg:gap-6 lg:px-6 lg:py-6">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/menu/roll-philadelphia.jpg" alt="" className="absolute inset-0 size-full object-cover opacity-40" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/60" />
-        <div className="relative z-10 flex flex-col items-start gap-4">
-          <h1 className="max-w-2xl font-display text-3xl font-medium leading-tight sm:text-4xl lg:text-5xl">Свежие суши и роллы в Оше</h1>
-          <span className="inline-flex items-center gap-2 text-sm font-medium text-accent"><span className="size-2 rounded-full bg-accent" />Открыто · 10:00-01:00</span>
-        </div>
-        <div className="relative z-10 hidden justify-self-center lg:flex">
-          <div className="hero-logo-frame size-[240px] overflow-hidden rounded-full border-2 border-accent p-1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/favicon.jpg" alt="Sushi Bar №1" className="size-full rounded-full object-cover" />
-          </div>
-        </div>
-        <div className="relative z-10 grid grid-cols-2 gap-2 sm:w-[min(100%,420px)]">
-          <button type="button" onClick={startOrder} className="press accent-shadow inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-accent px-3 text-sm font-semibold text-background hover:bg-accent-hover">
-            <ShoppingBag className="size-4" aria-hidden="true" />Заказать
-          </button>
-          <a href={`tel:${CAFE.phoneDigits}`} className="press inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-line bg-surface px-3 text-sm font-semibold hover:border-accent/50">
-            <Phone className="size-4 text-accent" aria-hidden="true" />Позвонить
-          </a>
-        </div>
-      </section>
+      <Header itemCount={itemCount} onOpenCart={openCart} />
+      <Hero onOrder={startOrder} />
 
       <section id="menu" className="scroll-mt-16 border-y border-accent/25">
         <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 gap-8 px-4 pb-10 pt-6 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:px-6">
@@ -286,30 +195,9 @@ export function MenuShop() {
         </div>
       </section>
 
-      <footer className="mx-auto w-full max-w-[1200px] px-4 pb-5 pt-5 text-xs text-muted sm:px-8 lg:px-6">
-        <span className="flex items-center gap-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/favicon.jpg" alt="" className="size-8 rounded-full border border-accent/40 object-cover" />
-          <span>Sushi Bar №1 · {CAFE.city}</span>
-        </span>
-      </footer>
-
-      {notice && <div role="status" className="fixed inset-x-4 bottom-20 z-40 mx-auto w-fit max-w-[calc(100%-2rem)] border border-line bg-surface px-4 py-3 text-center text-sm shadow-lg lg:bottom-4">{notice}</div>}
-
-      {!cartDialogOpen && (
-        <div className="fixed inset-x-0 bottom-0 z-30 safe-bottom border-t border-accent/25 bg-background/95 px-2 pt-2 backdrop-blur lg:hidden">
-          <div className={`mx-auto grid w-full max-w-2xl gap-2 ${itemCount > 0 ? "grid-cols-[auto_auto_minmax(0,1fr)]" : "grid-cols-[auto_auto] justify-center"}`}>
-            <a href={`tel:${CAFE.phoneDigits}`} aria-label="Позвонить" className="press grid size-12 place-items-center rounded-xl border border-line bg-surface text-accent"><Phone className="size-5" aria-hidden="true" /></a>
-            <a href={`https://wa.me/${CAFE.whatsappNumber}`} target="_blank" rel="noopener noreferrer" aria-label="Написать в WhatsApp" className="press grid size-12 place-items-center rounded-xl border border-line bg-surface text-accent">{whatsAppIcon}</a>
-            {itemCount > 0 && (
-              <button type="button" onClick={openCart} className={`press accent-shadow flex min-h-12 min-w-0 items-center justify-between gap-2 rounded-xl bg-accent px-3 text-sm font-bold text-background hover:bg-accent-hover ${cartPulse ? "cart-pulse" : ""}`}>
-                <span className="flex min-w-0 items-center gap-2"><ShoppingBag className="size-4 shrink-0" aria-hidden="true" /><span className="truncate">Корзина · {itemCount}</span></span>
-                <span className="shrink-0">{money(total)}</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      <Footer />
+      {notice && <Toast message={notice} />}
+      {!cartDialogOpen && <MobileBar itemCount={itemCount} total={total} pulse={cartPulse} onOpenCart={openCart} />}
       {cartDialogOpen && (
         <div className="fixed inset-0 z-50 z-[60] flex items-end justify-center bg-black/70 backdrop-blur-[2px] sm:items-center sm:p-5 lg:items-stretch lg:justify-end lg:p-0" onClick={() => setCartOpen(false)}>
           <section ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="cart-title" className="sheet-enter flex max-h-[85dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-3xl border border-line bg-panel shadow-2xl outline-none sm:rounded-3xl lg:max-h-none lg:h-full lg:w-[420px] lg:max-w-[420px] lg:rounded-none lg:border-y-0 lg:border-r-0" onClick={(event) => event.stopPropagation()}>
