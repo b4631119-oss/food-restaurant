@@ -10,7 +10,7 @@ import { CartSent } from "@/components/cart/cart-sent";
 import type { CartLine, Fulfillment } from "@/lib/types";
 
 type CartPanelProps = {
-  lines: CartLine[]; orderSent: boolean; receiptUrl: string; onClose: () => void; onGoMenu: () => void; onClearAndClose: () => void;
+  lines: CartLine[]; orderSent: boolean; receiptUrl: string; warning?: string; onClose: () => void; onGoMenu: () => void; onClearAndClose: () => void;
   onAdd: (productId: string) => void; onChange: (productId: string, amount: number) => void;
   onSubmit: FormEventHandler<HTMLFormElement>; total: number; fulfillment: Fulfillment;
   setFulfillment: (value: Fulfillment) => void; name: string;  setName: (value: string) => void;
@@ -31,7 +31,7 @@ export function CartPanel(props: CartPanelProps) {
     address: props.address, setAddress: props.setAddress,
     errors: props.errors, onBlur: props.onBlur,
   };
-  const { lines, orderSent, receiptUrl, onGoMenu, onClearAndClose } = props;
+  const { lines, orderSent, receiptUrl, warning, onGoMenu, onClearAndClose } = props;
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-transparent sm:items-center sm:bg-black/70 sm:backdrop-blur-[2px] sm:p-5 lg:items-stretch lg:justify-end lg:p-0" onClick={props.onClose}>
       <section ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="cart-title" className="sheet-enter fixed inset-0 flex h-dvh w-full flex-col overflow-hidden rounded-none border-0 bg-panel shadow-2xl outline-none sm:relative sm:inset-auto sm:h-auto sm:max-h-[90dvh] sm:w-full sm:max-w-xl sm:rounded-3xl sm:border sm:border-line lg:h-full lg:max-h-none lg:w-[420px] lg:max-w-[420px] lg:rounded-none lg:border-y-0 lg:border-r-0" onClick={(event) => event.stopPropagation()}>
@@ -44,7 +44,7 @@ export function CartPanel(props: CartPanelProps) {
         ) : lines.length === 0 ? (
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain"><CartEmpty onGoMenu={onGoMenu} /></div>
         ) : (
-          <CartContent {...contentProps} />
+          <>{warning && <p role="alert" className="mx-4 mt-3 rounded-lg border border-amber-400/40 bg-amber-400/10 p-3 text-sm text-amber-200">{warning}</p>}<CartContent {...contentProps} /></>
         )}
       </section>
     </div>
