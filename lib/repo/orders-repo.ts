@@ -13,12 +13,13 @@ export async function createOrder(input: Omit<DemoOrder, "id" | "number">): Prom
     const { fulfillment, ...details } = input;
     const data = { ...details, type: fulfillment, number, createdAt: new Date().toISOString(), status: "new" as const };
     transaction.set(reference, data); transaction.set(counter, { value: number, orderId: reference.id });
-    return { ...data, id: reference.id };
+    return { ...input, id: reference.id, number, createdAt: data.createdAt, status: "new" as const };
   });
   return order;
 }
 export async function updateOrder(id: string, changes: Partial<DemoOrder>): Promise<void> {
-  const { id: _id, number: _number, fulfillment, ...data } = changes;
+  const data = { ...changes } as Record<string, unknown>;
+  const fulfillment = data.fulfillment; delete data.fulfillment; delete data.id; delete data.number;
   await setDoc(doc(db, "orders", id), { ...data, ...(fulfillment ? { type: fulfillment } : {}) }, { merge: true });
 }
 export async function setOrderStatus(id: string, status: OrderStatus): Promise<void> { await updateOrder(id, { status }); }
