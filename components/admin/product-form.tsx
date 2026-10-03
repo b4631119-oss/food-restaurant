@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { getCategories, type DemoProduct } from "@/lib/demo-store";
+import { watchCategories } from "@/lib/repo/categories-repo";
+import { saveProduct } from "@/lib/repo/products-repo";
+import type { DemoProduct } from "@/lib/models";
 import { compressImage } from "@/lib/image-compress";
 
 type Props = { product?: DemoProduct; onSave: (product: DemoProduct) => void; onCancel: () => void };
 export function ProductForm({ product, onSave, onCancel }: Props) {
-  const first = useRef<HTMLInputElement>(null); const categories = getCategories();
+  const first = useRef<HTMLInputElement>(null); const [categories, setCategories] = useState<string[]>([]);
   const [name, setName] = useState(product?.name ?? ""); const [description, setDescription] = useState(product?.description ?? "");
   const [weight, setWeight] = useState(product?.weight ?? ""); const [price, setPrice] = useState(String(product?.price ?? ""));
   const [category, setCategory] = useState(product?.category ?? ""); const [popular, setPopular] = useState(Boolean(product?.popular));
   const [inStock, setInStock] = useState(product?.inStock ?? true); const [image, setImage] = useState(product?.image ?? "");
   const [imageError, setImageError] = useState(""); const [errors, setErrors] = useState({ name: "", price: "", category: "" });
-  useEffect(() => { first.current?.focus(); }, []);
+  useEffect(() => { first.current?.focus(); return watchCategories(setCategories); }, []);
   async function upload(file?: File) {
     if (!file) return;
     try { setImage(await compressImage(file)); setImageError(""); }
@@ -21,7 +23,8 @@ export function ProductForm({ product, onSave, onCancel }: Props) {
   function submit(event: FormEvent) {
     event.preventDefault(); const next = { name: name.trim().length < 2 ? "Введите минимум 2 символа." : "", price: Number(price) <= 0 ? "Цена должна быть больше нуля." : "", category: category ? "" : "Выберите категорию." };
     setErrors(next); if (next.name || next.price || next.category) return;
-    onSave({ ...(product ?? { id: crypto.randomUUID() }), name: name.trim(), description: description.trim(), weight, price: Number(price), category, popular, inStock, image });
+    const saved = { ...(product ?? { id: crypto.randomUUID() }), name: name.trim(), description: description.trim(), weight, price: Number(price), category, popular, inStock, image };
+    void saveProduct(saved).then(() => onSave(saved)).catch((error: unknown) => setImageError(error instanceof Error ? error.message : "Не удалось сохранить блюдо."));
   }
   const field = "mt-1 h-[52px] w-full rounded-lg border border-line bg-background px-3 text-base outline-none focus:border-accent";
   return <form onSubmit={submit} className="space-y-3"><label className="block text-sm">Название<input ref={first} value={name} onChange={(e) => setName(e.target.value)} className={field} />{errors.name && <FieldError>{errors.name}</FieldError>}</label>

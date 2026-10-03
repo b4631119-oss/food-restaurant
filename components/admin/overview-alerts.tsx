@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { money } from "@/lib/format";
-import type { DemoOrder } from "@/lib/demo-store";
+import type { DemoOrder } from "@/lib/models";
 
 export function OverviewAlerts({ orders, now, onAccept }: { orders: DemoOrder[]; now: Date; onAccept: (id: string) => void }) {
   const fresh = orders.filter((order) => order.status === "new").sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 3);

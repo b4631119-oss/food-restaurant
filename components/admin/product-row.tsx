@@ -1,7 +1,7 @@
 "use client";
 
 import { Copy, Pencil, Trash2 } from "lucide-react";
-import type { DemoProduct } from "@/lib/demo-store";
+import type { DemoProduct } from "@/lib/models";
 
 type Props = { product: DemoProduct; onToggle: () => void; onEdit: () => void; onCopy: () => void; onDelete: () => void };
 export function ProductRow({ product, onToggle, onEdit, onCopy, onDelete }: Props) {

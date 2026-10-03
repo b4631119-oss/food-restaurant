@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { OrderCard } from "@/components/admin/order-card";
 import { OrderDetails } from "@/components/admin/order-details";
-import type { DemoOrder, OrderStatus } from "@/lib/demo-store";
+import type { DemoOrder, OrderStatus } from "@/lib/models";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 
 type Props = { orders: DemoOrder[]; flashingIds: string[]; onStatus: (id: string, status: OrderStatus) => void; onEdit: (order: DemoOrder) => void; onCancel: (order: DemoOrder) => void; onDelete: (order: DemoOrder) => void };

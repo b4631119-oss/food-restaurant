@@ -5,7 +5,7 @@ import { Bike, MapPin, Phone, Store, X } from "lucide-react";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { MainOrderAction, StatusBadge, nextOrderStatus } from "@/components/admin/order-actions";
 import { money } from "@/lib/format";
-import type { DemoOrder, OrderStatus } from "@/lib/demo-store";
+import type { DemoOrder, OrderStatus } from "@/lib/models";
 
 type Props = { order: DemoOrder; onClose: () => void; onStatus: (status: OrderStatus) => void; onEdit: () => void; onCancel: () => void; onDelete: () => void };
 export function OrderDetails({ order, onClose, onStatus, onEdit, onCancel, onDelete }: Props) {

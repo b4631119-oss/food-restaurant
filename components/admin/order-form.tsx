@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { getProducts, type DemoOrder, type OrderStatus } from "@/lib/demo-store";
+import type { DemoOrder, DemoProduct, OrderStatus } from "@/lib/models";
 
-type Props = { order?: DemoOrder; onSave: (order: DemoOrder) => void; onCancel: () => void };
-export function OrderForm({ order, onSave, onCancel }: Props) {
-  const products = getProducts();
+type Props = { order?: DemoOrder; products: DemoProduct[]; onSave: (order: DemoOrder) => void; onCancel: () => void };
+export function OrderForm({ order, products, onSave, onCancel }: Props) {
   const [name, setName] = useState(order?.name ?? ""); const [phone, setPhone] = useState(order?.phone ?? "");
   const [fulfillment, setFulfillment] = useState<"delivery" | "pickup">(order?.fulfillment ?? "delivery");
   const [address, setAddress] = useState(order?.address ?? ""); const [comment, setComment] = useState(order?.comment ?? "");
@@ -16,7 +15,7 @@ export function OrderForm({ order, onSave, onCancel }: Props) {
     event.preventDefault();
     const items = products.filter((product) => quantities[product.id] > 0).map((product) => ({ productId: product.id, productName: product.name, price: product.price, quantity: quantities[product.id] }));
     if (!name.trim() || !phone.trim() || !items.length) return;
-    onSave({ id: order?.id ?? crypto.randomUUID(), number: order?.number ?? 0, createdAt: order?.createdAt ?? new Date().toISOString(), name: name.trim(), phone: phone.trim(), fulfillment, address: fulfillment === "delivery" ? address.trim() : "", comment, items, total, status });
+    onSave({ id: order?.id ?? "", number: order?.number ?? 0, createdAt: order?.createdAt ?? new Date().toISOString(), name: name.trim(), phone: phone.trim(), fulfillment, address: fulfillment === "delivery" ? address.trim() : "", comment, items, total, status });
   }
   const field = "mt-1 h-[52px] w-full rounded-lg border border-line bg-background px-3 text-base outline-none focus:border-accent";
   return <form onSubmit={submit} className="space-y-4"><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm">Имя<input required value={name} onChange={(e) => setName(e.target.value)} className={field} /></label><label className="text-sm">Телефон<input required value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" className={field} /></label></div>

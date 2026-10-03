@@ -22,13 +22,14 @@ export function MenuShop() {
   const { products, categories: menuCategories, loading: menuLoading } = useMenuData();
   const categories = ["Популярное", "Все", ...menuCategories];
   const { settings, loading: settingsLoading } = useDemoSettings();
-  const cart = useCart(products);
+  const availableProducts = products.filter((product) => product.inStock);
+  const cart = useCart(availableProducts);
   const customer = useCustomer();
   const ui = useShopUi(cart.itemCount, cart.addProduct);
   const [receiptUrl, setReceiptUrl] = useState("");
   const [orderWarning, setOrderWarning] = useState("");
   const search = ui.searchQuery.trim().toLocaleLowerCase("ru");
-  const visibleProducts = products.filter((product) => search
+  const visibleProducts = availableProducts.filter((product) => search
     ? `${product.name} ${product.description}`.toLocaleLowerCase("ru").includes(search)
     : ui.activeCategory === "Популярное" ? "popular" in product && product.popular
       : ui.activeCategory === "Все" || product.category === ui.activeCategory);
@@ -41,8 +42,10 @@ export function MenuShop() {
     if (customer.fulfillment === "delivery" && cart.total < settings.minimumOrder) return;
     const receipt = buildReceipt({ cartLines: cart.cartLines, total: cart.total, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.address });
     const url = `https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(receipt)}`;
+    const whatsapp = window.open("about:blank", "_blank"); if (whatsapp) { whatsapp.opener = null; whatsapp.location.href = url; }
     try { await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.address.trim(), comment: "", items: cart.cartLines.map(({ product, quantity }) => ({ productId: product.id, productName: product.name, price: product.price, quantity })), total: cart.total, status: "new", source: "website" }); setOrderWarning(""); }
     catch { setOrderWarning("Не удалось сохранить заказ в системе. Отправьте сообщение в WhatsApp, чтобы мы приняли его вручную."); }
+    if (!whatsapp) window.location.href = url;
     setReceiptUrl(url); ui.setOrderSent(true);
   }
   return <main className="min-h-dvh overflow-x-clip pb-20 text-text lg:pb-0">

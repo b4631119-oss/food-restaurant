@@ -1,7 +1,7 @@
 "use client";
 
 import { Bike, Check, ChefHat, PackageCheck } from "lucide-react";
-import type { DemoOrder, OrderStatus } from "@/lib/demo-store";
+import type { DemoOrder, OrderStatus } from "@/lib/models";
 
 export const STATUS_LABEL: Record<OrderStatus, string> = { new: "Новый", preparing: "Готовится", delivering: "В пути", completed: "Завершён", cancelled: "Отменён" };
 const COLORS: Record<OrderStatus, string> = { new: "bg-accent text-background", preparing: "bg-blue-800 text-white", delivering: "bg-violet-800 text-white", completed: "bg-emerald-800 text-white", cancelled: "bg-slate-600 text-white" };

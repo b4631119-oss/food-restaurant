@@ -11,7 +11,7 @@ export function useMenuData() {
   const [categories, setCategories] = useState<string[]>(menuData.categories as string[]);
   const [loadingProducts, setLoadingProducts] = useState(true); const [loadingCategories, setLoadingCategories] = useState(true);
   useEffect(() => {
-    const stopProducts = watchProducts((items) => { setProducts(items.filter((item) => item.inStock) as Product[]); setLoadingProducts(false); }, () => { setProducts((menuData.products as Product[]).filter((item) => item.inStock)); setLoadingProducts(false); });
+    const stopProducts = watchProducts((items) => { setProducts(items as Product[]); setLoadingProducts(false); }, () => { setProducts(menuData.products as Product[]); setLoadingProducts(false); });
     const stopCategories = watchCategories((items) => { setCategories(items.length ? items : menuData.categories as string[]); setLoadingCategories(false); }, () => { setCategories(menuData.categories as string[]); setLoadingCategories(false); });
     return () => { stopProducts(); stopCategories(); };
   }, []);

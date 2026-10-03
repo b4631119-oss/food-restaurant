@@ -1,7 +1,7 @@
 import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, writeBatch, type Unsubscribe } from "firebase/firestore";
 import menuData from "@/data/menu.json";
 import { db } from "@/lib/firebase";
-import type { DemoProduct } from "@/lib/demo-store";
+import type { DemoProduct } from "@/lib/models";
 
 const products = collection(db, "products");
 const categories = collection(db, "categories");

@@ -4,7 +4,7 @@ import { useEffect, useState, type KeyboardEvent } from "react";
 import { Bike, Phone, Store } from "lucide-react";
 import { money, plural } from "@/lib/format";
 import { MainOrderAction, mainActionLabel, nextOrderStatus, StatusBadge } from "@/components/admin/order-actions";
-import type { DemoOrder, OrderStatus } from "@/lib/demo-store";
+import type { DemoOrder, OrderStatus } from "@/lib/models";
 
 type Props = { order: DemoOrder; flashing?: boolean; onOpen: () => void; onStatus: (status: OrderStatus) => void };
 function elapsed(created: string, now: number) { const minutes = Math.max(0, Math.floor((now - new Date(created).getTime()) / 60000)); return { minutes, text: minutes >= 60 ? `${Math.floor(minutes / 60)} ч` : `${minutes} мин` }; }

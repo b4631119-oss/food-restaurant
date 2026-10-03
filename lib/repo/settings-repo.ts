@@ -1,6 +1,6 @@
 import { doc, getDoc, onSnapshot, setDoc, type Unsubscribe } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { DemoSettings } from "@/lib/demo-store";
+import type { DemoSettings } from "@/lib/models";
 
 const settingsRef = doc(db, "settings", "cafe");
 export async function getSettings(): Promise<DemoSettings | null> {

@@ -1,4 +1,4 @@
-import type { DemoOrder } from "@/lib/demo-store";
+import type { DemoOrder } from "@/lib/models";
 
 export type RevenueDay = { date: Date; amount: number };
 export type TopDish = { name: string; quantity: number };

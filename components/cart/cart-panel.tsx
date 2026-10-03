@@ -40,7 +40,7 @@ export function CartPanel(props: CartPanelProps) {
           <button type="button" onClick={props.onClose} className="press grid size-11 place-items-center border border-line bg-surface hover:border-accent/40" aria-label="Закрыть корзину"><X className="size-5" aria-hidden="true" /></button>
         </header>
         {orderSent ? (
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain"><CartSent receiptUrl={receiptUrl} onClearAndClose={onClearAndClose} /></div>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{warning && <p role="alert" className="mx-4 mt-3 rounded-lg border border-amber-400/40 bg-amber-400/10 p-3 text-sm text-amber-200">{warning}</p>}<CartSent receiptUrl={receiptUrl} onClearAndClose={onClearAndClose} /></div>
         ) : lines.length === 0 ? (
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain"><CartEmpty onGoMenu={onGoMenu} /></div>
         ) : (

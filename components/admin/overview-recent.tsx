@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { money } from "@/lib/format";
 import { STATUS_LABEL } from "@/components/admin/order-actions";
-import type { DemoOrder } from "@/lib/demo-store";
+import type { DemoOrder } from "@/lib/models";
 
 const colors = { new: "bg-accent text-background", preparing: "bg-blue-800 text-white", delivering: "bg-violet-800 text-white", completed: "bg-emerald-800 text-white", cancelled: "bg-slate-600 text-white" };
 export function OverviewRecent({ orders, now }: { orders: DemoOrder[]; now: Date }) {

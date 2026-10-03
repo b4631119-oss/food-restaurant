@@ -1,7 +1,7 @@
 import { Bike, Instagram, MapPin, Phone } from "lucide-react";
 import { CAFE } from "@/lib/config";
 import { money } from "@/lib/format";
-import type { DemoSettings } from "@/lib/demo-store";
+import type { DemoSettings } from "@/lib/models";
 
 export function InfoSection({ settings = { phone: CAFE.phone, whatsappNumber: CAFE.whatsappNumber, address: CAFE.address, deliveryTime: CAFE.delivery.time, minimumOrder: CAFE.delivery.minimumOrder } }: { settings?: Pick<DemoSettings, "phone" | "whatsappNumber" | "address" | "deliveryTime" | "minimumOrder"> }) {
   return (
