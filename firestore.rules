@@ -2,7 +2,63 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'suhibarno1@gmail.com';
+      return request.auth != null
+        && (request.auth.token.email == 'suhibarno1@gmail.com'
+          || exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+    function productPath(productId) {
+      return /databases/$(database)/documents/products/$(productId);
+    }
+    function orderPath(orderId) {
+      return /databases/$(database)/documents/orders/$(orderId);
+    }
+    function counterPath() {
+      return /databases/$(database)/documents/counters/orders;
+    }
+    // Публичное создание заказа: без items/total (цены не принимаются на веру),
+    // строгие лимиты полей, привязка к транзакции счётчика counters/orders.
+    function validPublicOrder(orderId) {
+      return request.resource.data.keys().hasAll(['name', 'phone', 'type', 'status', 'number'])
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'type', 'status', 'number', 'address', 'comment', 'createdAt', 'source'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 7
+        && request.resource.data.phone.size() <= 32
+        && request.resource.data.type in ['delivery', 'pickup']
+        && (request.resource.data.type == 'pickup'
+          || ('address' in request.resource.data
+            && request.resource.data.address is string
+            && request.resource.data.address.size() >= 5))
+        && (!('address' in request.resource.data)
+          || (request.resource.data.address is string && request.resource.data.address.size() <= 500))
+        && (!('comment' in request.resource.data)
+          || (request.resource.data.comment is string && request.resource.data.comment.size() <= 500))
+        && (!('source' in request.resource.data) || request.resource.data.source in ['website', 'demo'])
+        && (!('createdAt' in request.resource.data) || request.resource.data.createdAt is string)
+        && request.resource.data.status == 'new'
+        && request.resource.data.number is int
+        && getAfter(counterPath()).data.orderId == orderId
+        && getAfter(counterPath()).data.value == request.resource.data.number;
+    }
+    // Позиция заказа: цена и название сверяются с документом товара,
+    // поэтому подменить цену через DevTools невозможно.
+    function validPublicItem(itemId) {
+      return request.resource.data.keys().hasOnly(['orderId', 'productId', 'productName', 'price', 'quantity'])
+        && itemId == request.resource.data.orderId + '_' + request.resource.data.productId
+        && request.resource.data.orderId is string
+        && request.resource.data.productId is string
+        && request.resource.data.productName is string
+        && request.resource.data.price is number
+        && request.resource.data.quantity is int
+        && request.resource.data.quantity >= 1
+        && request.resource.data.quantity <= 100
+        && get(productPath(request.resource.data.productId)).data.inStock == true
+        && request.resource.data.price == get(productPath(request.resource.data.productId)).data.price
+        && request.resource.data.productName == get(productPath(request.resource.data.productId)).data.name
+        && getAfter(orderPath(request.resource.data.orderId)).data.status == 'new'
+        && getAfter(counterPath()).data.orderId == request.resource.data.orderId;
     }
     match /products/{productId} {
       allow read: if true;
@@ -16,28 +72,18 @@ service cloud.firestore {
       allow read: if true;
       allow create, update, delete: if isAdmin();
     }
-    function orderPath(orderId) {
-      return /databases/$(database)/documents/orders/$(orderId);
-    }
-    function counterPath() {
-      return /databases/$(database)/documents/counters/orders;
+    // Администраторы: создаются только вручную через Firebase Console.
+    match /admins/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create, update, delete: if false;
     }
     match /orders/{orderId} {
       allow read, update, delete: if isAdmin();
-      allow create: if request.resource.data.keys().hasAll(['name', 'phone', 'items', 'total', 'type', 'status'])
-        && request.resource.data.name is string
-        && request.resource.data.name.size() > 0
-        && request.resource.data.phone is string
-        && request.resource.data.items is list
-        && request.resource.data.items.size() > 0
-        && request.resource.data.total is number
-        && request.resource.data.total >= 0
-        && request.resource.data.type in ['delivery', 'pickup']
-        && request.resource.data.status == 'new'
-        && request.resource.data.number is int
-        && getAfter(counterPath()).data.orderId == orderId
-        && getAfter(counterPath()).data.value == request.resource.data.number
-        && request.resource.data.keys().hasOnly(['name', 'phone', 'items', 'total', 'type', 'status', 'address', 'comment', 'createdAt', 'number', 'source']);
+      allow create: if isAdmin() || validPublicOrder(orderId);
+    }
+    match /orderItems/{itemId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isAdmin() || validPublicItem(itemId);
     }
     match /counters/orders {
       allow read: if true;

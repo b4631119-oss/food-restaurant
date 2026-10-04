@@ -13,7 +13,7 @@ export function useOrders() {
   }, (cause) => { setError(cause.message || "Не удалось загрузить заказы из Firebase."); setLoading(false); }), []);
   const patchOrders = useCallback((next: DemoOrder[]) => {
     const previous = new Map(orders.map((order) => [order.id, order]));
-    next.forEach((order) => { const old = previous.get(order.id); if (!old || old.status !== order.status) void updateOrder(order.id, order).catch(() => setError("Не удалось сохранить заказ в Firebase.")); });
+    next.forEach((order) => { const old = previous.get(order.id); if (!old || old.status !== order.status) void updateOrder(order.id, { status: order.status }).catch(() => setError("Не удалось сохранить заказ в Firebase.")); });
     setOrders(next);
   }, [orders]);
   return { orders, setOrders: patchOrders, loading, error, flashingIds };
