@@ -1,22 +1,28 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { ImageOff, Minus, Plus } from "lucide-react";
+import { cloudImage } from "@/lib/cloudinary";
 import { money, portionInfo } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
 type ProductCardProps = {
   product: Product;
   quantity: number;
+  eager?: boolean;
   onAdd: () => void;
   onChange: (amount: number) => void;
 };
 
-export function ProductCard({ product, quantity, onAdd, onChange }: ProductCardProps) {
+export function ProductCard({ product, quantity, eager = false, onAdd, onChange }: ProductCardProps) {
   return (
     <article className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-surface">
       <div className="product-photo relative aspect-[4/3] w-full overflow-hidden bg-surface">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={product.image} alt={`${product.name} — ${product.description}`} loading="lazy" className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" onError={(event) => { event.currentTarget.closest(".product-photo")?.classList.add("hidden"); event.currentTarget.closest("article")?.classList.add("product-photo-failed"); }} />
+        {product.image ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={cloudImage(product.image, 600)} alt={product.name} width={600} height={450} loading={eager ? "eager" : "lazy"} className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" onError={(event) => { event.currentTarget.closest(".product-photo")?.classList.add("hidden"); event.currentTarget.closest("article")?.classList.add("product-photo-failed"); }} />
+        ) : (
+          <div className="grid size-full place-items-center text-muted" aria-hidden="true"><ImageOff className="size-8" /></div>
+        )}
         {quantity > 0 && <span className="absolute right-2 top-2 grid min-h-7 min-w-7 place-items-center rounded-full bg-accent px-2 text-xs font-bold text-background">{quantity}</span>}
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-3">

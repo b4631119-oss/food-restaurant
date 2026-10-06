@@ -20,6 +20,8 @@ type ProductGridProps = {
 };
 
 export function ProductGrid({ products, title, groups, isAll, onShowAll, query, onQuery, cart, onAdd, onChange, listRef }: ProductGridProps) {
+  const eagerIds = new Set(products.slice(0, 4).map((product) => product.id));
+  const card = (product: Product) => <ProductCard key={product.id} product={product} quantity={cart[product.id] ?? 0} eager={eagerIds.has(product.id)} onAdd={() => onAdd(product.id)} onChange={(amount) => onChange(product.id, amount)} />;
   return (
     <div ref={listRef} className="scroll-mt-[120px] pt-1">
       <label className="flex h-11 min-h-11 items-center gap-3 rounded-xl border border-line bg-surface px-3.5 focus-within:border-accent">
@@ -32,9 +34,9 @@ export function ProductGrid({ products, title, groups, isAll, onShowAll, query, 
         <span className="text-sm text-muted">{products.length} блюд</span>
       </div>
       {products.length > 0 ? isAll ? (
-        <div className="space-y-6">{groups.map((group) => <section key={group.category}><h2 className="section-heading mb-3 font-display text-xl font-medium">{group.category}</h2><div className="menu-grid grid grid-cols-2 items-stretch gap-3">{group.products.map((product) => <ProductCard key={product.id} product={product} quantity={cart[product.id] ?? 0} onAdd={() => onAdd(product.id)} onChange={(amount) => onChange(product.id, amount)} />)}</div></section>)}</div>
+        <div className="space-y-6">{groups.map((group) => <section key={group.category}><h2 className="section-heading mb-3 font-display text-xl font-medium">{group.category}</h2><div className="menu-grid grid grid-cols-2 items-stretch gap-3">{group.products.map(card)}</div></section>)}</div>
       ) : (
-        <div className="menu-grid grid grid-cols-2 items-stretch gap-3">{products.map((product) => <ProductCard key={product.id} product={product} quantity={cart[product.id] ?? 0} onAdd={() => onAdd(product.id)} onChange={(amount) => onChange(product.id, amount)} />)}</div>
+        <div className="menu-grid grid grid-cols-2 items-stretch gap-3">{products.map(card)}</div>
       ) : (
         <div className="rounded-xl border border-line bg-surface px-4 py-8 text-center text-sm text-muted"><p>Ничего не найдено. Попробуйте изменить запрос.</p><button type="button" onClick={onShowAll} className="press mt-4 min-h-11 rounded-sm bg-accent px-4 font-semibold text-background hover:bg-accent-hover">Показать всё</button></div>
       )}

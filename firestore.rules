@@ -77,9 +77,16 @@ service cloud.firestore {
         && getAfter(orderPath(request.resource.data.orderId)).data.status == 'new'
         && getAfter(counterPath()).data.orderId == request.resource.data.orderId;
     }
+    // Фото блюда — только ссылка: без data URL и не длиннее 500 символов.
+    function validProductImage() {
+      return request.resource.data.image is string
+        && request.resource.data.image.size() <= 500
+        && !request.resource.data.image.matches('data:.*');
+    }
     match /products/{productId} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
+      allow create, update: if isAdmin() && validProductImage();
+      allow delete: if isAdmin();
     }
     match /categories/{categoryId} {
       allow read: if true;

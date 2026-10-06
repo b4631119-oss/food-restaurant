@@ -1,6 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
+import { cloudImage } from "@/lib/cloudinary";
 import { money } from "@/lib/format";
 import type { CartLine as CartLineType } from "@/lib/types";
 
@@ -16,8 +17,11 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
     <div className="flex items-center gap-1 rounded-2xl border border-line bg-surface p-2">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={product.image}
+        src={cloudImage(product.image, 160)}
         alt=""
+        width={64}
+        height={64}
+        loading="lazy"
         className="size-16 shrink-0 rounded-xl object-cover"
         onError={(event) => {
           event.currentTarget.classList.add("hidden");

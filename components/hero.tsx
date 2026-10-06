@@ -1,6 +1,7 @@
 "use client";
 
 import { Phone, ShoppingBag } from "lucide-react";
+import { cloudImage } from "@/lib/cloudinary";
 import { CAFE } from "@/lib/config";
 import { getOpenStatus } from "@/lib/open-status";
 
@@ -11,7 +12,7 @@ export function Hero({ onOrder, openingHours = CAFE.openingHours, phone = CAFE.p
   return (
     <section id="top" className="relative mx-auto grid max-h-[50dvh] min-h-0 w-full max-w-[1200px] grid-cols-1 items-center gap-3 overflow-hidden px-4 py-3 sm:max-h-none sm:gap-4 sm:px-8 sm:py-4 lg:min-h-[320px] lg:grid-cols-[1fr_300px] lg:gap-6 lg:px-6 lg:py-6">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/images/menu/roll-philadelphia.jpg" alt="" className="absolute inset-0 size-full object-cover opacity-40" />
+      <img src={cloudImage("/images/menu/roll-philadelphia.jpg", 1200)} alt="" width={1200} height={600} className="absolute inset-0 size-full object-cover opacity-40" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/60" />
       <div className="relative z-10 flex flex-col items-start gap-4">
         <h1 className="max-w-2xl font-display text-3xl font-medium leading-tight sm:text-4xl lg:text-5xl">Свежие суши и роллы в Оше</h1>

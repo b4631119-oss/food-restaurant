@@ -6,6 +6,7 @@ import type { DemoProduct } from "@/lib/models";
 const products = collection(db, "products");
 const categories = collection(db, "categories");
 const maxDocumentBytes = 900 * 1024;
+const maxImageLength = 500;
 export async function getProducts(): Promise<DemoProduct[]> {
   const snapshot = await getDocs(products);
   return snapshot.docs.map((item) => ({ ...item.data(), id: item.id }) as DemoProduct);
@@ -15,6 +16,9 @@ export function watchProducts(onChange: (items: DemoProduct[]) => void, onError?
 }
 export async function saveProduct(product: DemoProduct): Promise<void> {
   const { id, ...data } = product;
+  const image = String(data.image ?? "");
+  if (image.startsWith("data:")) throw new Error("Встроенные изображения запрещены: фото должно быть ссылкой (Cloudinary или /images/…).");
+  if (image.length > maxImageLength) throw new Error("Ссылка на фото длиннее 500 символов.");
   if (new TextEncoder().encode(JSON.stringify(data)).length > maxDocumentBytes) throw new Error("Карточка блюда превышает лимит 900 КБ. Уменьшите изображение.");
   await setDoc(doc(db, "products", id), data);
 }
