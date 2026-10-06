@@ -37,10 +37,27 @@ service cloud.firestore {
         && (!('source' in request.resource.data) || request.resource.data.source in ['website', 'demo'])
         && (!('createdAt' in request.resource.data) || request.resource.data.createdAt is string);
     }
+    // Геометка доставки: необязательная, только ключи lat/lng с числами в допустимых диапазонах.
+    function validOrderLocation() {
+      return request.resource.data.location is map
+        && request.resource.data.location.keys().hasOnly(['lat', 'lng'])
+        && request.resource.data.location.lat is number
+        && request.resource.data.location.lng is number
+        && request.resource.data.location.lat >= -90
+        && request.resource.data.location.lat <= 90
+        && request.resource.data.location.lng >= -180
+        && request.resource.data.location.lng <= 180;
+    }
+    // Ссылка клиента на точку в картах: необязательная, https и не длиннее 300 символов.
+    function validOrderMapLink() {
+      return request.resource.data.mapLink is string
+        && request.resource.data.mapLink.size() <= 300
+        && request.resource.data.mapLink.matches('https://.*');
+    }
     // Доставка/самовывоз: как раньше — имя и телефон обязательны, адрес для доставки, tableNumber запрещён.
     function validFulfillmentOrder() {
       return request.resource.data.keys().hasAll(['name', 'phone', 'type', 'status', 'number'])
-        && request.resource.data.keys().hasOnly(['name', 'phone', 'type', 'status', 'number', 'address', 'comment', 'createdAt', 'source'])
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'type', 'status', 'number', 'address', 'comment', 'createdAt', 'source', 'location', 'mapLink'])
         && request.resource.data.name is string
         && request.resource.data.name.size() >= 2
         && request.resource.data.name.size() <= 100
@@ -57,7 +74,9 @@ service cloud.firestore {
         && (!('comment' in request.resource.data)
           || (request.resource.data.comment is string && request.resource.data.comment.size() <= 500))
         && (!('source' in request.resource.data) || request.resource.data.source in ['website', 'demo'])
-        && (!('createdAt' in request.resource.data) || request.resource.data.createdAt is string);
+        && (!('createdAt' in request.resource.data) || request.resource.data.createdAt is string)
+        && (!('location' in request.resource.data) || validOrderLocation())
+        && (!('mapLink' in request.resource.data) || validOrderMapLink());
     }
     // Позиция заказа: цена и название сверяются с документом товара,
     // поэтому подменить цену через DevTools невозможно.

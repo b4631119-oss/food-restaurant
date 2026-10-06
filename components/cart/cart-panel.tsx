@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { CartContent, type CartContentProps } from "@/components/cart/cart-content";
 import { CartEmpty } from "@/components/cart/cart-empty";
 import { CartSent } from "@/components/cart/cart-sent";
+import type { GeoPoint, GeoStatus } from "@/hooks/use-customer";
 import type { CartLine, Fulfillment } from "@/lib/types";
 
 type CartPanelProps = {
@@ -15,10 +16,10 @@ type CartPanelProps = {
   onSubmit: FormEventHandler<HTMLFormElement>; total: number; fulfillment: Fulfillment;
   setFulfillment: (value: Fulfillment) => void; name: string;  setName: (value: string) => void;
   phone: string;  setPhone: (value: string) => void; address: string;
-  setAddress: (value: string) => void; comment: string; setComment: (value: string) => void;
-  trap: string; setTrap: (value: string) => void;
-  table: number | null; orderNumber: number;
-  errors: { name: string; phone: string; address: string }; onBlur: (field: "name" | "phone" | "address") => void;
+  setAddress: (value: string) => void; comment: string; setComment: (value: string) => void;  trap: string; setTrap: (value: string) => void; table: number | null; orderNumber: number;
+  errors: { name: string; phone: string; address: string; mapLink: string }; onBlur: (field: "name" | "phone" | "address" | "mapLink") => void;
+  mapLink: string; setMapLink: (value: string) => void; location: GeoPoint | null;
+  geoStatus: GeoStatus; geoError: string; onLocate: () => void; onClearLocation: () => void;
 };
 
 export function CartPanel(props: CartPanelProps) {
@@ -31,6 +32,7 @@ export function CartPanel(props: CartPanelProps) {
     total: props.total, fulfillment: props.fulfillment, setFulfillment: props.setFulfillment,
     name: props.name, setName: props.setName, phone: props.phone, setPhone: props.setPhone,
     address: props.address, setAddress: props.setAddress, comment: props.comment, setComment: props.setComment,
+    mapLink: props.mapLink, setMapLink: props.setMapLink, location: props.location, geoStatus: props.geoStatus, geoError: props.geoError, onLocate: props.onLocate, onClearLocation: props.onClearLocation,
     trap: props.trap, setTrap: props.setTrap, table: props.table,
     errors: props.errors, onBlur: props.onBlur,
   };

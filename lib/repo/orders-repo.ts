@@ -1,5 +1,6 @@
 import { collection, doc, getDocs, onSnapshot, query, runTransaction, where, writeBatch, type Unsubscribe } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { isValidLocation, isValidMapLink } from "@/lib/map-links";
 import type { DemoOrder, OrderItem, OrderStatus } from "@/lib/models";
 
 const orders = collection(db, "orders");
@@ -32,10 +33,13 @@ export async function createOrder(input: NewOrder): Promise<DemoOrder> {
     const number = snapshot.exists() ? Number(snapshot.data().value) + 1 : 1001;
     const items = input.items.map(({ productId, productName, price, quantity }) => ({ productId, productName, price, quantity }));
     const common = { type: input.fulfillment, status: "new" as const, number, createdAt, ...(input.source ? { source: input.source } : {}) };
+    // Геометка и ссылка клиента — только валидные, и только для доставки.
+    const location = input.fulfillment === "delivery" && isValidLocation(input.location) ? { lat: input.location.lat, lng: input.location.lng } : undefined;
+    const mapLink = input.fulfillment === "delivery" && typeof input.mapLink === "string" && isValidMapLink(input.mapLink) ? input.mapLink.trim() : undefined;
     // Заказ со стола: без телефона и адреса, вместо них — номер стола.
     transaction.set(reference, input.fulfillment === "dinein"
       ? { ...common, tableNumber: input.tableNumber ?? 0, ...(input.name.trim() ? { name: input.name.trim() } : {}), ...(input.comment.trim() ? { comment: input.comment.trim() } : {}) }
-      : { ...common, name: input.name, phone: input.phone, address: input.address, comment: input.comment });
+      : { ...common, name: input.name, phone: input.phone, address: input.address, comment: input.comment, ...(location ? { location } : {}), ...(mapLink ? { mapLink } : {}) });
     items.forEach((item) => transaction.set(doc(orderItems, itemKey(reference.id, item.productId)), encodeItem(item, reference.id)));
     transaction.set(counter, { value: number, orderId: reference.id });
     return { ...input, id: reference.id, number, createdAt, status: "new" as const };
@@ -84,5 +88,7 @@ function decodeOrder(id: string, data: Record<string, unknown>, itemDocs: OrderI
     fulfillment: (data.type ?? data.fulfillment ?? "delivery") as DemoOrder["fulfillment"],
     name: String(data.name ?? "Гость"), phone: String(data.phone ?? ""), address: String(data.address ?? ""), comment: String(data.comment ?? ""),
     tableNumber: typeof data.tableNumber === "number" ? data.tableNumber : undefined,
+    location: isValidLocation(data.location) ? { lat: data.location.lat, lng: data.location.lng } : undefined,
+    mapLink: typeof data.mapLink === "string" ? data.mapLink : undefined,
   } as DemoOrder;
 }

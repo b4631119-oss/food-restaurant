@@ -1,20 +1,11 @@
-import { CAFE } from "@/lib/config";
+export type OpenStatus = { isOpen: boolean; text: string };
 
-function toMinutes(time: string): number {
-  const [hours, minutes] = time.split(":").map(Number);
-  return hours * 60 + minutes;
-}
-
-export function getOpenStatus(date = new Date(), hours: string = CAFE.openingHours) {
-  const [opensAt, closesAt] = hours.split(/[–-]/).map((time) => time.trim());
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Bishkek", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
-  }).formatToParts(date);
-  const hour = Number(parts.find((part) => part.type === "hour")?.value ?? 0);
-  const minute = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
-  const current = hour * 60 + minute;
-  const opening = toMinutes(opensAt);
-  const closing = toMinutes(closesAt);
-  const isOpen = opening > closing ? current >= opening || current < closing : current >= opening && current < closing;
-  return { isOpen, text: isOpen ? `Открыто · до ${closesAt}` : `Закрыто · откроемся в ${opensAt}` };
+export function getOpenStatus(now: Date, openingHours: string): OpenStatus {
+  const match = /^\s*(\d{1,2}):(\d{2})\s*[–—-]\s*(\d{1,2}):(\d{2})\s*$/.exec(openingHours);
+  if (!match) return { isOpen: false, text: "График уточняйте" };
+  const start = Number(match[1]) * 60 + Number(match[2]);
+  const end = Number(match[3]) * 60 + Number(match[4]);
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const isOpen = start === end ? true : start < end ? minutes >= start && minutes < end : minutes >= start || minutes < end;
+  return { isOpen, text: isOpen ? "Открыто" : "Закрыто" };
 }

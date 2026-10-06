@@ -3,7 +3,7 @@ import { db } from "@/lib/firebase";
 import type { DemoSettings } from "@/lib/models";
 
 const settingsRef = doc(db, "settings", "cafe");
-function decode(data: Record<string, unknown>): DemoSettings { const settings = data as DemoSettings; return { ...settings, minimumOrder: Number(settings.minimumOrder) || 0, mapUrl: String(settings.mapUrl ?? "").trim() }; }
+function decode(data: Record<string, unknown>): DemoSettings { const settings = data as DemoSettings;  return { ...settings, minimumOrder: Number(settings.minimumOrder) || 0, mapUrl: String(settings.mapUrl ?? "").trim(), deliveryCost: String(settings.deliveryCost ?? "").trim(), paymentMethods: String(settings.paymentMethods ?? "").trim() }; }
 export async function getSettings(): Promise<DemoSettings | null> {
   const snapshot = await getDoc(settingsRef);
   return snapshot.exists() ? decode(snapshot.data()) : null;

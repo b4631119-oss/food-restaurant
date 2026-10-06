@@ -7,5 +7,5 @@ export function validatePhone(value: string): string {
 }
 
 export function validateAddress(value: string): string {
-  return value.trim().length < 5 ? "Укажите адрес доставки подробнее." : "";
+  return value.trim().length < 8 ? "Укажите адрес доставки подробнее (минимум 8 символов)." : "";
 }

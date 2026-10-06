@@ -10,7 +10,7 @@ type MapBlockProps = { address: string; openingHours: string; mapUrl?: string };
 export function MapBlock({ address, openingHours, mapUrl }: MapBlockProps) {
   const [showMap, setShowMap] = useState(false);
   const place = `${address}, ${CAFE.city}`;
-  return <div className="rounded-2xl bg-surface p-4 md:col-span-2">
+  return <div className="mt-4 rounded-2xl bg-surface p-4">
     <h2 className="flex items-center gap-2 text-base font-semibold"><MapPin className="size-5 text-accent" aria-hidden="true" />Как нас найти</h2>
     <p className="mt-3 text-sm leading-6 text-muted">{place} · {openingHours}</p>
     <div className="mt-3 flex flex-wrap gap-2">
