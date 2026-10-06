@@ -75,7 +75,7 @@ export function MenuShop() {
     catch { setOrderWarning("Не удалось оформить заказ. Проверьте подключение к интернету и попробуйте ещё раз."); }
     finally { orderSubmittingRef.current = false; setOrderPending(false); }
   }
-  return <main className="min-h-dvh overflow-x-clip pb-20 text-text lg:pb-0">
+  return <main className="min-h-dvh overflow-x-clip text-text">
     <Header itemCount={cart.itemCount} onOpenCart={ui.openCart} />
     {table !== null && <TableBanner table={table} onOrder={ui.openCartAny} />}
     <Hero onOrder={table !== null ? ui.openCartAny : ui.startOrder} openingHours={settings.openingHours} phone={settings.phone} />

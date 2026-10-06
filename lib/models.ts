@@ -4,4 +4,4 @@ export type OrderItem = { productId: string; productName: string; price: number;
 export type DemoOrder = { id: string; number: number; createdAt: string; name: string; phone: string; fulfillment: OrderType; tableNumber?: number; address: string; comment: string; items: OrderItem[]; total: number; status: OrderStatus; source?: "website" };
 export type Product = { id: string; name: string; description: string; price: number; category: string; image: string; inStock: boolean; popular?: boolean; weight?: string };
 export type DemoProduct = Product;
-export type DemoSettings = { acceptingOrders: boolean; acceptingDinein: boolean; phone: string; whatsappNumber: string; minimumOrder: number; deliveryTime: string; openingHours: string; address: string };
+export type DemoSettings = { acceptingOrders: boolean; acceptingDinein: boolean; phone: string; whatsappNumber: string; minimumOrder: number; deliveryTime: string; openingHours: string; address: string; mapUrl: string };
