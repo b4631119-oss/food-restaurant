@@ -1,23 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { watchProducts } from "@/lib/repo/products-repo";
-import { watchCategories } from "@/lib/repo/categories-repo";
+import { useCallback, useEffect, useState } from "react";
+import { getProducts } from "@/lib/repo/products-repo";
+import { getCategories } from "@/lib/repo/categories-repo";
+import { readCache, writeCache } from "@/lib/menu-cache";
 import type { Product } from "@/lib/types";
 
-const loadTimeoutMs = 10_000;
+type MenuCache = { products: Product[]; categories: string[] };
+const cacheName = "menu";
 
 export function useMenuData() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(true); const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    const productsTimer = window.setTimeout(() => { setLoadingProducts(false); setError("Не удалось загрузить меню."); }, loadTimeoutMs);
-    const categoriesTimer = window.setTimeout(() => setLoadingCategories(false), loadTimeoutMs);
-    const stopProducts = watchProducts((items) => { window.clearTimeout(productsTimer); setProducts(items as Product[]); setLoadingProducts(false); setError(null); }, () => { window.clearTimeout(productsTimer); setLoadingProducts(false); setError("Не удалось загрузить меню."); });
-    const stopCategories = watchCategories((items) => { window.clearTimeout(categoriesTimer); setCategories(items); setLoadingCategories(false); }, () => { window.clearTimeout(categoriesTimer); setLoadingCategories(false); });
-    return () => { stopProducts(); stopCategories(); window.clearTimeout(productsTimer); window.clearTimeout(categoriesTimer); };
-  }, []);
-  return { products, categories, loading: loadingProducts || loadingCategories, error };
+    let cancelled = false;
+    const cached = readCache<MenuCache>(cacheName);
+    if (cached) window.setTimeout(() => { if (!cancelled) { setProducts(cached.products); setCategories(cached.categories); setLoading(false); } }, 0);
+    void Promise.all([getProducts(), getCategories()]).then(([items, names]) => {
+      if (cancelled) return;
+      writeCache(cacheName, { products: items, categories: names });
+      setProducts(items); setCategories(names); setLoading(false); setError(null);
+    }).catch(() => {
+      if (cancelled) return;
+      setLoading(false);
+      if (!cached) setError("Меню не загрузилось");
+    });
+    return () => { cancelled = true; };
+  }, [attempt]);
+  const retry = useCallback(() => { setLoading(true); setError(null); setAttempt((value) => value + 1); }, []);
+  return { products, categories, loading, error, retry };
 }

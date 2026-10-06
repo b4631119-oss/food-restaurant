@@ -1,12 +1,13 @@
-import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, writeBatch, type Unsubscribe } from "firebase/firestore";
-import menuData from "@/data/menu.json";
+import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, writeBatch, type Unsubscribe, type WriteBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import type { ImportItem } from "@/lib/menu-import";
 import type { DemoProduct } from "@/lib/models";
 
 const products = collection(db, "products");
 const categories = collection(db, "categories");
 const maxDocumentBytes = 900 * 1024;
 const maxImageLength = 500;
+const batchLimit = 400;
 export async function getProducts(): Promise<DemoProduct[]> {
   const snapshot = await getDocs(products);
   return snapshot.docs.map((item) => ({ ...item.data(), id: item.id }) as DemoProduct);
@@ -23,13 +24,26 @@ export async function saveProduct(product: DemoProduct): Promise<void> {
   await setDoc(doc(db, "products", id), data);
 }
 export async function deleteProduct(id: string): Promise<void> { await deleteDoc(doc(db, "products", id)); }
-export async function importMenuIfEmpty(): Promise<{ products: boolean; categories: boolean }> {
+type BatchOp = (batch: WriteBatch) => void;
+async function commitChunks(ops: BatchOp[]): Promise<void> {
+  for (let i = 0; i < ops.length; i += batchLimit) {
+    const batch = writeBatch(db);
+    ops.slice(i, i + batchLimit).forEach((op) => op(batch));
+    await batch.commit();
+  }
+}
+export async function importProducts(items: ImportItem[], mode: "add" | "replace"): Promise<void> {
   const [savedProducts, savedCategories] = await Promise.all([getDocs(products), getDocs(categories)]);
-  const importProducts = savedProducts.empty; const importCategories = savedCategories.empty;
-  if (!importProducts && !importCategories) return { products: false, categories: false };
-  const batch = writeBatch(db);
-  if (importProducts) menuData.products.forEach((product) => batch.set(doc(db, "products", product.id), product));
-  if (importCategories) menuData.categories.forEach((name, order) => batch.set(doc(db, "categories", name), { name, order }));
-  await batch.commit();
-  return { products: importProducts, categories: importCategories };
+  const ops: BatchOp[] = [];
+  const names = [...new Set(items.map((item) => item.category))];
+  if (mode === "replace") {
+    savedProducts.docs.forEach((item) => ops.push((batch) => batch.delete(item.ref)));
+    savedCategories.docs.forEach((item) => ops.push((batch) => batch.delete(item.ref)));
+    names.forEach((name, order) => ops.push((batch) => batch.set(doc(db, "categories", name), { name, order })));
+  } else {
+    const existing = new Set(savedCategories.docs.map((item) => item.id));
+    names.filter((name) => !existing.has(name)).forEach((name, index) => ops.push((batch) => batch.set(doc(db, "categories", name), { name, order: savedCategories.size + index })));
+  }
+  items.forEach((item) => ops.push((batch) => batch.set(doc(products), { name: item.name, description: item.description, weight: item.weight, price: item.price, category: item.category, image: item.image, inStock: true, popular: item.popular })));
+  await commitChunks(ops);
 }

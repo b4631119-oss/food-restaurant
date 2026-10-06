@@ -22,7 +22,7 @@ import { buildReceipt } from "@/lib/order";
 import { createOrder } from "@/lib/repo/orders-repo";
 
 export function MenuShop() {
-  const { products, categories: menuCategories, loading: menuLoading, error: menuError } = useMenuData();
+  const { products, categories: menuCategories, loading: menuLoading, error: menuError, retry: retryMenu } = useMenuData();
   const categories = ["Популярное", "Все", ...menuCategories];
   const { settings, loading: settingsLoading } = useDemoSettings();
   const availableProducts = products.filter((product) => product.inStock);
@@ -80,7 +80,7 @@ export function MenuShop() {
     {table !== null && <TableBanner table={table} onOrder={ui.openCartAny} />}
     <Hero onOrder={table !== null ? ui.openCartAny : ui.startOrder} openingHours={settings.openingHours} phone={settings.phone} />
     <section id="menu" className="scroll-mt-16 border-y border-accent/25"><div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 gap-8 px-4 pb-10 pt-6 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:px-6">
-      <CategoryNav categories={categories} active={ui.activeCategory} searchActive={Boolean(ui.searchQuery)} onSelect={ui.selectCategory}>{menuLoading ? <div className="grid grid-cols-2 gap-3">{Array.from({ length: 4 }, (_, i) => <div key={i} className="aspect-[4/5] animate-pulse rounded-2xl bg-surface" />)}</div> : menuError ? <div role="alert" className="rounded-2xl border border-line bg-surface p-8 text-center text-muted">{menuError} Проверьте подключение к интернету и обновите страницу.</div> : <ProductGrid products={visibleProducts} title={ui.activeCategory} groups={productGroups} isAll={!search && ui.activeCategory === "Все"} onShowAll={() => ui.selectCategory("Все")} query={ui.searchQuery} onQuery={ui.setSearchQuery} cart={cart.cart} onAdd={ui.addProduct} onChange={cart.changeQuantity} listRef={ui.menuListRef} />}</CategoryNav>
+      <CategoryNav categories={categories} active={ui.activeCategory} searchActive={Boolean(ui.searchQuery)} onSelect={ui.selectCategory}>{menuLoading ? <div className="grid grid-cols-2 gap-3">{Array.from({ length: 4 }, (_, i) => <div key={i} className="aspect-[4/5] animate-pulse rounded-2xl bg-surface" />)}</div> : menuError ? <div role="alert" className="rounded-2xl border border-line bg-surface p-8 text-center text-muted"><p>{menuError}</p><button onClick={retryMenu} className="mt-4 min-h-11 rounded-lg bg-accent px-4 font-bold text-background">Повторить</button></div> : <ProductGrid products={visibleProducts} title={ui.activeCategory} groups={productGroups} isAll={!search && ui.activeCategory === "Все"} onShowAll={() => ui.selectCategory("Все")} query={ui.searchQuery} onQuery={ui.setSearchQuery} cart={cart.cart} onAdd={ui.addProduct} onChange={cart.changeQuantity} listRef={ui.menuListRef} />}</CategoryNav>
       {settingsLoading ? <div className="h-48 animate-pulse rounded-2xl bg-surface" /> : <InfoSection settings={settings} />}
     </div></section>
     <Footer />{ui.notice && <Toast message={ui.notice} />}

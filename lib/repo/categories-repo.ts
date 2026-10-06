@@ -1,5 +1,4 @@
 import { collection, doc, getDocs, onSnapshot, writeBatch, type Unsubscribe } from "firebase/firestore";
-import menuData from "@/data/menu.json";
 import { db } from "@/lib/firebase";
 
 const categories = collection(db, "categories");
@@ -15,10 +14,4 @@ export async function saveCategories(names: string[]): Promise<void> {
   existing.docs.forEach((item) => { if (!keep.has(item.id)) batch.delete(item.ref); });
   names.forEach((name, order) => batch.set(doc(db, "categories", name), { name, order }));
   await batch.commit();
-}
-export async function importCategoriesIfEmpty(): Promise<boolean> {
-  if (!(await getDocs(categories)).empty) return false;
-  const batch = writeBatch(db);
-  menuData.categories.forEach((name, order) => batch.set(doc(db, "categories", name), { name, order }));
-  await batch.commit(); return true;
 }
