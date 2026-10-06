@@ -4,12 +4,12 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { BarChart3, ClipboardList, LogOut, Menu, Tags, Settings } from "lucide-react";
+import { BarChart3, ClipboardList, LogOut, Menu, QrCode, Tags, Settings } from "lucide-react";
 import { AdminBottomNav } from "@/components/admin/admin-bottom-nav";
 import { isAdminUser } from "@/lib/repo/admins-repo";
 import { watchOrders } from "@/lib/repo/orders-repo";
 import { auth } from "@/lib/firebase";
-const tabs = [["Обзор", "/admin", BarChart3], ["Заказы", "/admin/orders", ClipboardList], ["Меню", "/admin/menu", Menu], ["Категории", "/admin/categories", Tags], ["Настройки", "/admin/settings", Settings]] as const;
+const tabs = [["Обзор", "/admin", BarChart3], ["Заказы", "/admin/orders", ClipboardList], ["Меню", "/admin/menu", Menu], ["Категории", "/admin/categories", Tags], ["QR-коды", "/admin/qr", QrCode], ["Настройки", "/admin/settings", Settings]] as const;
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname(); const router = useRouter(); const isLogin = pathname === "/admin/login";
   const [authorized, setAuthorized] = useState(false); const [authReady, setAuthReady] = useState(false); const [overlayOpen, setOverlayOpen] = useState(false);

@@ -27,7 +27,7 @@ export function Hero({ onOrder, openingHours = CAFE.openingHours, phone = CAFE.p
         <button type="button" onClick={onOrder} className="press accent-shadow inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-accent px-3 text-sm font-semibold text-background hover:bg-accent-hover">
           <ShoppingBag className="size-4" aria-hidden="true" />Заказать
         </button>
-        <a href={`tel:${phone.replace(/\\D/g, "")}`} className="press inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-line bg-surface px-3 text-sm font-semibold hover:border-accent/50">
+        <a href={`tel:${phone.replace(/\D/g, "")}`} className="press inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-line bg-surface px-3 text-sm font-semibold hover:border-accent/50">
           <Phone className="size-4 text-accent" aria-hidden="true" />Позвонить
         </a>
       </div>

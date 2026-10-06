@@ -31,7 +31,11 @@ export async function createOrder(input: NewOrder): Promise<DemoOrder> {
     const snapshot = await transaction.get(counter);
     const number = snapshot.exists() ? Number(snapshot.data().value) + 1 : 1001;
     const items = input.items.map(({ productId, productName, price, quantity }) => ({ productId, productName, price, quantity }));
-    transaction.set(reference, { name: input.name, phone: input.phone, address: input.address, comment: input.comment, type: input.fulfillment, status: "new" as const, number, createdAt, ...(input.source ? { source: input.source } : {}) });
+    const common = { type: input.fulfillment, status: "new" as const, number, createdAt, ...(input.source ? { source: input.source } : {}) };
+    // Заказ со стола: без телефона и адреса, вместо них — номер стола.
+    transaction.set(reference, input.fulfillment === "dinein"
+      ? { ...common, tableNumber: input.tableNumber ?? 0, ...(input.name.trim() ? { name: input.name.trim() } : {}), ...(input.comment.trim() ? { comment: input.comment.trim() } : {}) }
+      : { ...common, name: input.name, phone: input.phone, address: input.address, comment: input.comment });
     items.forEach((item) => transaction.set(doc(orderItems, itemKey(reference.id, item.productId)), encodeItem(item, reference.id)));
     transaction.set(counter, { value: number, orderId: reference.id });
     return { ...input, id: reference.id, number, createdAt, status: "new" as const };
@@ -75,5 +79,10 @@ function decodeOrder(id: string, data: Record<string, unknown>, itemDocs: OrderI
   const legacy = Array.isArray(data.items) ? (data.items as OrderItem[]) : [];
   const items = itemDocs.length ? itemDocs : legacy;
   const total = items.length ? items.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0) : Number(data.total ?? 0);
-  return { ...data, id, items, total, fulfillment: (data.type ?? data.fulfillment ?? "delivery") as DemoOrder["fulfillment"] } as DemoOrder;
+  return {
+    ...data, id, items, total,
+    fulfillment: (data.type ?? data.fulfillment ?? "delivery") as DemoOrder["fulfillment"],
+    name: String(data.name ?? "Гость"), phone: String(data.phone ?? ""), address: String(data.address ?? ""), comment: String(data.comment ?? ""),
+    tableNumber: typeof data.tableNumber === "number" ? data.tableNumber : undefined,
+  } as DemoOrder;
 }

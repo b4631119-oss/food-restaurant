@@ -1,19 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import menuData from "@/data/menu.json";
 import { watchProducts } from "@/lib/repo/products-repo";
 import { watchCategories } from "@/lib/repo/categories-repo";
 import type { Product } from "@/lib/types";
 
+const loadTimeoutMs = 10_000;
+
 export function useMenuData() {
-  const [products, setProducts] = useState<Product[]>(menuData.products as Product[]);
-  const [categories, setCategories] = useState<string[]>(menuData.categories as string[]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true); const [loadingCategories, setLoadingCategories] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    const stopProducts = watchProducts((items) => { setProducts(items as Product[]); setLoadingProducts(false); }, () => { setProducts(menuData.products as Product[]); setLoadingProducts(false); });
-    const stopCategories = watchCategories((items) => { setCategories(items.length ? items : menuData.categories as string[]); setLoadingCategories(false); }, () => { setCategories(menuData.categories as string[]); setLoadingCategories(false); });
-    return () => { stopProducts(); stopCategories(); };
+    const productsTimer = window.setTimeout(() => { setLoadingProducts(false); setError("Не удалось загрузить меню."); }, loadTimeoutMs);
+    const categoriesTimer = window.setTimeout(() => setLoadingCategories(false), loadTimeoutMs);
+    const stopProducts = watchProducts((items) => { window.clearTimeout(productsTimer); setProducts(items as Product[]); setLoadingProducts(false); setError(null); }, () => { window.clearTimeout(productsTimer); setLoadingProducts(false); setError("Не удалось загрузить меню."); });
+    const stopCategories = watchCategories((items) => { window.clearTimeout(categoriesTimer); setCategories(items); setLoadingCategories(false); }, () => { window.clearTimeout(categoriesTimer); setLoadingCategories(false); });
+    return () => { stopProducts(); stopCategories(); window.clearTimeout(productsTimer); window.clearTimeout(categoriesTimer); };
   }, []);
-  return { products, categories, loading: loadingProducts || loadingCategories };
+  return { products, categories, loading: loadingProducts || loadingCategories, error };
 }

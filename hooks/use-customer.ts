@@ -8,10 +8,12 @@ import type { Fulfillment } from "@/lib/types";
 const CUSTOMER_KEY = "sushi-bar-no1-customer";
 type Field = "name" | "phone" | "address";
 
-export function useCustomer() {
+export function useCustomer(table: number | null = null) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [comment, setComment] = useState("");
+  const [trap, setTrap] = useState("");
   const [fulfillment, setFulfillment] = useState<Fulfillment>("delivery");
   const [touched, setTouched] = useState<Record<Field, boolean>>({ name: false, phone: false, address: false });
   const [submitted, setSubmitted] = useState(false);
@@ -32,9 +34,11 @@ export function useCustomer() {
     try { localStorage.setItem(CUSTOMER_KEY, JSON.stringify({ name, phone, address })); } catch { /* Keep fields usable without storage. */ }
   }, [name, phone, address, ready]);
 
+  const dinein = table !== null;
   const errors = {
-    name: validateName(name), phone: validatePhone(phone),
-    address: fulfillment === "delivery" ? validateAddress(address) : "",
+    name: dinein ? (name.trim() && name.trim().length < 2 ? "Укажите имя (минимум 2 символа)." : "") : validateName(name),
+    phone: dinein ? "" : validatePhone(phone),
+    address: !dinein && fulfillment === "delivery" ? validateAddress(address) : "",
   };
   const visibleErrors = {
     name: touched.name || submitted ? errors.name : "",
@@ -50,6 +54,7 @@ export function useCustomer() {
   }
   return {
     name, setName, phone, setPhone: (value: string) => setPhone(formatPhone(value)),
-    address, setAddress, fulfillment, setFulfillment, errors: visibleErrors, blurField, validateForm,
+    address, setAddress, comment, setComment, trap, setTrap,
+    fulfillment, setFulfillment, errors: visibleErrors, blurField, validateForm,
   };
 }

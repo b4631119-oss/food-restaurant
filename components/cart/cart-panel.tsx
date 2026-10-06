@@ -10,12 +10,14 @@ import { CartSent } from "@/components/cart/cart-sent";
 import type { CartLine, Fulfillment } from "@/lib/types";
 
 type CartPanelProps = {
-  lines: CartLine[]; orderSent: boolean; receiptUrl: string; warning?: string; onClose: () => void; onGoMenu: () => void; onClearAndClose: () => void;
+  lines: CartLine[]; orderSent: boolean; pending: boolean; receiptUrl: string; warning?: string; onClose: () => void; onGoMenu: () => void; onClearAndClose: () => void; onOrderMore: () => void;
   onAdd: (productId: string) => void; onChange: (productId: string, amount: number) => void;
   onSubmit: FormEventHandler<HTMLFormElement>; total: number; fulfillment: Fulfillment;
   setFulfillment: (value: Fulfillment) => void; name: string;  setName: (value: string) => void;
   phone: string;  setPhone: (value: string) => void; address: string;
-  setAddress: (value: string) => void;
+  setAddress: (value: string) => void; comment: string; setComment: (value: string) => void;
+  trap: string; setTrap: (value: string) => void;
+  table: number | null; orderNumber: number;
   errors: { name: string; phone: string; address: string }; onBlur: (field: "name" | "phone" | "address") => void;
 };
 
@@ -25,10 +27,11 @@ export function CartPanel(props: CartPanelProps) {
   const { onClose } = props;
   useFocusTrap(panelRef, onClose);
   const contentProps: CartContentProps = {
-    lines: props.lines, onAdd: props.onAdd, onChange: props.onChange, onSubmit: props.onSubmit,
+    lines: props.lines, onAdd: props.onAdd, onChange: props.onChange, onSubmit: props.onSubmit, pending: props.pending,
     total: props.total, fulfillment: props.fulfillment, setFulfillment: props.setFulfillment,
     name: props.name, setName: props.setName, phone: props.phone, setPhone: props.setPhone,
-    address: props.address, setAddress: props.setAddress,
+    address: props.address, setAddress: props.setAddress, comment: props.comment, setComment: props.setComment,
+    trap: props.trap, setTrap: props.setTrap, table: props.table,
     errors: props.errors, onBlur: props.onBlur,
   };
   const { lines, orderSent, receiptUrl, warning, onGoMenu, onClearAndClose } = props;
@@ -40,7 +43,7 @@ export function CartPanel(props: CartPanelProps) {
           <button type="button" onClick={props.onClose} className="press grid size-11 place-items-center border border-line bg-surface hover:border-accent/40" aria-label="Закрыть корзину"><X className="size-5" aria-hidden="true" /></button>
         </header>
         {orderSent ? (
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{warning && <p role="alert" className="mx-4 mt-3 rounded-lg border border-amber-400/40 bg-amber-400/10 p-3 text-sm text-amber-200">{warning}</p>}<CartSent receiptUrl={receiptUrl} onClearAndClose={onClearAndClose} /></div>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{warning && <p role="alert" className="mx-4 mt-3 rounded-lg border border-amber-400/40 bg-amber-400/10 p-3 text-sm text-amber-200">{warning}</p>}<CartSent receiptUrl={receiptUrl} orderNumber={props.orderNumber} table={props.table} onClearAndClose={onClearAndClose} onOrderMore={props.onOrderMore} /></div>
         ) : lines.length === 0 ? (
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain"><CartEmpty onGoMenu={onGoMenu} /></div>
         ) : (

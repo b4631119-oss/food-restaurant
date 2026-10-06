@@ -11,11 +11,19 @@ type Props = {
   name: string; setName: (value: string) => void;
   phone: string; setPhone: (value: string) => void;
   address: string; setAddress: (value: string) => void;
+  comment: string; setComment: (value: string) => void;
+  trap: string; setTrap: (value: string) => void;
+  table: number | null;
   errors: Errors; onBlur: (field: Field) => void;
 };
 
-export function CartForm({ fulfillment, setFulfillment, name, setName, phone, setPhone, address, setAddress, errors, onBlur }: Props) {
+export function CartForm({ fulfillment, setFulfillment, name, setName, phone, setPhone, address, setAddress, comment, setComment, trap, setTrap, table, errors, onBlur }: Props) {
   const fieldClass = "mt-1 h-[52px] w-full rounded-lg border border-line bg-surface px-3 text-base font-normal outline-none placeholder:text-muted focus:border-accent";
+  if (table !== null) return <>
+    <label className="block text-sm font-semibold">Ваше имя <span className="font-normal text-muted">(необязательно)</span><input name="name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => onBlur("name")} autoComplete="name" placeholder="Как к вам обращаться?" aria-invalid={Boolean(errors.name)} className={fieldClass} />{errors.name && <span className="mt-1 block text-sm text-accent">{errors.name}</span>}</label>
+    <label className="block text-sm font-semibold">Комментарий к заказу <span className="font-normal text-muted">(необязательно)</span><textarea name="comment" value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="Пожелания к блюдам или подаче" className="mt-1 min-h-[52px] w-full resize-none rounded-lg border border-line bg-surface px-3 py-2 text-base font-normal outline-none placeholder:text-muted focus:border-accent" /></label>
+    <input name="website" type="text" value={trap} onChange={(e) => setTrap(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="sr-only" />
+  </>;
   return <>
     <fieldset><legend className="mb-1.5 text-sm font-bold">Как получить заказ?</legend><div className="flex h-12 rounded-xl border border-line bg-surface p-1">
       <button type="button" onClick={() => setFulfillment("delivery")} aria-pressed={fulfillment === "delivery"} className={`press flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg text-sm font-semibold ${fulfillment === "delivery" ? "bg-accent text-background" : "text-muted hover:text-text"}`}><Bike className="size-4" aria-hidden="true" />Доставка</button>

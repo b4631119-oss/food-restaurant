@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AdminShell } from "@/components/admin/admin-shell";
 
 export const metadata: Metadata = {
-  title: "Демо-админка | Sushi Bar №1",
+  title: "Админка | Sushi Bar №1",
   robots: { index: false, follow: false, noarchive: true },
 };
 

@@ -11,6 +11,7 @@ export type CartContentProps = {
   onAdd: (productId: string) => void;
   onChange: (productId: string, amount: number) => void;
   onSubmit: FormEventHandler<HTMLFormElement>;
+  pending: boolean;
   total: number;
   fulfillment: Fulfillment;
   setFulfillment: (value: Fulfillment) => void;
@@ -20,6 +21,11 @@ export type CartContentProps = {
   setPhone: (value: string) => void;
   address: string;
   setAddress: (value: string) => void;
+  comment: string;
+  setComment: (value: string) => void;
+  trap: string;
+  setTrap: (value: string) => void;
+  table: number | null;
   errors: { name: string; phone: string; address: string };
   onBlur: (field: "name" | "phone" | "address") => void;
 };
@@ -45,11 +51,16 @@ export function CartContent(props: CartContentProps) {
             setPhone={props.setPhone}
             address={props.address}
             setAddress={props.setAddress}
+            comment={props.comment}
+            setComment={props.setComment}
+            trap={props.trap}
+            setTrap={props.setTrap}
+            table={props.table}
           />
         </div>
       </div>
       <div className="shrink-0 space-y-2 border-t border-line bg-panel px-4 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] pt-3 sm:px-6">
-        <CartFooter total={props.total} fulfillment={props.fulfillment} />
+        <CartFooter total={props.total} fulfillment={props.fulfillment} pending={props.pending} table={props.table} />
       </div>
     </form>
   );

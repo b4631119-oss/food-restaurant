@@ -2,9 +2,16 @@
 
 import { Check, MessageCircle } from "lucide-react";
 
-type CartSentProps = { receiptUrl: string; onClearAndClose: () => void };
+type CartSentProps = { receiptUrl: string; orderNumber: number; table: number | null; onClearAndClose: () => void; onOrderMore: () => void };
 
-export function CartSent({ receiptUrl, onClearAndClose }: CartSentProps) {
+export function CartSent({ receiptUrl, orderNumber, table, onClearAndClose, onOrderMore }: CartSentProps) {
+  if (table !== null) return (
+    <div className="flex flex-col items-center px-6 py-12 text-center">
+      <span className="grid size-16 place-items-center rounded-full bg-accent/10 text-accent"><Check className="size-8" aria-hidden="true" /></span>
+      <p className="mt-5 max-w-sm text-lg font-bold leading-relaxed">Заказ №{orderNumber} принят, стол {table}. Официант скоро подойдёт.</p>
+      <button type="button" onClick={onOrderMore} className="press mt-6 inline-flex min-h-12 items-center rounded-xl bg-accent px-6 font-bold text-background hover:bg-accent-hover">Заказать ещё</button>
+    </div>
+  );
   return (
     <div className="flex flex-col items-center px-6 py-12 text-center">
       <span className="grid size-16 place-items-center rounded-full bg-accent/10 text-accent"><Check className="size-8" aria-hidden="true" /></span>

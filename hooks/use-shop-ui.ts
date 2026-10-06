@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export function useShopUi(itemCount: number, addToCart: (productId: string) => void) {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartPulse, setCartPulse] = useState(false);
+  const [allowEmpty, setAllowEmpty] = useState(false);
   const [activeCategory, setActiveCategory] = useState("Популярное");
   const [searchQuery, setSearchQuery] = useState("");
   const [notice, setNotice] = useState("");
@@ -17,8 +18,9 @@ export function useShopUi(itemCount: number, addToCart: (productId: string) => v
     return () => window.clearTimeout(timer);
   }, [notice]);
 
-  const cartDialogOpen = cartOpen && (itemCount > 0 || orderSent);
+  const cartDialogOpen = cartOpen && (itemCount > 0 || orderSent || allowEmpty);
   const openCart = () => { if (itemCount > 0) setCartOpen(true); };
+  const openCartAny = () => { setAllowEmpty(true); setCartOpen(true); };
   const closeCart = useCallback(() => setCartOpen(false), []);
   const addProduct = (productId: string) => {
     addToCart(productId);
@@ -41,7 +43,7 @@ export function useShopUi(itemCount: number, addToCart: (productId: string) => v
 
   return {
     cartOpen, cartPulse, activeCategory, searchQuery, setSearchQuery, notice, orderSent,
-    setOrderSent, menuListRef, cartDialogOpen, openCart, closeCart, addProduct,
+    setOrderSent, menuListRef, cartDialogOpen, openCart, openCartAny, closeCart, addProduct,
     goToMenu, closeAndGoToMenu, startOrder, selectCategory, returnToMenu,
   };
 }

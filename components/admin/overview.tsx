@@ -5,17 +5,19 @@ import { updateOrder } from "@/lib/repo/orders-repo";
 import { useOrders } from "@/hooks/use-orders";
 import { ordersForDay, revenueByDay, compareWithYesterday, topDishes } from "@/lib/demo-stats";
 import { OverviewAlerts } from "@/components/admin/overview-alerts";
-import { OverviewStats, statCards } from "@/components/admin/overview-stats";
+import { OverviewStats, statCards, type OrdersByType } from "@/components/admin/overview-stats";
 import { OverviewChart } from "@/components/admin/overview-chart";
 import { OverviewTop } from "@/components/admin/overview-top";
 import { OverviewRecent } from "@/components/admin/overview-recent";
-import type { OrderStatus } from "@/lib/models";
+import type { OrderStatus, OrderType } from "@/lib/models";
 
-const states: { key: OrderStatus; label: string }[] = [{ key: "new", label: "Новые" }, { key: "preparing", label: "Готовится" }, { key: "delivering", label: "В пути" }, { key: "completed", label: "Готово" }];
+const states: { key: OrderStatus; label: string }[] = [{ key: "new", label: "Новые" }, { key: "preparing", label: "Готовится" }, { key: "delivering", label: "В пути" }, { key: "served", label: "Подано" }, { key: "completed", label: "Готово" }];
 export function AdminOverview() {
   const { orders, loading, error } = useOrders();
   const now = new Date(); const today = ordersForDay(orders, now); const revenue = today.reduce((sum, order) => sum + order.total, 0);
-  const stats = statCards({ count: today.length, revenue, average: today.length ? Math.round(revenue / today.length) : 0, waiting: orders.filter((order) => order.status === "new").length, orderChange: compareWithYesterday(orders, now, "orders").change, revenueChange: compareWithYesterday(orders, now).change, averageChange: compareWithYesterday(orders, now, "average").change });
+  const countType = (type: OrderType) => today.filter((order) => order.fulfillment === type).length;
+  const types: OrdersByType = { delivery: countType("delivery"), pickup: countType("pickup"), dinein: countType("dinein") };
+  const stats = statCards({ count: today.length, revenue, average: today.length ? Math.round(revenue / today.length) : 0, waiting: orders.filter((order) => order.status === "new").length, orderChange: compareWithYesterday(orders, now, "orders").change, revenueChange: compareWithYesterday(orders, now).change, averageChange: compareWithYesterday(orders, now, "average").change, types });
   const accept = (id: string) => { void updateOrder(id, { status: "preparing" }).catch(() => undefined); };
   if (loading) return <p className="text-sm text-muted">Загрузка обзора…</p>;
   return <section><header><h1 className="text-2xl font-bold">Обзор</h1><p className="mt-1 text-sm text-muted">{now.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p></header>

@@ -28,14 +28,14 @@ export function MobileBar({
         className={`mx-auto grid w-full max-w-2xl gap-2 ${itemCount > 0 ? "grid-cols-[auto_auto_minmax(0,1fr)]" : "grid-cols-[auto_auto] justify-center"}`}
       >
         <a
-          href={`tel:${phone.replace(/\\D/g, "")}`}
+          href={`tel:${phone.replace(/\D/g, "")}`}
           aria-label="Позвонить"
           className="press grid size-12 place-items-center rounded-xl border border-line bg-surface text-accent"
         >
           <Phone className="size-5" aria-hidden="true" />
         </a>
         <a
-          href={`https://wa.me/${whatsappNumber.replace(/\\D/g, "")}`}
+          href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}`}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Написать в WhatsApp"
