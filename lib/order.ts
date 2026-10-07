@@ -15,6 +15,15 @@ export type OrderInfo = {
   location?: { lat: number; lng: number } | null;
 };
 
+export type TableOrderInfo = {
+  orderNumber: number;
+  table: number;
+  cartLines: CartLine[];
+  total: number;
+  comment?: string;
+  name?: string;
+};
+
 export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, name, phone, address, location }: OrderInfo): string {
   return [
     `Заказ №${orderNumber} · ${CAFE.name}`,
@@ -33,6 +42,34 @@ export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, 
   ].join("\n");
 }
 
-export function buildWhatsAppUrl(receipt: string): string {
-  return `https://wa.me/${CAFE.whatsappNumber}?text=${encodeURIComponent(receipt)}`;
+// Чек для заказа со стола: номер, стол, блюда, итог, комментарий и имя, если указаны.
+export function buildTableReceipt({ orderNumber, table, cartLines, total, comment, name }: TableOrderInfo): string {
+  const trimmedComment = (comment ?? "").trim();
+  const trimmedName = (name ?? "").trim();
+  return [
+    `Заказ №${orderNumber} · Стол №${table}`,
+    "------------------",
+    ...cartLines.map(({ product, quantity }) => `${quantity} × ${product.name} — ${money(product.price * quantity)}`),
+    "------------------",
+    `Итого: ${money(total)}`,
+    ...(trimmedComment ? [`Комментарий: ${trimmedComment}`] : []),
+    ...(trimmedName ? [`Имя: ${trimmedName}`] : []),
+  ].join("\n");
+}
+
+export function whatsappUrl(number: string, receipt: string): string {
+  return `https://wa.me/${number.replace(/\D/g, "")}?text=${encodeURIComponent(receipt)}`;
+}
+
+// Пробуем открыть WhatsApp в новой вкладке. Если браузер заблокировал окно, возвращаем false —
+// тогда заказ отправляют кнопкой на экране после оформления, а со страницы сайта не уходим.
+export function openWhatsApp(url: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const tab = window.open("about:blank", "_blank");
+    if (!tab) return false;
+    tab.opener = null;
+    tab.location.href = url;
+    return true;
+  } catch { return false; }
 }

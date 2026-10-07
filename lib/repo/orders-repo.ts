@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, onSnapshot, query, runTransaction, where, writeBatch, type Unsubscribe } from "firebase/firestore";
+import { collection, doc, getDocs, limit, orderBy, query, runTransaction, where, writeBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { isValidLocation, isValidMapLink } from "@/lib/map-links";
 import type { DemoOrder, OrderItem, OrderStatus } from "@/lib/models";
@@ -6,6 +6,8 @@ import type { DemoOrder, OrderItem, OrderStatus } from "@/lib/models";
 const orders = collection(db, "orders");
 const orderItems = collection(db, "orderItems");
 const counter = doc(db, "counters", "orders");
+const MAX_PERIOD_ORDERS = 2000;
+const IDS_PER_ITEM_QUERY = 30;
 const itemKey = (orderId: string, productId: string) => `${orderId}_${productId}`;
 function isValidDeliveryFee(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 5000;
@@ -13,19 +15,27 @@ function isValidDeliveryFee(value: unknown): value is number {
 function encodeItem(item: OrderItem, orderId: string) {
   return { orderId, productId: item.productId, productName: item.productName, price: item.price, quantity: item.quantity };
 }
-export function watchOrders(onChange: (items: DemoOrder[]) => void, onError?: (error: Error) => void): Unsubscribe {
-  let rows: { id: string; data: Record<string, unknown> }[] = [];
-  let lines: { orderId: string; item: OrderItem }[] = [];
-  let seenOrders = false; let seenItems = false;
-  const emit = () => {
-    if (!seenOrders || !seenItems) return;
-    const grouped = new Map<string, OrderItem[]>();
-    for (const line of lines) grouped.set(line.orderId, [...(grouped.get(line.orderId) ?? []), line.item]);
-    onChange(rows.map((row) => decodeOrder(row.id, row.data, grouped.get(row.id) ?? [])).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
-  };
-  const stopOrders = onSnapshot(orders, (snapshot) => { seenOrders = true; rows = snapshot.docs.map((item) => ({ id: item.id, data: item.data() })); emit(); }, (error) => onError?.(error));
-  const stopItems = onSnapshot(orderItems, (snapshot) => { seenItems = true; lines = snapshot.docs.map((item) => ({ orderId: String(item.data().orderId ?? ""), item: item.data() as OrderItem })); emit(); }, (error) => onError?.(error));
-  return () => { stopOrders(); stopItems(); };
+// Одиночный запрос заказов за период (без подписки onSnapshot): не больше 2000 штук,
+// отменённые заказы в отчёты не попадают, позиции подтягиваются пачками по 30 заказов.
+export async function getOrdersInRange(startIso: string, endIso: string): Promise<DemoOrder[]> {
+  const snapshot = await getDocs(query(orders, where("createdAt", ">=", startIso), where("createdAt", "<", endIso), orderBy("createdAt", "desc"), limit(MAX_PERIOD_ORDERS)));
+  const rows = snapshot.docs.filter((entry) => entry.data().status !== "cancelled").map((entry) => ({ id: entry.id, data: entry.data() }));
+  const grouped = new Map<string, OrderItem[]>();
+  for (let index = 0; index < rows.length; index += IDS_PER_ITEM_QUERY) {
+    const ids = rows.slice(index, index + IDS_PER_ITEM_QUERY).map((row) => row.id);
+    const items = await getDocs(query(orderItems, where("orderId", "in", ids)));
+    items.docs.forEach((entry) => {
+      const line = entry.data() as OrderItem & { orderId?: string };
+      const key = String(line.orderId ?? "");
+      grouped.set(key, [...(grouped.get(key) ?? []), line]);
+    });
+  }
+  return rows.map((row) => decodeOrder(row.id, row.data, grouped.get(row.id) ?? []));
+}
+// Все заказы — только для полной очистки тестовых данных в настройках.
+export async function getAllOrderIds(): Promise<string[]> {
+  const snapshot = await getDocs(orders);
+  return snapshot.docs.map((entry) => entry.id);
 }
 export type NewOrder = Omit<DemoOrder, "id" | "number" | "createdAt"> & { createdAt?: string };
 export async function createOrder(input: NewOrder): Promise<DemoOrder> {

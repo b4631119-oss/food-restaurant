@@ -1,5 +1,5 @@
 import { CAFE } from "@/lib/config";
-import type { Product } from "@/lib/types";
+import type { OrderType, Product } from "@/lib/models";
 
 export function money(amount: number): string {
   return `${new Intl.NumberFormat("ru-RU").format(amount)} ${CAFE.currency}`;
@@ -18,4 +18,11 @@ export function formatPhone(value: string): string {
 
 export function portionInfo(product: Product): string {
   return typeof product.weight === "string" ? product.weight : "";
+}
+
+// Как заказ приходит: доставка, самовывоз или зал со номером стола.
+export function orderPlace(order: { fulfillment: OrderType; tableNumber?: number }): string {
+  if (order.fulfillment === "delivery") return "Доставка";
+  if (order.fulfillment === "pickup") return "Самовывоз";
+  return order.tableNumber ? `Стол №${order.tableNumber}` : "Зал";
 }

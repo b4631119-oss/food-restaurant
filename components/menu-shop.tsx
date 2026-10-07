@@ -19,7 +19,7 @@ import { useShopUi } from "@/hooks/use-shop-ui";
 import { useTable } from "@/hooks/use-table";
 import { cooldownLeft, markOrderSent, ORDER_LIMIT } from "@/lib/table";
 import { deliveryFee } from "@/lib/delivery";
-import { buildReceipt } from "@/lib/order";
+import { buildReceipt, buildTableReceipt, openWhatsApp, whatsappUrl } from "@/lib/order";
 import { createOrder } from "@/lib/repo/orders-repo";
 
 export function MenuShop() {
@@ -56,7 +56,11 @@ export function MenuShop() {
       orderSubmittingRef.current = true; setOrderPending(true);
       try {
         const created = await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: "", fulfillment: "dinein", tableNumber: table, address: "", comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website" });
-        markOrderSent(); setOrderWarning(""); setSentNumber(created.number); ui.setOrderSent(true);
+        // Заказ уже сохранён для отчётов; гостю остаётся отправить чек официанту в WhatsApp.
+        const tableReceipt = buildTableReceipt({ orderNumber: created.number, table, cartLines: cart.cartLines, total: cart.total, comment: customer.comment, name: customer.name });
+        const tableUrl = whatsappUrl(settings.whatsappDineIn || settings.whatsappNumber, tableReceipt);
+        markOrderSent(); setOrderWarning(""); setSentNumber(created.number); setReceiptUrl(tableUrl); ui.setOrderSent(true);
+        openWhatsApp(tableUrl);
       }
       catch { setOrderWarning("Не удалось отправить заказ. Проверьте подключение к интернету и попробуйте ещё раз."); }
       finally { orderSubmittingRef.current = false; setOrderPending(false); }
@@ -69,11 +73,11 @@ export function MenuShop() {
     try {
       const created = await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.orderAddress, comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && fee !== null ? { deliveryFee: fee } : {}), ...(customer.fulfillment === "delivery" && customer.location ? { location: customer.location } : {}) });
       const receipt = buildReceipt({ orderNumber: created.number, cartLines: cart.cartLines, total: cart.total, fee, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.orderAddress, location: customer.fulfillment === "delivery" ? customer.location : null });
-      const url = `https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(receipt)}`;
+      const url = whatsappUrl(settings.whatsappNumber, receipt);
       setOrderWarning(""); setSentNumber(created.number); setReceiptUrl(url); ui.setOrderSent(true);
       if (customer.fulfillment === "delivery") customer.clearLocation();
-      const whatsapp = window.open("about:blank", "_blank"); if (whatsapp) { whatsapp.opener = null; whatsapp.location.href = url; }
-      if (!whatsapp) window.location.href = url;
+      // Если браузер заблокирует новое окно, отправка остаётся кнопкой на экране заказа.
+      openWhatsApp(url);
     }
     catch { setOrderWarning("Не удалось оформить заказ. Проверьте подключение к интернету и попробуйте ещё раз."); }
     finally { orderSubmittingRef.current = false; setOrderPending(false); }
