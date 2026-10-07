@@ -1,6 +1,6 @@
 import { CAFE } from "@/lib/config";
 import { money } from "@/lib/format";
-import { googleMapsLink, yandexMapsLink, yandexSearchLink } from "@/lib/map-links";
+import { googleMapsLink } from "@/lib/map-links";
 import type { CartLine, Fulfillment } from "@/lib/types";
 
 export type OrderInfo = {
@@ -13,29 +13,22 @@ export type OrderInfo = {
   phone: string;
   address: string;
   location?: { lat: number; lng: number } | null;
-  mapLink?: string;
 };
 
-function mapLines(address: string, location?: { lat: number; lng: number } | null, mapLink?: string): string[] {
-  const link = mapLink?.trim();
-  if (location) return [`Точка на карте: ${googleMapsLink(location.lat, location.lng)}`, `Яндекс Карты: ${yandexMapsLink(location.lat, location.lng)}`, ...(link ? [`Ссылка клиента: ${link}`] : [])];
-  return link ? [`Ссылка клиента: ${link}`] : [`Карта: ${yandexSearchLink(`${address.trim()}, ${CAFE.city}`)}`];
-}
-
-export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, name, phone, address, location, mapLink }: OrderInfo): string {
+export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, name, phone, address, location }: OrderInfo): string {
   return [
-    `Заказ №${orderNumber}`,
-    `🍣 ${CAFE.name}`,
-    "──────────────────",
+    `Заказ №${orderNumber} · ${CAFE.name}`,
+    "------------------",
     ...cartLines.map(({ product, quantity }) => `${quantity} × ${product.name} — ${money(product.price * quantity)}`),
-    "──────────────────",
+    "------------------",
     `Блюда: ${money(total)}`,
     ...(fulfillment === "delivery" ? [`Доставка: ${fee === null ? "уточним" : fee === 0 ? "бесплатно" : money(fee)}`] : []),
     `Итого к оплате: ${fee === null ? `${money(total)} + доставка` : money(total + fee)}`,
     `Имя: ${name.trim()}`,
     `Телефон: ${phone.trim()}`,
     `Получение: ${fulfillment === "delivery" ? "Доставка" : "Самовывоз"}`,
-    ...(fulfillment === "delivery" ? [`Адрес: ${address.trim()}`, ...mapLines(address, location, mapLink)] : []),
+    ...(fulfillment === "delivery" ? [`Адрес: ${address.trim()}`] : []),
+    ...(fulfillment === "delivery" && location ? [`Местоположение: ${googleMapsLink(location.lat, location.lng)}`] : []),
     "Оплата при получении. Пожалуйста, подтвердите заказ.",
   ].join("\n");
 }

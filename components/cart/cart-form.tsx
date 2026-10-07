@@ -6,7 +6,7 @@ import { formatPhone } from "@/lib/format";
 import type { GeoPoint, GeoStatus } from "@/hooks/use-customer";
 import type { Fulfillment } from "@/lib/types";
 
-type Field = "name" | "phone" | "address" | "mapLink";
+type Field = "name" | "phone" | "address";
 type Errors = Record<Field, string>;
 type Props = {
   fulfillment: Fulfillment; setFulfillment: (value: Fulfillment) => void;
@@ -19,11 +19,9 @@ type Props = {
   errors: Errors; onBlur: (field: Field) => void;
   location: GeoPoint | null; geoStatus: GeoStatus; geoError: string;
   onLocate: () => void; onClearLocation: () => void;
-  mapLink: string; setMapLink: (value: string) => void;
 };
 
-export function CartForm({ fulfillment, setFulfillment, name, setName, phone, setPhone, address, setAddress, comment, setComment, trap, setTrap, table, errors, onBlur, location, geoStatus, geoError, onLocate, onClearLocation, mapLink, setMapLink }: Props) {
-  const [mapLinkOpen, setMapLinkOpen] = useState(false);
+export function CartForm({ fulfillment, setFulfillment, name, setName, phone, setPhone, address, setAddress, comment, setComment, trap, setTrap, table, errors, onBlur, location, geoStatus, geoError, onLocate, onClearLocation }: Props) {
   const [commentOpen, setCommentOpen] = useState(false);
   const fieldClass = "mt-1 h-[52px] w-full rounded-lg border border-line bg-surface px-3 text-base font-normal outline-none placeholder:text-muted focus:border-accent";
   const areaClass = "mt-1 min-h-[52px] w-full resize-none rounded-lg border border-line bg-surface px-3 py-2 text-base font-normal outline-none placeholder:text-muted focus:border-accent";
@@ -42,21 +40,15 @@ export function CartForm({ fulfillment, setFulfillment, name, setName, phone, se
     </div></fieldset>
     <label className="block text-sm font-semibold">Имя<input name="name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => onBlur("name")} autoComplete="name" placeholder="Как к вам обращаться?" aria-invalid={Boolean(errors.name)} className={fieldClass} />{errors.name && <span className={errClass}>{errors.name}</span>}</label>
     <label className="block text-sm font-semibold">Телефон<input name="phone" value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} onBlur={() => onBlur("phone")} type="tel" inputMode="tel" autoComplete="tel" placeholder="+996 XXX XXX XXX" aria-invalid={Boolean(errors.phone)} className={fieldClass} />{errors.phone && <span className={errClass}>{errors.phone}</span>}</label>
-    {fulfillment === "delivery" && <>
-      <label className="block text-sm font-semibold">Адрес<textarea name="address" value={address} onChange={(e) => setAddress(e.target.value)} onBlur={() => onBlur("address")} autoComplete="street-address" rows={2} placeholder="Улица, дом, подъезд, этаж, квартира" aria-invalid={Boolean(errors.address)} className={areaClass} />{errors.address && <span className={errClass}>{errors.address}</span>}</label>
-      <div className="space-y-2">
-        {geoAvailable && <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={onLocate} disabled={geoStatus === "loading"} className="press inline-flex min-h-11 items-center gap-2 rounded-lg border border-line px-3 text-sm font-semibold disabled:opacity-50">{geoStatus === "loading" ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <MapPin className="size-4" aria-hidden="true" />}{geoStatus === "loading" ? "Определяем..." : "Определить по GPS"}</button>
-          {geoStatus !== "done" && <span className="text-xs text-muted">Курьеру будет проще</span>}
-        </div>}
-        {geoStatus === "done" && location && <p className="flex flex-wrap items-center gap-2 text-sm text-emerald-400"><Check className="size-4" aria-hidden="true" />Точка добавлена<button type="button" onClick={onClearLocation} className="press text-sm font-semibold text-muted underline">Убрать</button></p>}
-        {geoStatus === "error" && <p className="text-sm text-muted">{geoError}</p>}
+    {fulfillment === "delivery" && <label className="block text-sm font-semibold">Адрес
+      <div className="relative">
+        <textarea name="address" value={address} onChange={(e) => setAddress(e.target.value)} onBlur={() => onBlur("address")} autoComplete="street-address" rows={2} placeholder="Улица, дом, подъезд, этаж, квартира" aria-invalid={Boolean(errors.address)} className={`${areaClass} pr-14`} />
+        {geoAvailable && <button type="button" onClick={onLocate} disabled={geoStatus === "loading"} aria-label="Указать моё местоположение" className="press absolute bottom-1.5 right-1.5 grid size-11 place-items-center rounded-full disabled:opacity-50">{geoStatus === "loading" ? <Loader2 className="size-5 animate-spin text-muted" aria-hidden="true" /> : geoStatus === "done" && location ? <Check className="size-5 text-accent" aria-hidden="true" /> : <MapPin className="size-5 text-muted" aria-hidden="true" />}</button>}
       </div>
-      <div className="space-y-2">
-        <button type="button" onClick={() => setMapLinkOpen((open) => !open)} aria-expanded={mapLinkOpen} className={toggleClass}>{mapLinkOpen ? "Скрыть ссылку на точку" : "Есть ссылка на точку в картах?"}</button>
-        {mapLinkOpen && <label className="block text-sm font-semibold">Ссылка на точку в картах<input name="mapLink" value={mapLink} onChange={(e) => setMapLink(e.target.value)} onBlur={() => onBlur("mapLink")} placeholder="https://yandex.ru/maps/..." aria-invalid={Boolean(errors.mapLink)} className={fieldClass} />{errors.mapLink && <span className={errClass}>{errors.mapLink}</span>}<span className="mt-1 block text-xs font-normal text-muted">Яндекс, 2GIS или Google: «Поделиться», затем вставьте ссылку</span></label>}
-      </div>
-    </>}
+      {errors.address && <span className={errClass}>{errors.address}</span>}
+      {geoStatus === "done" && location && <p className="mt-1 text-sm text-muted">Местоположение добавлено · <button type="button" onClick={onClearLocation} className="press text-sm font-semibold text-muted underline">Убрать</button></p>}
+      {geoStatus === "error" && <p className="mt-1 text-sm text-muted">{geoError}</p>}
+    </label>}
     <div className="space-y-2">
       <button type="button" onClick={() => setCommentOpen((open) => !open)} aria-expanded={commentOpen} className={toggleClass}>{commentOpen ? "Убрать комментарий" : "Добавить комментарий"}</button>
       {commentOpen && <label className="block text-sm font-semibold">Комментарий к заказу <span className="font-normal text-muted">(необязательно)</span><textarea name="comment" value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="Пожелания к блюдам или подаче" className={areaClass} /></label>}

@@ -17,8 +17,8 @@ type CartPanelProps = {
   setFulfillment: (value: Fulfillment) => void; name: string;  setName: (value: string) => void;
   phone: string;  setPhone: (value: string) => void; address: string;
   setAddress: (value: string) => void; comment: string; setComment: (value: string) => void;  trap: string; setTrap: (value: string) => void; table: number | null; orderNumber: number;
-  errors: { name: string; phone: string; address: string; mapLink: string }; onBlur: (field: "name" | "phone" | "address" | "mapLink") => void;
-  mapLink: string; setMapLink: (value: string) => void; location: GeoPoint | null;
+  errors: { name: string; phone: string; address: string }; onBlur: (field: "name" | "phone" | "address") => void;
+  location: GeoPoint | null;
   geoStatus: GeoStatus; geoError: string; onLocate: () => void; onClearLocation: () => void;
 };
 
@@ -32,7 +32,7 @@ export function CartPanel(props: CartPanelProps) {
     total: props.total, fulfillment: props.fulfillment, setFulfillment: props.setFulfillment,
     name: props.name, setName: props.setName, phone: props.phone, setPhone: props.setPhone,
     address: props.address, setAddress: props.setAddress, comment: props.comment, setComment: props.setComment,
-    mapLink: props.mapLink, setMapLink: props.setMapLink, location: props.location, geoStatus: props.geoStatus, geoError: props.geoError, onLocate: props.onLocate, onClearLocation: props.onClearLocation,
+    location: props.location, geoStatus: props.geoStatus, geoError: props.geoError, onLocate: props.onLocate, onClearLocation: props.onClearLocation,
     trap: props.trap, setTrap: props.setTrap, table: props.table, warning: props.warning,
     errors: props.errors, onBlur: props.onBlur,
   };
@@ -40,9 +40,9 @@ export function CartPanel(props: CartPanelProps) {
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-transparent sm:items-center sm:bg-black/70 sm:backdrop-blur-[2px] sm:p-5 lg:items-stretch lg:justify-end lg:p-0" onClick={props.onClose}>
       <section ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="cart-title" className="sheet-enter fixed inset-0 flex h-dvh w-full flex-col overflow-hidden rounded-none border-0 bg-panel shadow-2xl outline-none sm:relative sm:inset-auto sm:h-auto sm:max-h-[90dvh] sm:w-full sm:max-w-xl sm:rounded-3xl sm:border sm:border-line lg:h-full lg:max-h-none lg:w-[420px] lg:max-w-[420px] lg:rounded-none lg:border-y-0 lg:border-r-0" onClick={(event) => event.stopPropagation()}>
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-panel px-5 sm:px-6">
-          <h2 id="cart-title" className="section-heading text-xl font-extrabold">{props.orderSent ? "Спасибо за заказ!" : "Корзина"}</h2>
-          <button type="button" onClick={props.onClose} className="press grid size-11 place-items-center border border-line bg-surface hover:border-accent/40" aria-label="Закрыть корзину"><X className="size-5" aria-hidden="true" /></button>
+        <header className="flex h-14 shrink-0 items-center justify-between bg-panel px-4">
+          <h2 id="cart-title" className="text-xl font-extrabold">{props.orderSent ? "Спасибо за заказ!" : "Корзина"}</h2>
+          <button type="button" onClick={props.onClose} className="press grid size-11 place-items-center rounded-full text-muted hover:bg-surface hover:text-text" aria-label="Закрыть корзину"><X className="size-5" aria-hidden="true" /></button>
         </header>
         {orderSent ? (
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{warning && <p role="alert" className="mx-4 mt-3 text-sm text-[#F87171]">{warning}</p>}<CartSent receiptUrl={receiptUrl} orderNumber={props.orderNumber} table={props.table} fulfillment={props.fulfillment} onClearAndClose={onClearAndClose} onOrderMore={props.onOrderMore} /></div>

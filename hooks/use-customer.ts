@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { validateAddress, validateName, validatePhone } from "@/lib/validation";
-import { isValidMapLink } from "@/lib/map-links";
 import { formatPhone } from "@/lib/format";
 import type { Fulfillment } from "@/lib/types";
 
 const CUSTOMER_KEY = "sushi-bar-no1-customer";
-type Field = "name" | "phone" | "address" | "mapLink";
+type Field = "name" | "phone" | "address";
 export type GeoPoint = { lat: number; lng: number };
 export type GeoStatus = "idle" | "loading" | "done" | "error";
 
@@ -18,11 +17,10 @@ export function useCustomer(table: number | null = null) {
   const [comment, setComment] = useState("");
   const [trap, setTrap] = useState("");
   const [fulfillment, setFulfillment] = useState<Fulfillment>("delivery");
-  const [mapLink, setMapLink] = useState("");
   const [location, setLocation] = useState<GeoPoint | null>(null);
   const [geoStatus, setGeoStatus] = useState<GeoStatus>("idle");
   const [geoError, setGeoError] = useState("");
-  const [touched, setTouched] = useState<Record<Field, boolean>>({ name: false, phone: false, address: false, mapLink: false });
+  const [touched, setTouched] = useState<Record<Field, boolean>>({ name: false, phone: false, address: false });
   const [submitted, setSubmitted] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -47,13 +45,11 @@ export function useCustomer(table: number | null = null) {
     name: dinein ? (name.trim() && name.trim().length < 2 ? "Укажите имя (минимум 2 символа)." : "") : validateName(name),
     phone: dinein ? "" : validatePhone(phone),
     address: delivery ? validateAddress(address) : "",
-    mapLink: delivery && mapLink.trim() && !isValidMapLink(mapLink) ? "Нужна ссылка из Яндекс Карт, 2GIS или Google Maps" : "",
   };
   const visibleErrors = {
     name: touched.name || submitted ? errors.name : "",
     phone: touched.phone || submitted ? errors.phone : "",
     address: touched.address || submitted ? errors.address : "",
-    mapLink: touched.mapLink || submitted ? errors.mapLink : "",
   };
   function blurField(field: Field) { setTouched((current) => ({ ...current, [field]: true })); }
   function validateForm() {
@@ -82,6 +78,6 @@ export function useCustomer(table: number | null = null) {
     name, setName, phone, setPhone: (value: string) => setPhone(formatPhone(value)),
     address, setAddress, comment, setComment, trap, setTrap,
     fulfillment, setFulfillment, errors: visibleErrors, blurField, validateForm,
-    mapLink, setMapLink, location, geoStatus, geoError, locate, clearLocation,
+    location, geoStatus, geoError, locate, clearLocation,
   };
 }

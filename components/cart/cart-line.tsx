@@ -42,11 +42,14 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
           className="size-full object-cover opacity-25"
         />
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="line-clamp-2 text-sm font-bold">{product.name}</p>
-        <p className="mt-1 text-xs text-muted">{money(product.price)} за шт.</p>
-      </div>
-      <div className="flex shrink-0 items-center gap-0.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex items-start justify-between gap-2">
+          <p className="line-clamp-2 min-w-0 text-sm font-bold">{product.name}</p>
+          <span className="shrink-0 whitespace-nowrap text-right text-sm font-bold text-accent">{money(product.price * quantity)}</span>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-muted">{money(product.price)} за шт.</p>
+          <div className="flex shrink-0 items-center gap-0.5">
         <button
           type="button"
           onClick={() => onChange(product.id, -1)}
@@ -66,10 +69,9 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
         >
           <Plus className="size-4" aria-hidden="true" />
         </button>
+          </div>
+        </div>
       </div>
-      <span className="min-w-20 shrink-0 whitespace-nowrap text-right text-sm font-bold text-accent">
-        {money(product.price * quantity)}
-      </span>
     </div>
   );
 }

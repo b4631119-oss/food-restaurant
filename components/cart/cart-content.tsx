@@ -22,8 +22,6 @@ export type CartContentProps = {
   setPhone: (value: string) => void;
   address: string;
   setAddress: (value: string) => void;
-  mapLink: string;
-  setMapLink: (value: string) => void;
   location: GeoPoint | null;
   geoStatus: GeoStatus;
   geoError: string;
@@ -35,8 +33,8 @@ export type CartContentProps = {
   setTrap: (value: string) => void;
   table: number | null;
   warning?: string;
-  errors: { name: string; phone: string; address: string; mapLink: string };
-  onBlur: (field: "name" | "phone" | "address" | "mapLink") => void;
+  errors: { name: string; phone: string; address: string };
+  onBlur: (field: "name" | "phone" | "address") => void;
 };
 
 export function CartContent(props: CartContentProps) {
@@ -60,8 +58,6 @@ export function CartContent(props: CartContentProps) {
             setPhone={props.setPhone}
             address={props.address}
             setAddress={props.setAddress}
-            mapLink={props.mapLink}
-            setMapLink={props.setMapLink}
             location={props.location}
             geoStatus={props.geoStatus}
             geoError={props.geoError}
