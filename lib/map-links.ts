@@ -1,12 +1,6 @@
 export function googleMapsLink(lat: number, lng: number): string {
   return `https://www.google.com/maps?q=${lat},${lng}`;
 }
-export function yandexMapsLink(lat: number, lng: number): string {
-  return `https://yandex.com/maps/?pt=${lng},${lat}&z=17&l=map`;
-}
-export function yandexSearchLink(text: string): string {
-  return `https://yandex.com/maps/?text=${encodeURIComponent(text)}`;
-}
 export function isValidMapLink(value: string): boolean {
   const text = value.trim();
   if (!text.startsWith("https://") || text.length > 300) return false;

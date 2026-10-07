@@ -92,19 +92,21 @@ function Panel({ sound }: { sound: Sound }) {
   </div>;
 }
 
-export function SoundControls() {
+export function SoundControls({ variant = "bar" }: { variant?: "bar" | "icon" }) {
   const sound = useSound();
   const [open, setOpen] = useState(false);
-  const label = sound.enabled ? "Звук новых заказов включён" : "Звук выключен. Включите, чтобы слышать новые заказы";
+  const status = sound.enabled ? "Звук включён" : "Звук выключен";
+  const hint = sound.enabled ? "Звук новых заказов включён" : "Звук выключен. Включите, чтобы слышать новые заказы";
+  const bell = sound.enabled ? <Bell size={20} /> : <BellOff size={20} />;
+  const dot = <i aria-hidden="true" className={`size-2 shrink-0 rounded-full ${sound.enabled ? "bg-emerald-400" : "bg-muted"}`} />;
   return <>
     {!sound.enabled && <div role="status" className="fixed inset-x-0 top-[calc(56px+env(safe-area-inset-top,0px))] z-[40] flex items-center gap-2 border-b border-amber-400/40 bg-amber-400/15 px-3 py-1.5 text-xs text-amber-200 backdrop-blur lg:hidden">
       <span className="min-w-0 flex-1">Звук выключен. Включите, чтобы слышать новые заказы</span>
       <button onClick={sound.enable} className="min-h-9 shrink-0 rounded-lg bg-amber-400 px-3 text-xs font-bold text-background">Включить</button>
     </div>}
-    <button onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={label} className={`relative grid min-h-11 min-w-11 place-items-center rounded-lg ${sound.enabled ? "text-accent" : "text-amber-400"}`}>
-      {sound.enabled ? <Bell size={20} /> : <BellOff size={20} />}
-      {!sound.enabled && <i aria-hidden="true" className="absolute right-1.5 top-1.5 size-2 rounded-full bg-amber-400" />}
-    </button>
+    {variant === "bar"
+      ? <button onClick={() => setOpen((value) => !value)} aria-expanded={open} title={hint} className={`press flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold hover:bg-background ${sound.enabled ? "text-accent" : "text-muted"}`}>{bell}{dot}<span>{status}</span></button>
+      : <button onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={hint} title={hint} className={`press relative grid min-h-11 min-w-11 place-items-center rounded-lg ${sound.enabled ? "text-accent" : "text-muted"}`}>{bell}<i aria-hidden="true" className={`absolute right-2 top-2 size-2 rounded-full ${sound.enabled ? "bg-emerald-400" : "bg-muted"}`} /></button>}
     {open && <div className="fixed inset-x-3 bottom-[calc(80px+env(safe-area-inset-bottom,0px))] z-[60] rounded-2xl border border-line bg-surface p-4 shadow-2xl lg:inset-x-auto lg:bottom-24 lg:left-5 lg:w-64">
       <Panel sound={sound} />
       <button onClick={() => setOpen(false)} className="mt-3 min-h-11 w-full rounded-lg border border-line text-sm text-muted">Закрыть</button>

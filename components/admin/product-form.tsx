@@ -9,7 +9,7 @@ import type { DemoProduct } from "@/lib/models";
 
 type Props = { product?: DemoProduct; onSave: (product: DemoProduct) => void; onCancel: () => void };
 export function ProductForm({ product, onSave, onCancel }: Props) {
-  const first = useRef<HTMLInputElement>(null); const fileRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [name, setName] = useState(product?.name ?? ""); const [description, setDescription] = useState(product?.description ?? "");
   const [weight, setWeight] = useState(product?.weight ?? ""); const [price, setPrice] = useState(String(product?.price ?? ""));
@@ -17,7 +17,7 @@ export function ProductForm({ product, onSave, onCancel }: Props) {
   const [inStock, setInStock] = useState(product?.inStock ?? true); const [image, setImage] = useState(product?.image ?? "");
   const [preview, setPreview] = useState(""); const [uploading, setUploading] = useState(false);
   const [imageError, setImageError] = useState(""); const [errors, setErrors] = useState({ name: "", price: "", category: "" });
-  useEffect(() => { first.current?.focus(); return watchCategories(setCategories); }, []);
+  useEffect(() => watchCategories(setCategories), []);
   async function upload(file?: File) {
     if (!file || uploading) return;
     setImageError(""); setUploading(true);
@@ -35,7 +35,7 @@ export function ProductForm({ product, onSave, onCancel }: Props) {
     void saveProduct(saved).then(() => onSave(saved)).catch((error: unknown) => setImageError(error instanceof Error ? error.message : "Не удалось сохранить блюдо."));
   }
   const field = "mt-1 h-[52px] w-full rounded-lg border border-line bg-background px-3 text-base outline-none focus:border-accent";
-  return <form onSubmit={submit} className="space-y-3"><label className="block text-sm">Название<input ref={first} value={name} onChange={(e) => setName(e.target.value)} className={field} />{errors.name && <FieldError>{errors.name}</FieldError>}</label>
+  return <form onSubmit={submit} className="space-y-3"><label className="block text-sm">Название<input value={name} onChange={(e) => setName(e.target.value)} className={field} />{errors.name && <FieldError>{errors.name}</FieldError>}</label>
     <label className="block text-sm">Описание<textarea value={description} onChange={(e) => setDescription(e.target.value)} className={`${field} h-24 py-3`} /></label><div className="grid grid-cols-2 gap-3"><label className="text-sm">Вес<input value={weight} onChange={(e) => setWeight(e.target.value)} className={field} /></label><label className="text-sm">Цена<input type="number" min="1" value={price} onChange={(e) => setPrice(e.target.value)} className={field} />{errors.price && <FieldError>{errors.price}</FieldError>}</label></div>
     <label className="block text-sm">Категория<select value={category} onChange={(e) => setCategory(e.target.value)} className={field}><option value="">Выберите</option>{categories.map((item) => <option key={item}>{item}</option>)}</select>{errors.category && <FieldError>{errors.category}</FieldError>}</label>
     <div className="flex flex-wrap gap-4 text-sm"><label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={popular} onChange={(e) => setPopular(e.target.checked)} />Популярное</label><label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={inStock} onChange={(e) => setInStock(e.target.checked)} />В наличии</label></div>
