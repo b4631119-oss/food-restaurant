@@ -67,7 +67,7 @@ export function MenuShop() {
     const url = `https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(receipt)}`;
     orderSubmittingRef.current = true; setOrderPending(true);
     try {
-      await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.address.trim(), comment: "", items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && customer.location ? { location: customer.location } : {}), ...(customer.fulfillment === "delivery" && customer.mapLink.trim() ? { mapLink: customer.mapLink.trim() } : {}) });
+      await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.address.trim(), comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && customer.location ? { location: customer.location } : {}), ...(customer.fulfillment === "delivery" && customer.mapLink.trim() ? { mapLink: customer.mapLink.trim() } : {}) });
       setOrderWarning(""); setReceiptUrl(url); ui.setOrderSent(true);
       if (customer.fulfillment === "delivery") { customer.clearLocation(); customer.setMapLink(""); }
       const whatsapp = window.open("about:blank", "_blank"); if (whatsapp) { whatsapp.opener = null; whatsapp.location.href = url; }

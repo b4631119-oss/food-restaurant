@@ -34,6 +34,7 @@ export type CartContentProps = {
   trap: string;
   setTrap: (value: string) => void;
   table: number | null;
+  warning?: string;
   errors: { name: string; phone: string; address: string; mapLink: string };
   onBlur: (field: "name" | "phone" | "address" | "mapLink") => void;
 };
@@ -75,7 +76,7 @@ export function CartContent(props: CartContentProps) {
         </div>
       </div>
       <div className="shrink-0 space-y-2 border-t border-line bg-panel px-4 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] pt-3 sm:px-6">
-        <CartFooter total={props.total} fulfillment={props.fulfillment} pending={props.pending} table={props.table} />
+        <CartFooter total={props.total} fulfillment={props.fulfillment} pending={props.pending} table={props.table} warning={props.warning} />
       </div>
     </form>
   );

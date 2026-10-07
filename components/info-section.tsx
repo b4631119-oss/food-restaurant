@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bike, Instagram, MapPin, Phone } from "lucide-react";
+import { Bike, Instagram, Phone } from "lucide-react";
 import { CAFE } from "@/lib/config";
 import { money } from "@/lib/format";
-import { mapLink } from "@/lib/map";
 import { getOpenStatus, type OpenStatus } from "@/lib/open-status";
 import { MapBlock } from "@/components/map-block";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
@@ -26,9 +25,6 @@ export function InfoSection({ settings = defaults }: { settings?: Info }) {
             <p>Минимальный заказ: {money(settings.minimumOrder)}</p>
             {settings.deliveryCost.trim() && <p>Стоимость доставки: {settings.deliveryCost}</p>}
             {settings.paymentMethods.trim() && <p>Способы оплаты: {settings.paymentMethods}</p>}
-          </div>
-          <div className="mt-auto pt-4">
-            <a href={mapLink({ address: settings.address, mapUrl: settings.mapUrl })} target="_blank" rel="noopener noreferrer" className="press inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line px-4 text-sm font-semibold"><MapPin className="size-4" aria-hidden="true" />Как проехать</a>
           </div>
         </article>
         <article className="flex flex-col rounded-2xl bg-surface p-4">

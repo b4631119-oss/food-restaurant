@@ -70,9 +70,9 @@ export function useCustomer(table: number | null = null) {
         setLocation({ lat: Math.round(position.coords.latitude * 1e5) / 1e5, lng: Math.round(position.coords.longitude * 1e5) / 1e5 });
         setGeoStatus("done");
       },
-      (error) => {
+      () => {
         setGeoStatus("error");
-        setGeoError(error.code === error.PERMISSION_DENIED ? "Разрешите доступ к местоположению в настройках браузера" : error.code === error.TIMEOUT ? "Не удалось определить местоположение: время ожидания истекло." : "Не удалось определить местоположение.");
+        setGeoError("Не получилось определить. Просто укажите адрес.");
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );

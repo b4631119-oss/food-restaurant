@@ -27,10 +27,10 @@ export function Footer() {
           <a href={CAFE.instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="press grid size-11 place-items-center rounded-full border border-line text-accent hover:border-accent/40"><Instagram className="size-5" aria-hidden="true" /></a>
         </div>
       </div>
-      <div className="mx-auto mt-6 w-full max-w-[1200px] border-t border-line px-4 pt-4 text-xs sm:px-8 lg:px-6">
-        <div className="flex flex-col items-center gap-1 lg:flex-row lg:justify-between">
+      <div className="mx-auto mt-6 w-full max-w-[1200px] px-4 text-xs sm:px-8 lg:px-6">
+        <div className="flex flex-col items-center gap-1 border-t border-line pt-4 lg:flex-row lg:justify-between">
           <span>© 2026 {CAFE.name}</span>
-          <span>Сайт разработал <a href={devLink} target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">BILOLIDIN</a></span>
+          <span>Сайт разработал <a href={devLink} target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Bilol</a></span>
         </div>
       </div>
     </footer>
