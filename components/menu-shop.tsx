@@ -18,6 +18,7 @@ import { useCustomer } from "@/hooks/use-customer";
 import { useShopUi } from "@/hooks/use-shop-ui";
 import { useTable } from "@/hooks/use-table";
 import { cooldownLeft, markOrderSent, ORDER_LIMIT } from "@/lib/table";
+import { deliveryFee } from "@/lib/delivery";
 import { buildReceipt } from "@/lib/order";
 import { createOrder } from "@/lib/repo/orders-repo";
 
@@ -63,11 +64,12 @@ export function MenuShop() {
     }
     if (!customer.validateForm() || !settings.acceptingOrders) return;
     if (customer.fulfillment === "delivery" && cart.total < settings.minimumOrder) return;
-    const receipt = buildReceipt({ cartLines: cart.cartLines, total: cart.total, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.address, location: customer.fulfillment === "delivery" ? customer.location : null, mapLink: customer.fulfillment === "delivery" ? customer.mapLink.trim() : "" });
-    const url = `https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(receipt)}`;
+    const fee = deliveryFee(cart.total, customer.fulfillment, settings);
     orderSubmittingRef.current = true; setOrderPending(true);
     try {
-      await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.address.trim(), comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && customer.location ? { location: customer.location } : {}), ...(customer.fulfillment === "delivery" && customer.mapLink.trim() ? { mapLink: customer.mapLink.trim() } : {}) });
+      const created = await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.address.trim(), comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && fee !== null ? { deliveryFee: fee } : {}), ...(customer.fulfillment === "delivery" && customer.location ? { location: customer.location } : {}), ...(customer.fulfillment === "delivery" && customer.mapLink.trim() ? { mapLink: customer.mapLink.trim() } : {}) });
+      const receipt = buildReceipt({ orderNumber: created.number, cartLines: cart.cartLines, total: cart.total, fee, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.address, location: customer.fulfillment === "delivery" ? customer.location : null, mapLink: customer.fulfillment === "delivery" ? customer.mapLink.trim() : "" });
+      const url = `https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(receipt)}`;
       setOrderWarning(""); setReceiptUrl(url); ui.setOrderSent(true);
       if (customer.fulfillment === "delivery") { customer.clearLocation(); customer.setMapLink(""); }
       const whatsapp = window.open("about:blank", "_blank"); if (whatsapp) { whatsapp.opener = null; whatsapp.location.href = url; }

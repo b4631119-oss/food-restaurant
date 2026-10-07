@@ -6,7 +6,7 @@ import { getSettings } from "@/lib/repo/settings-repo";
 import { readCache, writeCache } from "@/lib/menu-cache";
 import type { DemoSettings } from "@/lib/models";
 
-export const defaultSettings: DemoSettings = { acceptingOrders: true, acceptingDinein: true, phone: CAFE.phone, whatsappNumber: CAFE.whatsappNumber, minimumOrder: CAFE.delivery.minimumOrder, deliveryTime: CAFE.delivery.time, deliveryCost: "", paymentMethods: "", openingHours: CAFE.openingHours, address: CAFE.address, mapUrl: CAFE.mapUrl };
+export const defaultSettings: DemoSettings = { acceptingOrders: true, acceptingDinein: true, phone: CAFE.phone, whatsappNumber: CAFE.whatsappNumber, minimumOrder: CAFE.delivery.minimumOrder, freeDeliveryFrom: 0, deliveryTime: CAFE.delivery.time, deliveryCost: "", paymentMethods: "", openingHours: CAFE.openingHours, address: CAFE.address, mapUrl: CAFE.mapUrl };
 const cacheName = "settings";
 let pending: Promise<DemoSettings | null> | null = null;
 function loadSettings(): Promise<DemoSettings | null> {

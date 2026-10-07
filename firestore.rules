@@ -57,7 +57,7 @@ service cloud.firestore {
     // Доставка/самовывоз: как раньше — имя и телефон обязательны, адрес для доставки, tableNumber запрещён.
     function validFulfillmentOrder() {
       return request.resource.data.keys().hasAll(['name', 'phone', 'type', 'status', 'number'])
-        && request.resource.data.keys().hasOnly(['name', 'phone', 'type', 'status', 'number', 'address', 'comment', 'createdAt', 'source', 'location', 'mapLink'])
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'type', 'status', 'number', 'address', 'comment', 'createdAt', 'source', 'location', 'mapLink', 'deliveryFee'])
         && request.resource.data.name is string
         && request.resource.data.name.size() >= 2
         && request.resource.data.name.size() <= 100
@@ -75,6 +75,7 @@ service cloud.firestore {
           || (request.resource.data.comment is string && request.resource.data.comment.size() <= 500))
         && (!('source' in request.resource.data) || request.resource.data.source in ['website', 'demo'])
         && (!('createdAt' in request.resource.data) || request.resource.data.createdAt is string)
+        && (!('deliveryFee' in request.resource.data) || (request.resource.data.type == 'delivery' && request.resource.data.deliveryFee is number && request.resource.data.deliveryFee >= 0 && request.resource.data.deliveryFee <= 5000))
         && (!('location' in request.resource.data) || validOrderLocation())
         && (!('mapLink' in request.resource.data) || validOrderMapLink());
     }

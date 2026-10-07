@@ -1,5 +1,9 @@
 export type OpenStatus = { isOpen: boolean; text: string };
 
+export function openingTime(openingHours: string): string {
+  return /^\s*(\d{1,2}:\d{2})/.exec(openingHours)?.[1] ?? "";
+}
+
 export function getOpenStatus(now: Date, openingHours: string): OpenStatus {
   const match = /^\s*(\d{1,2}):(\d{2})\s*[–—-]\s*(\d{1,2}):(\d{2})\s*$/.exec(openingHours);
   if (!match) return { isOpen: false, text: "График уточняйте" };

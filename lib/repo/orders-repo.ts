@@ -7,6 +7,9 @@ const orders = collection(db, "orders");
 const orderItems = collection(db, "orderItems");
 const counter = doc(db, "counters", "orders");
 const itemKey = (orderId: string, productId: string) => `${orderId}_${productId}`;
+function isValidDeliveryFee(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 5000;
+}
 function encodeItem(item: OrderItem, orderId: string) {
   return { orderId, productId: item.productId, productName: item.productName, price: item.price, quantity: item.quantity };
 }
@@ -39,7 +42,7 @@ export async function createOrder(input: NewOrder): Promise<DemoOrder> {
     // Заказ со стола: без телефона и адреса, вместо них — номер стола.
     transaction.set(reference, input.fulfillment === "dinein"
       ? { ...common, tableNumber: input.tableNumber ?? 0, ...(input.name.trim() ? { name: input.name.trim() } : {}), ...(input.comment.trim() ? { comment: input.comment.trim() } : {}) }
-      : { ...common, name: input.name, phone: input.phone, address: input.address, comment: input.comment, ...(location ? { location } : {}), ...(mapLink ? { mapLink } : {}) });
+      : { ...common, name: input.name, phone: input.phone, address: input.address, comment: input.comment, ...(input.fulfillment === "delivery" && isValidDeliveryFee(input.deliveryFee) ? { deliveryFee: input.deliveryFee } : {}), ...(location ? { location } : {}), ...(mapLink ? { mapLink } : {}) });
     items.forEach((item) => transaction.set(doc(orderItems, itemKey(reference.id, item.productId)), encodeItem(item, reference.id)));
     transaction.set(counter, { value: number, orderId: reference.id });
     return { ...input, id: reference.id, number, createdAt, status: "new" as const };
@@ -88,6 +91,7 @@ function decodeOrder(id: string, data: Record<string, unknown>, itemDocs: OrderI
     fulfillment: (data.type ?? data.fulfillment ?? "delivery") as DemoOrder["fulfillment"],
     name: String(data.name ?? "Гость"), phone: String(data.phone ?? ""), address: String(data.address ?? ""), comment: String(data.comment ?? ""),
     tableNumber: typeof data.tableNumber === "number" ? data.tableNumber : undefined,
+    deliveryFee: isValidDeliveryFee(data.deliveryFee) ? data.deliveryFee : undefined,
     location: isValidLocation(data.location) ? { lat: data.location.lat, lng: data.location.lng } : undefined,
     mapLink: typeof data.mapLink === "string" ? data.mapLink : undefined,
   } as DemoOrder;

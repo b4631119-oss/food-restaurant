@@ -4,8 +4,10 @@ import { googleMapsLink, yandexMapsLink, yandexSearchLink } from "@/lib/map-link
 import type { CartLine, Fulfillment } from "@/lib/types";
 
 export type OrderInfo = {
+  orderNumber: number;
   cartLines: CartLine[];
   total: number;
+  fee: number | null;
   fulfillment: Fulfillment;
   name: string;
   phone: string;
@@ -20,13 +22,16 @@ function mapLines(address: string, location?: { lat: number; lng: number } | nul
   return link ? [`Ссылка клиента: ${link}`] : [`Карта: ${yandexSearchLink(`${address.trim()}, ${CAFE.city}`)}`];
 }
 
-export function buildReceipt({ cartLines, total, fulfillment, name, phone, address, location, mapLink }: OrderInfo): string {
+export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, name, phone, address, location, mapLink }: OrderInfo): string {
   return [
-    `🍣 Заказ — ${CAFE.name}`,
+    `Заказ №${orderNumber}`,
+    `🍣 ${CAFE.name}`,
     "──────────────────",
     ...cartLines.map(({ product, quantity }) => `${quantity} × ${product.name} — ${money(product.price * quantity)}`),
     "──────────────────",
-    `Итого: ${money(total)}`,
+    `Блюда: ${money(total)}`,
+    ...(fulfillment === "delivery" ? [`Доставка: ${fee === null ? "уточним" : fee === 0 ? "бесплатно" : money(fee)}`] : []),
+    `Итого к оплате: ${fee === null ? `${money(total)} + доставка` : money(total + fee)}`,
     `Имя: ${name.trim()}`,
     `Телефон: ${phone.trim()}`,
     `Получение: ${fulfillment === "delivery" ? "Доставка" : "Самовывоз"}`,

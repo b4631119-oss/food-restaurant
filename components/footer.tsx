@@ -30,7 +30,7 @@ export function Footer() {
       <div className="mx-auto mt-6 w-full max-w-[1200px] px-4 text-xs sm:px-8 lg:px-6">
         <div className="flex flex-col items-center gap-1 border-t border-line pt-4 lg:flex-row lg:justify-between">
           <span>© 2026 {CAFE.name}</span>
-          <span>Сайт разработал <a href={devLink} target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Bilol</a></span>
+          <span>Сайт разработал <a href={devLink} target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">BILOLIDIN</a></span>
         </div>
       </div>
     </footer>
