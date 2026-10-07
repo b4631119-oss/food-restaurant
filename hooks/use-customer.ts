@@ -7,33 +7,17 @@ import { formatPhone } from "@/lib/format";
 import type { Fulfillment } from "@/lib/types";
 
 const CUSTOMER_KEY = "sushi-bar-no1-customer";
+const GEO_ADDRESS = "По геолокации (точка на карте)";
 const ADDRESS_MAX = 200;
 type Field = "name" | "phone" | "address";
-type Saved = { name?: string; phone?: string; address?: string; street?: string; entrance?: string; floor?: string; flat?: string; intercom?: string };
+type Saved = { name?: string; phone?: string; address?: string; street?: string };
 export type GeoPoint = { lat: number; lng: number };
 export type GeoStatus = "idle" | "loading" | "done" | "error";
-
-function composeAddress(street: string, optional: string[]): { text: string; tooLong: boolean } {
-  const base = street.trim();
-  let extras = optional.filter(Boolean);
-  const join = () => [base, ...extras].filter(Boolean).join(", ");
-  while (join().length > ADDRESS_MAX && extras.length) {
-    let longest = 0;
-    extras.forEach((item, index) => { if (item.length > extras[longest].length) longest = index; });
-    extras = extras.filter((_, index) => index !== longest);
-  }
-  const text = join();
-  return text.length > ADDRESS_MAX ? { text: text.slice(0, ADDRESS_MAX), tooLong: true } : { text, tooLong: false };
-}
 
 export function useCustomer(table: number | null = null) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [street, setStreet] = useState("");
-  const [entrance, setEntrance] = useState("");
-  const [floor, setFloor] = useState("");
-  const [flat, setFlat] = useState("");
-  const [intercom, setIntercom] = useState("");
+  const [address, setAddressValue] = useState("");
   const [comment, setComment] = useState("");
   const [trap, setTrap] = useState("");
   const [fulfillment, setFulfillment] = useState<Fulfillment>("delivery");
@@ -41,10 +25,10 @@ export function useCustomer(table: number | null = null) {
   const [geoStatus, setGeoStatus] = useState<GeoStatus>("idle");
   const [geoError, setGeoError] = useState("");
   const [geoSuggestion, setGeoSuggestion] = useState("");
-  const [geoNote, setGeoNote] = useState("");
+  const [addressFromMap, setAddressFromMap] = useState(false);
   const [geoFilledAt, setGeoFilledAt] = useState(0);
-  const streetRef = useRef("");
-  useEffect(() => { streetRef.current = street; }, [street]);
+  const addressRef = useRef("");
+  useEffect(() => { addressRef.current = address; }, [address]);
   const [touched, setTouched] = useState<Record<Field, boolean>>({ name: false, phone: false, address: false });
   const [submitted, setSubmitted] = useState(false);
   const [ready, setReady] = useState(false);
@@ -54,8 +38,7 @@ export function useCustomer(table: number | null = null) {
       try {
         const saved = JSON.parse(localStorage.getItem(CUSTOMER_KEY) ?? "{}") as Saved;
         setName(saved.name ?? ""); setPhone(formatPhone(saved.phone ?? ""));
-        setStreet(saved.street ?? saved.address ?? "");
-        setEntrance(saved.entrance ?? ""); setFloor(saved.floor ?? ""); setFlat(saved.flat ?? ""); setIntercom(saved.intercom ?? "");
+        setAddressValue((saved.street ?? saved.address ?? "").slice(0, ADDRESS_MAX));
       } catch { /* Continue with empty fields when storage is unavailable. */ }
       finally { setReady(true); }
     }, 0);
@@ -63,23 +46,17 @@ export function useCustomer(table: number | null = null) {
   }, []);
   useEffect(() => {
     if (!ready) return;
-    try { localStorage.setItem(CUSTOMER_KEY, JSON.stringify({ name, phone, street, entrance, floor, flat, intercom })); } catch { /* Keep fields usable without storage. */ }
-  }, [name, phone, street, entrance, floor, flat, intercom, ready]);
+    try { localStorage.setItem(CUSTOMER_KEY, JSON.stringify({ name, phone, address })); } catch { /* Keep fields usable without storage. */ }
+  }, [name, phone, address, ready]);
 
-  const optional = [
-    entrance.trim() ? `подъезд ${entrance.trim()}` : "",
-    floor.trim() ? `этаж ${floor.trim()}` : "",
-    flat.trim() ? `кв. ${flat.trim()}` : "",
-    intercom.trim() ? `домофон ${intercom.trim()}` : "",
-  ].filter(Boolean);
-  const composed = composeAddress(street, optional);
-  const address = composed.text;
+  function setAddress(value: string) { setAddressValue(value); if (addressFromMap) setAddressFromMap(false); }
+  const orderAddress = (address.trim() || (location ? GEO_ADDRESS : "")).slice(0, ADDRESS_MAX);
   const dinein = table !== null;
   const delivery = !dinein && fulfillment === "delivery";
   const errors = {
     name: dinein ? (name.trim() && name.trim().length < 2 ? "Укажите имя (минимум 2 символа)." : "") : validateName(name),
     phone: dinein ? "" : validatePhone(phone),
-    address: delivery ? validateAddress(street, Boolean(location)) || (composed.tooLong ? "Слишком длинный адрес" : "") : "",
+    address: delivery ? validateAddress(address, Boolean(location)) : "",
   };
   const visibleErrors = {
     name: touched.name || submitted ? errors.name : "",
@@ -95,34 +72,33 @@ export function useCustomer(table: number | null = null) {
   }
   function locate() {
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
-    setGeoStatus("loading"); setGeoError(""); setGeoSuggestion(""); setGeoNote("");
+    setGeoStatus("loading"); setGeoError(""); setGeoSuggestion("");
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const point = { lat: Math.round(position.coords.latitude * 1e5) / 1e5, lng: Math.round(position.coords.longitude * 1e5) / 1e5 };
         setLocation(point); setGeoStatus("done");
         void reverseGeocode(point.lat, point.lng).then((found) => {
-          if (!found) { setGeoNote("Местоположение добавлено. Допишите улицу и дом."); return; }
-          if (!streetRef.current.trim()) { setStreet(found); setGeoFilledAt((count) => count + 1); setGeoNote("Адрес определён по данным OpenStreetMap, проверьте его"); return; }
+          if (!found) return;
+          if (!addressRef.current.trim()) { setAddressValue(found); setAddressFromMap(true); setGeoFilledAt((count) => count + 1); return; }
           setGeoSuggestion(found);
         });
       },
       () => {
         setGeoStatus("error");
-        setGeoError("Не получилось определить. Просто укажите адрес.");
+        setGeoError("Не получилось определить. Просто напишите адрес.");
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
   }
   function useSuggestion() {
     if (!geoSuggestion) return;
-    setStreet(geoSuggestion); setGeoSuggestion(""); setGeoNote("Адрес определён по данным OpenStreetMap, проверьте его"); setGeoFilledAt((count) => count + 1);
+    setAddressValue(geoSuggestion); setGeoSuggestion(""); setAddressFromMap(true); setGeoFilledAt((count) => count + 1);
   }
-  function clearLocation() { setLocation(null); setGeoStatus("idle"); setGeoError(""); setGeoSuggestion(""); setGeoNote(""); }
+  function clearLocation() { setLocation(null); setGeoStatus("idle"); setGeoError(""); setGeoSuggestion(""); setAddressFromMap(false); }
   return {
     name, setName, phone, setPhone: (value: string) => setPhone(formatPhone(value)),
-    street, setStreet, entrance, setEntrance, floor, setFloor, flat, setFlat, intercom, setIntercom,
-    address, comment, setComment, trap, setTrap,
+    address, setAddress, orderAddress, comment, setComment, trap, setTrap,
     fulfillment, setFulfillment, errors: visibleErrors, blurField, validateForm,
-    location, geoStatus, geoError, geoSuggestion, geoNote, geoFilledAt, useSuggestion, locate, clearLocation,
+    location, geoStatus, geoError, geoSuggestion, addressFromMap, geoFilledAt, useSuggestion, locate, clearLocation,
   };
 }

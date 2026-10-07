@@ -18,5 +18,5 @@ export function mainActionLabel(order: DemoOrder): string {
 }
 export function MainOrderAction({ order, onAdvance }: { order: DemoOrder; onAdvance: () => void }) {
   const Icon = order.status === "new" ? ChefHat : order.status === "preparing" && order.fulfillment === "delivery" ? Bike : order.status === "preparing" ? PackageCheck : order.status === "served" ? Bell : Check;
-  return <button onClick={onAdvance} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent px-3 text-sm font-bold text-background"><Icon size={18} />{mainActionLabel(order)}</button>;
+  return <button onClick={onAdvance} className="inline-flex min-h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-accent px-3 text-sm font-bold text-background"><Icon size={18} />{mainActionLabel(order)}</button>;
 }

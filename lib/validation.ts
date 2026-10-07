@@ -7,8 +7,6 @@ export function validatePhone(value: string): string {
 }
 
 export function validateAddress(value: string, hasLocation = false): string {
-  const text = value.trim();
-  if (text.length < 5) return "Введите улицу и дом";
-  if (!hasLocation && !/\d/.test(text)) return "Укажите номер дома или нажмите значок местоположения";
-  return "";
+  if (hasLocation) return "";
+  return value.trim().length < 5 ? "Напишите адрес или нажмите значок местоположения" : "";
 }

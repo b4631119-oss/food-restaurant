@@ -20,21 +20,13 @@ export type CartContentProps = {
   setName: (value: string) => void;
   phone: string;
   setPhone: (value: string) => void;
-  street: string;
-  setStreet: (value: string) => void;
-  entrance: string;
-  setEntrance: (value: string) => void;
-  floor: string;
-  setFloor: (value: string) => void;
-  flat: string;
-  setFlat: (value: string) => void;
-  intercom: string;
-  setIntercom: (value: string) => void;
+  address: string;
+  setAddress: (value: string) => void;
+  addressFromMap: boolean;
   location: GeoPoint | null;
   geoStatus: GeoStatus;
   geoError: string;
   geoSuggestion: string;
-  geoNote: string;
   geoFilledAt: number;
   onUseSuggestion: () => void;
   onLocate: () => void;
@@ -68,21 +60,13 @@ export function CartContent(props: CartContentProps) {
             setName={props.setName}
             phone={props.phone}
             setPhone={props.setPhone}
-            street={props.street}
-            setStreet={props.setStreet}
-            entrance={props.entrance}
-            setEntrance={props.setEntrance}
-            floor={props.floor}
-            setFloor={props.setFloor}
-            flat={props.flat}
-            setFlat={props.setFlat}
-            intercom={props.intercom}
-            setIntercom={props.setIntercom}
+            address={props.address}
+            setAddress={props.setAddress}
+            addressFromMap={props.addressFromMap}
             location={props.location}
             geoStatus={props.geoStatus}
             geoError={props.geoError}
             geoSuggestion={props.geoSuggestion}
-            geoNote={props.geoNote}
             geoFilledAt={props.geoFilledAt}
             onUseSuggestion={props.onUseSuggestion}
             onLocate={props.onLocate}
