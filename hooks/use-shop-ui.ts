@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export function useShopUi(itemCount: number, addToCart: (productId: string) => void) {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartPulse, setCartPulse] = useState(false);
-  const [allowEmpty, setAllowEmpty] = useState(false);
   const [activeCategory, setActiveCategory] = useState("Популярное");
   const [searchQuery, setSearchQuery] = useState("");
   const [notice, setNotice] = useState("");
@@ -18,9 +17,9 @@ export function useShopUi(itemCount: number, addToCart: (productId: string) => v
     return () => window.clearTimeout(timer);
   }, [notice]);
 
-  const cartDialogOpen = cartOpen && (itemCount > 0 || orderSent || allowEmpty);
-  const openCart = () => { if (itemCount > 0) setCartOpen(true); };
-  const openCartAny = () => { setAllowEmpty(true); setCartOpen(true); };
+  const cartDialogOpen = cartOpen;
+  const openCart = () => setCartOpen(true);
+  const openCartAny = () => setCartOpen(true);
   const closeCart = useCallback(() => setCartOpen(false), []);
   const addProduct = (productId: string) => {
     addToCart(productId);

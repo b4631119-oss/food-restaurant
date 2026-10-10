@@ -26,7 +26,7 @@ export function ProductGrid({ products, title, groups, isAll, onShowAll, query, 
     <div ref={listRef} className="scroll-mt-[120px] pt-1">
       <label className="flex h-11 min-h-11 items-center gap-3 rounded-xl border border-line bg-surface px-3.5 focus-within:border-accent">
         <Search className="size-4 shrink-0 text-muted" aria-hidden="true" />
-        <input value={query} onChange={(event) => onQuery(event.target.value)} type="text" placeholder="Найти блюдо" aria-label="Поиск по меню" className="min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-muted" />
+        <input value={query} onChange={(event) => onQuery(event.target.value)} type="text" placeholder="Найти блюдо" aria-label="Поиск по меню" className="min-w-0 flex-1 bg-transparent text-base text-text outline-none placeholder:text-muted" />
         {query && <button type="button" onClick={() => onQuery("")} aria-label="Очистить поиск" className="grid size-11 shrink-0 place-items-center text-muted hover:text-text"><X className="size-4" aria-hidden="true" /></button>}
       </label>
       <div className="mb-3 mt-4 flex items-center justify-between">

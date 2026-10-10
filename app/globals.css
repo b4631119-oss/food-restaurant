@@ -31,102 +31,55 @@ html {
   scroll-behavior: smooth;
   background: var(--background);
   color: var(--text);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   -webkit-tap-highlight-color: transparent;
   background: linear-gradient(145deg, #0A1424 0%, #0D1B30 58%, #0A1424 100%) fixed;
+  overflow-x: hidden;
 }
 
-h1, h2, h3 {
-  font-family: "Noto Serif", "Playfair Display", Georgia, serif;
-}
+h1, h2, h3 { font-family: "Noto Serif", "Playfair Display", Georgia, serif; }
+::selection { background: color-mix(in srgb, var(--accent) 32%, transparent); color: var(--text); }
+button, input, textarea, select { font: inherit; }
+button, a, input[type="button"], input[type="submit"] { touch-action: manipulation; }
+input:not([type="checkbox"]):not([type="radio"]), textarea, select { font-size: 16px !important; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-::selection {
-  background: color-mix(in srgb, var(--accent) 32%, transparent);
-  color: var(--text);
-}
-
-button, input, textarea {
-  font: inherit;
-}
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.safe-bottom {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
-}
-
-.photo-placeholder {
-  background-color: var(--surface);
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.safe-bottom { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem); }
+.photo-placeholder { background-color: var(--surface); }
 
 .category-strip::after {
-  position: absolute;
-  z-index: 35;
-  top: 1px;
-  right: 0;
-  bottom: 1px;
-  width: 2.5rem;
-  background: linear-gradient(90deg, transparent, var(--background) 88%);
-  content: "";
-  pointer-events: none;
+  position: absolute; z-index: 35; top: 1px; right: 0; bottom: 1px; width: 2.5rem;
+  background: linear-gradient(90deg, transparent, var(--background) 88%); content: ""; pointer-events: none;
 }
 
-.product-photo-failed .product-photo {
-  display: none;
-}
-
+.product-photo-failed .product-photo { display: none; }
 .hero-logo-frame {
   border: 1px solid color-mix(in srgb, var(--accent) 78%, transparent);
   box-shadow: 0 0 32px color-mix(in srgb, var(--accent) 17%, transparent);
 }
-
 .section-heading::after {
-  display: block;
-  width: 2.5rem;
-  height: 1px;
-  margin-top: 0.65rem;
-  background: var(--accent);
-  content: "";
+  display: block; width: 2.5rem; height: 1px; margin-top: 0.65rem; background: var(--accent); content: "";
 }
 
 .press {
-  transition: transform 150ms ease-out, background-color 150ms ease-out,
-    box-shadow 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out;
+  touch-action: manipulation;
+  transition: transform 150ms ease-out, background-color 150ms ease-out, box-shadow 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out;
 }
-.press:active {
-  transform: scale(0.98);
-}
-
-.accent-shadow {
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 14%, transparent);
-}
-
-.sheet-enter {
-  animation: sheet-up 240ms cubic-bezier(0.2, 0.75, 0.2, 1);
-}
-
-.cart-pulse {
-  animation: cart-pulse 420ms ease-out;
-}
+.press:active { transform: scale(0.96); }
+.accent-shadow { box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 14%, transparent); }
+.sheet-enter { animation: sheet-up 240ms cubic-bezier(0.2, 0.75, 0.2, 1); }
+.cart-pulse { animation: cart-pulse 420ms ease-out; }
 
 @keyframes sheet-up {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
-
 @keyframes cart-pulse {
   0% { transform: scale(1); }
   45% { transform: scale(1.025); }
@@ -134,22 +87,17 @@ button, input, textarea {
 }
 
 @media (min-width: 1024px) {
-  .menu-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
+  .menu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-
 @media (max-width: 1023px) {
-  .menu-grid {
-    grid-auto-rows: 1fr;
-  }
+  .menu-grid { grid-auto-rows: 1fr; }
+}
+@media (max-width: 359px) {
+  .menu-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;

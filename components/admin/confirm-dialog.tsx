@@ -2,9 +2,11 @@
 
 import { useEffect } from "react";
 import { X } from "lucide-react";
+import { useModalBackHandler } from "@/hooks/use-scroll-lock";
 
 type ConfirmDialogProps = { open: boolean; title: string; message: string; confirmLabel?: string; onConfirm: () => void; onCancel: () => void };
 export function ConfirmDialog({ open, title, message, confirmLabel = "Удалить", onConfirm, onCancel }: ConfirmDialogProps) {
+  useModalBackHandler(open, onCancel);
   useEffect(() => {
     if (!open) return;
     const key = (event: KeyboardEvent) => { if (event.key === "Escape") onCancel(); };

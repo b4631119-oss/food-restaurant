@@ -27,7 +27,7 @@ export function AdminOverview() {
   const dayBars: Bar[] = days.map((day) => ({ key: day.key, label: day.label.slice(0, 5), count: day.count, revenue: day.revenue }));
   const hourBars: Bar[] = singleDay ? byHour(orders).map((row) => ({ key: String(row.hour), label: row.hour % 3 === 0 ? `${String(row.hour).padStart(2, "0")}:00` : "", count: row.count, revenue: row.revenue })) : [];
   const refresh = () => { current.refresh(); past.refresh(); };
-  return <section>
+  return <section className="min-w-0">
     <header className="flex flex-wrap items-start justify-between gap-3">
       <div><h1 className="text-2xl font-bold">Обзор</h1><p className="mt-1 text-sm text-muted">{period ? `Период: ${period.label} · день считается с 06:00 до 06:00` : "Загрузка периода…"}</p></div>
       <button type="button" onClick={refresh} disabled={!period} className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold disabled:opacity-50">Обновить</button>
@@ -37,8 +37,8 @@ export function AdminOverview() {
     {current.error && <p role="alert" className="mt-3 text-sm text-red-400">{current.error}</p>}
     {current.loading ? <OverviewSkeleton /> : <>
       <ReportCards cards={cardsFor(orderTotals(orders), orderTotals(past.orders ?? []))} />
-      <div className="mt-4 grid gap-4 lg:grid-cols-2"><ReportTypes rows={byType(orders)} /><ReportTables rows={byTable(orders)} /></div>
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-2"><ReportTypes rows={byType(orders)} /><ReportTables rows={byTable(orders)} /></div>
+      <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-2">
         {singleDay ? <ReportChart title="Заказы по часам" bars={hourBars} /> : <ReportChart title="Заказы по дням" bars={dayBars} />}
         <ReportTop items={topDishes(orders)} />
       </div>

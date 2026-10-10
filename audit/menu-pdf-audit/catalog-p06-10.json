@@ -1,0 +1,83 @@
+{
+  "source": "меню сушибар (1).pdf",
+  "pages": [6, 7, 8, 9, 10],
+  "status": "transcribed-from-pdf-layout-text; visual-crosscheck-pending",
+  "categories": [
+    {
+      "name": "гарнирлер",
+      "order": 5,
+      "page": 6,
+      "items": [
+        {"name": "гюдон", "description": "говядина, рис, яйцо, яки соус, терияки соус, масло, зеленый лук", "price": 290, "weight": null, "options": [], "photo": {"pdfPage": 6, "sourceCandidates": ["img-006-032.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "аякидон", "description": "курица, рис, яйцо, яки соус, терияки соус, масло, зеленый лук", "price": 260, "weight": null, "options": [], "photo": {"pdfPage": 6, "sourceCandidates": ["img-006-033.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "фри", "description": null, "price": 130, "weight": null, "options": [], "photo": null, "status": "text-transcribed"},
+        {"name": "картофель по деревенский", "description": null, "price": 150, "weight": null, "options": [], "photo": {"pdfPage": 6, "sourceCandidates": ["img-006-034.jpg"], "status": "needs-visual-confirmation"}, "status": "name-preserved-as-extracted; grammar-not-normalized"},
+        {"name": "наггетсы", "description": "на выбор острый/не острый", "price": null, "weight": null, "options": [{"label": "порция", "values": [{"weight": "200 г", "price": 220}, {"weight": "300 г", "price": 320}, {"weight": "500 г", "price": 520}]}], "photo": {"pdfPage": 6, "sourceCandidates": ["img-006-035.jpg"], "status": "needs-visual-confirmation"}, "status": "variant-table-pairing-visual-check-needed"},
+        {"name": "чикен кисло-сладкий острый", "description": null, "price": null, "weight": null, "options": [{"label": "порция", "values": [{"weight": "200 г", "price": 220}, {"weight": "300 г", "price": 320}, {"weight": "500 г", "price": 520}]}], "photo": {"pdfPage": 6, "sourceCandidates": ["img-006-036.jpg"], "status": "needs-visual-confirmation"}, "status": "text-layout-separates-heading-from-variant-prices; check whether separate product or subheading"},
+        {"name": "куурулган миди", "description": null, "price": 300, "weight": "5 шт", "options": [], "photo": {"pdfPage": 6, "sourceCandidates": ["img-006-037.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "запеченные миди", "description": null, "price": null, "weight": null, "options": [], "photo": {"pdfPage": 6, "sourceCandidates": ["img-006-038.jpg"], "status": "needs-manual-price-pairing"}, "status": "price-not-confidently-paired-in-text"}
+      ]
+    },
+    {
+      "name": "пицца",
+      "order": 6,
+      "page": 7,
+      "items": [
+        {"name": "мясной ассорти", "description": "сыр, соус, томат, мясо, колбаса, курица, паприка, маслины, грибы", "price": null, "weight": null, "options": [{"label": "размер", "values": [{"size": "28см", "price": 380}, {"size": "35см", "price": 580}]}], "photo": {"pdfPage": 7, "sourceCandidates": ["img-007-041.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed; adjacent эт менен / мясная headings and 350/550 prices need layout verification"},
+        {"name": "эт менен мясная", "description": "сыр, соус, томат, мясо, базилик", "price": null, "weight": null, "options": [{"label": "размер", "values": [{"size": "28см", "price": 350}, {"size": "35см", "price": 550}]}], "photo": {"pdfPage": 7, "sourceCandidates": ["img-007-042.jpg"], "status": "needs-visual-confirmation"}, "status": "OCR layout likely one name in two languages/lines; confirm original lettering"},
+        {"name": "пепперони", "description": "сыр, соус, томат, колбаса, базилик", "price": null, "weight": null, "options": [{"label": "размер", "values": [{"size": "28см", "price": 320}, {"size": "35см", "price": 500}]}], "photo": {"pdfPage": 7, "sourceCandidates": ["img-007-043.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "4 мезгил", "description": "сыр, соус, томат, колбаса, грибы, говядина, курица, базилик", "price": null, "weight": null, "options": [{"label": "размер", "values": [{"size": "28см", "price": 350}, {"size": "35см", "price": 550}]}], "photo": {"pdfPage": 7, "sourceCandidates": ["img-007-044.jpg"], "status": "needs-visual-confirmation"}, "status": "page-has-bilingual-heading-4 мезгил / 4 сезона; confirm exact printed name and option pairing"},
+        {"name": "4 сыра", "description": "сыр мацорелла, сыр гауда, сыр пармезан, соус сливочный, базилик", "price": null, "weight": null, "options": [{"label": "размер", "values": [{"size": "28см", "price": 400}, {"size": "35см", "price": 560}]}], "photo": {"pdfPage": 7, "sourceCandidates": ["img-007-045.jpg"], "status": "needs-visual-confirmation"}, "status": "name-and-composition-transcribed; spelling мацорелла preserved"},
+        {"name": "тоок эти менен курица с грибами", "description": "сыр, курица, томатный соус, грибы, базилик", "price": null, "weight": null, "options": [{"label": "размер", "values": [{"size": "28см", "price": 350}, {"size": "35см", "price": 550}]}], "photo": {"pdfPage": 7, "sourceCandidates": ["img-007-047.jpg"], "status": "needs-visual-confirmation"}, "status": "bilingual-heading-and-price-layout-need-check"},
+        {"name": "маргарита", "description": "сыр, помидоры, томатный соус, базилик", "price": null, "weight": null, "options": [{"label": "размер", "values": [{"size": "28см", "price": 300}, {"size": "35см", "price": 450}]}], "photo": {"pdfPage": 7, "sourceCandidates": ["img-007-048.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"}
+      ]
+    },
+    {
+      "name": "роллдор",
+      "order": 7,
+      "page": 8,
+      "items": [
+        {"name": "филадельфия", "description": "рис, нори, сыр, огурец, лосось", "price": 400, "weight": null, "options": [], "photo": {"pdfPage": 8, "sourceCandidates": ["img-008-051.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "ролл с угрем", "description": "рис, нори, сыр, огурец, угорь, унаги соус, кунжут", "price": 430, "weight": null, "options": [], "photo": {"pdfPage": 8, "sourceCandidates": ["img-008-052.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "кани тобика маки", "description": "рис, нори, сыр, огурец, краб, массаго", "price": 330, "weight": null, "options": [], "photo": {"pdfPage": 8, "sourceCandidates": ["img-008-053.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "калифорния с кунжутом", "description": "рис, нори, сыр, огурец, краб, кунжут", "price": 260, "weight": null, "options": [], "photo": {"pdfPage": 8, "sourceCandidates": ["img-008-054.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "филадельфия тобика", "description": "рис, нори, сыр, огурец, лосось, массаго красный", "price": 300, "weight": null, "options": [], "photo": {"pdfPage": 8, "sourceCandidates": ["img-008-055.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"}
+      ]
+    },
+    {
+      "name": "мини роллдор",
+      "order": 8,
+      "page": 9,
+      "items": [
+        {"name": "мини ролл лосось", "description": null, "price": 200, "weight": null, "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-058.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "мини ролл огурец", "description": null, "price": 120, "weight": null, "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-059.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "мини ролл краб", "description": null, "price": 120, "weight": null, "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-060.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "мини ролл угорь", "description": null, "price": 200, "weight": null, "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-061.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "гункан с миди", "description": null, "price": 50, "weight": "1шт", "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-062.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "гункан с угрем", "description": null, "price": 50, "weight": "1шт", "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-063.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "гункан с лососем", "description": null, "price": 50, "weight": "1шт", "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-064.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "гункан с курицей", "description": null, "price": 50, "weight": "1шт", "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-065.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "мини ролл миди", "description": null, "price": 200, "weight": null, "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-066.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "мини ролл угорь (запеченный)", "description": null, "price": 200, "weight": null, "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-067.jpg"], "status": "needs-visual-confirmation"}, "status": "name-grouping-is-interpreted-from-heading; confirm visual column grouping"},
+        {"name": "мини ролл лосось (запеченный)", "description": null, "price": 200, "weight": null, "options": [], "photo": {"pdfPage": 9, "sourceCandidates": ["img-009-068.jpg"], "status": "needs-visual-confirmation"}, "status": "name-grouping-is-interpreted-from-heading; confirm visual column grouping"}
+      ]
+    },
+    {
+      "name": "запеченные роллы",
+      "order": 9,
+      "page": 10,
+      "items": [
+        {"name": "ролл сырный", "description": "рис, нори, соус сырный, сыр, омлет, унаги соус, кунжут, курица", "price": 280, "weight": null, "options": [], "photo": {"pdfPage": 10, "sourceCandidates": ["img-010-071.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "запеченный фила", "description": "рис, нори, соус сырный, сыр, авокадо, унаги соус, кунжут, лосось", "price": 450, "weight": null, "options": [], "photo": {"pdfPage": 10, "sourceCandidates": ["img-010-072.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"},
+        {"name": "запеченный угорь", "description": "рис, нори, яки соус, унаги соус, сыр, омлет, угорь, кунжут", "price": 430, "weight": null, "options": [], "photo": {"pdfPage": 10, "sourceCandidates": ["img-010-073.jpg"], "status": "needs-visual-confirmation"}, "status": "text-transcribed"}
+      ]
+    }
+  ],
+  "reviewNotes": [
+    "Page 6 multirow variant prices (nuggets and adjacent chicken) are not reliably paired by text extraction; review original image before modelling.",
+    "Page 6 baked mussels has a detected image and title but no confidently extracted price.",
+    "Page 7 bilingual/overlapping pizza names and size prices require checking the page itself.",
+    "Page 9 headings 'запеченные гунканы' and 'запеченный мини ролл' share columns; assigned rows need visual verification.",
+    "Variant model in the current app has no options field; size/portion must remain a single product only after approved representation is chosen."
+  ]
+}

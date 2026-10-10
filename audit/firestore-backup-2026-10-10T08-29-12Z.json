@@ -1,0 +1,899 @@
+{
+  "formatVersion": 1,
+  "createdAt": "2026-10-10T08:29:12.229Z",
+  "source": "fresh read-only Firestore REST snapshot before proposed PDF menu import",
+  "projectId": "sushi-bar-no1",
+  "collections": {
+    "products": [
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/drink-green-tea",
+        "fields": {
+          "price": {
+            "integerValue": "220"
+          },
+          "name": {
+            "stringValue": "Зелёный чай"
+          },
+          "weight": {
+            "stringValue": "0,6 л"
+          },
+          "description": {
+            "stringValue": "Японский зелёный чай — чайник 0,6 л"
+          },
+          "popular": {
+            "booleanValue": false
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "category": {
+            "stringValue": "Напитки"
+          },
+          "image": {
+            "stringValue": "/images/menu/drink-green-tea.jpg"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:06:48.128206Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/drink-iced-tea",
+        "fields": {
+          "description": {
+            "stringValue": "Чёрный чай с лимоном и льдом — 0,5 л"
+          },
+          "name": {
+            "stringValue": "Холодный чай"
+          },
+          "image": {
+            "stringValue": "/images/menu/drink-iced-tea.jpg"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "price": {
+            "integerValue": "160"
+          },
+          "category": {
+            "stringValue": "Напитки"
+          },
+          "weight": {
+            "stringValue": "0,5 л"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:06:49.091781Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/drink-juice",
+        "fields": {
+          "image": {
+            "stringValue": "/images/menu/drink-juice.jpg"
+          },
+          "category": {
+            "stringValue": "Напитки"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "description": {
+            "stringValue": "Натуральный апельсиновый сок — 0,3 л"
+          },
+          "weight": {
+            "stringValue": "0,3 л"
+          },
+          "price": {
+            "integerValue": "210"
+          },
+          "name": {
+            "stringValue": "Апельсиновый сок"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:06:50.225236Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/drink-lemonade",
+        "fields": {
+          "image": {
+            "stringValue": "/images/menu/drink-lemonade.jpg"
+          },
+          "description": {
+            "stringValue": "Лимон, мята, содовая, лёд — 0,5 л"
+          },
+          "category": {
+            "stringValue": "Напитки"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "weight": {
+            "stringValue": "0,5 л"
+          },
+          "price": {
+            "integerValue": "180"
+          },
+          "name": {
+            "stringValue": "Домашний лимонад"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:06:51.407486Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/drink-water",
+        "fields": {
+          "image": {
+            "stringValue": "/images/menu/drink-water.jpg"
+          },
+          "description": {
+            "stringValue": "Газированная или негазированная — 0,5 л"
+          },
+          "weight": {
+            "stringValue": "0,5 л"
+          },
+          "category": {
+            "stringValue": "Напитки"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "name": {
+            "stringValue": "Минеральная вода"
+          },
+          "price": {
+            "integerValue": "90"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:06:53.684834Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/hot-chicken",
+        "fields": {
+          "inStock": {
+            "booleanValue": false
+          },
+          "weight": {
+            "stringValue": "≈300 г"
+          },
+          "category": {
+            "stringValue": "Горячее"
+          },
+          "price": {
+            "integerValue": "390"
+          },
+          "image": {
+            "stringValue": "/images/menu/hot-chicken.jpg"
+          },
+          "description": {
+            "stringValue": "Куриное филе, соус терияки, рис, кунжут"
+          },
+          "name": {
+            "stringValue": "Курица терияки"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:06:54.724441Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/hot-miso",
+        "fields": {
+          "name": {
+            "stringValue": "Мисо-суп"
+          },
+          "price": {
+            "integerValue": "190"
+          },
+          "description": {
+            "stringValue": "Мисо-бульон, тофу, вакаме, зелёный лук"
+          },
+          "weight": {
+            "stringValue": "≈300 мл"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "category": {
+            "stringValue": "Горячее"
+          },
+          "image": {
+            "stringValue": "/images/menu/hot-miso.jpg"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:06:55.871064Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/hot-spring-rolls",
+        "fields": {
+          "image": {
+            "stringValue": "/images/menu/hot-spring-rolls.jpg"
+          },
+          "category": {
+            "stringValue": "Горячее"
+          },
+          "name": {
+            "stringValue": "Спринг-роллы"
+          },
+          "description": {
+            "stringValue": "Хрустящие роллы с овощами, кисло-сладкий соус"
+          },
+          "price": {
+            "integerValue": "280"
+          },
+          "weight": {
+            "stringValue": "≈200 г"
+          },
+          "inStock": {
+            "booleanValue": false
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:06:58.203200Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/hot-tempura-shrimp",
+        "fields": {
+          "inStock": {
+            "booleanValue": false
+          },
+          "price": {
+            "integerValue": "420"
+          },
+          "name": {
+            "stringValue": "Креветки темпура"
+          },
+          "weight": {
+            "stringValue": "≈200 г"
+          },
+          "category": {
+            "stringValue": "Горячее"
+          },
+          "image": {
+            "stringValue": "/images/menu/hot-tempura-shrimp.jpg"
+          },
+          "description": {
+            "stringValue": "Креветки в лёгком кляре, соус спайси"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:06:59.297348Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/hot-udon",
+        "fields": {
+          "price": {
+            "integerValue": "420"
+          },
+          "description": {
+            "stringValue": "Пшеничная лапша, курица, овощи, соус терияки"
+          },
+          "name": {
+            "stringValue": "Удон с курицей"
+          },
+          "category": {
+            "stringValue": "Горячее"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "weight": {
+            "stringValue": "≈350 г"
+          },
+          "image": {
+            "stringValue": "/images/menu/hot-udon.jpg"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:00.452133Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/roll-california",
+        "fields": {
+          "inStock": {
+            "booleanValue": false
+          },
+          "weight": {
+            "stringValue": "≈250 г"
+          },
+          "price": {
+            "integerValue": "390"
+          },
+          "category": {
+            "stringValue": "Роллы"
+          },
+          "name": {
+            "stringValue": "Калифорния"
+          },
+          "image": {
+            "stringValue": "/images/menu/roll-california.jpg"
+          },
+          "popular": {
+            "booleanValue": true
+          },
+          "description": {
+            "stringValue": "Краб, авокадо, огурец, икра тобико, рис, нори"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:01.305016Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/roll-philadelphia",
+        "fields": {
+          "price": {
+            "integerValue": "520"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "name": {
+            "stringValue": "Филадельфия"
+          },
+          "weight": {
+            "stringValue": "≈250 г"
+          },
+          "description": {
+            "stringValue": "Лосось, сливочный сыр, огурец, рис, нори"
+          },
+          "category": {
+            "stringValue": "Роллы"
+          },
+          "popular": {
+            "booleanValue": true
+          },
+          "image": {
+            "stringValue": "/images/menu/roll-philadelphia.jpg"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:03.370352Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/roll-spicy-salmon",
+        "fields": {
+          "image": {
+            "stringValue": "/images/menu/roll-spicy-salmon.jpg"
+          },
+          "category": {
+            "stringValue": "Роллы"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "description": {
+            "stringValue": "Лосось, острый соус, зелёный лук, рис, нори"
+          },
+          "popular": {
+            "booleanValue": true
+          },
+          "weight": {
+            "stringValue": "≈250 г"
+          },
+          "name": {
+            "stringValue": "Спайси лосось"
+          },
+          "price": {
+            "integerValue": "420"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:04.481154Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/roll-tempura",
+        "fields": {
+          "image": {
+            "stringValue": "/images/menu/roll-tempura.jpg"
+          },
+          "weight": {
+            "stringValue": "≈260 г"
+          },
+          "popular": {
+            "booleanValue": true
+          },
+          "description": {
+            "stringValue": "Креветка, сливочный сыр, огурец, хрустящая темпура"
+          },
+          "category": {
+            "stringValue": "Роллы"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "name": {
+            "stringValue": "Темпура с креветкой"
+          },
+          "price": {
+            "integerValue": "460"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:05.414579Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/roll-unagi",
+        "fields": {
+          "popular": {
+            "booleanValue": true
+          },
+          "name": {
+            "stringValue": "Унаги маки"
+          },
+          "category": {
+            "stringValue": "Роллы"
+          },
+          "image": {
+            "stringValue": "/images/menu/roll-unagi.jpg"
+          },
+          "description": {
+            "stringValue": "Угорь, кунжут, соус унаги, рис, нори"
+          },
+          "price": {
+            "integerValue": "440"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "weight": {
+            "stringValue": "≈240 г"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:08.741336Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/roll-veggie",
+        "fields": {
+          "price": {
+            "integerValue": "300"
+          },
+          "weight": {
+            "stringValue": "≈220 г"
+          },
+          "popular": {
+            "booleanValue": true
+          },
+          "name": {
+            "stringValue": "Овощной ролл"
+          },
+          "description": {
+            "stringValue": "Авокадо, огурец, сладкий перец, кунжут, рис, нори"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "image": {
+            "stringValue": "/images/menu/roll-veggie.jpg"
+          },
+          "category": {
+            "stringValue": "Роллы"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:09.916261Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/set-classic",
+        "fields": {
+          "image": {
+            "stringValue": "/images/menu/set-classic.jpg"
+          },
+          "weight": {
+            "stringValue": "24 шт."
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "category": {
+            "stringValue": "Сеты"
+          },
+          "description": {
+            "stringValue": "Филадельфия, Калифорния, маки с огурцом — 24 шт."
+          },
+          "name": {
+            "stringValue": "Классический сет"
+          },
+          "price": {
+            "integerValue": "1190"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:11.145404Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/set-for-two",
+        "fields": {
+          "weight": {
+            "stringValue": "40 шт."
+          },
+          "description": {
+            "stringValue": "Три популярных ролла и суши с лососем — 40 шт."
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "price": {
+            "integerValue": "1890"
+          },
+          "name": {
+            "stringValue": "Сет на двоих"
+          },
+          "image": {
+            "stringValue": "/images/menu/set-for-two.jpg"
+          },
+          "category": {
+            "stringValue": "Сеты"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:12.371676Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/set-party",
+        "fields": {
+          "price": {
+            "integerValue": "2590"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "name": {
+            "stringValue": "Большой сет"
+          },
+          "description": {
+            "stringValue": "Ассорти из роллов и суши для компании — 56 шт."
+          },
+          "category": {
+            "stringValue": "Сеты"
+          },
+          "weight": {
+            "stringValue": "56 шт."
+          },
+          "image": {
+            "stringValue": "/images/menu/set-party.jpg"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:13.628979Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/set-salmon",
+        "fields": {
+          "description": {
+            "stringValue": "Ролл с лососем, нигири с лососем, маки — 28 шт."
+          },
+          "category": {
+            "stringValue": "Сеты"
+          },
+          "price": {
+            "integerValue": "1490"
+          },
+          "weight": {
+            "stringValue": "28 шт."
+          },
+          "image": {
+            "stringValue": "/images/menu/set-salmon.jpg"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "name": {
+            "stringValue": "Лосось сет"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:15.967604Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/set-tempura",
+        "fields": {
+          "image": {
+            "stringValue": "/images/menu/set-tempura.jpg"
+          },
+          "weight": {
+            "stringValue": "24 шт."
+          },
+          "description": {
+            "stringValue": "Темпура с креветкой, темпура с лососем — 24 шт."
+          },
+          "name": {
+            "stringValue": "Темпура сет"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "price": {
+            "integerValue": "1350"
+          },
+          "category": {
+            "stringValue": "Сеты"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:17.781039Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/sushi-avocado",
+        "fields": {
+          "description": {
+            "stringValue": "Спелый авокадо, рис, кунжут"
+          },
+          "price": {
+            "integerValue": "120"
+          },
+          "weight": {
+            "stringValue": "≈35 г / 1 шт."
+          },
+          "image": {
+            "stringValue": "/images/menu/sushi-avocado.jpg"
+          },
+          "name": {
+            "stringValue": "Суши с авокадо"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "category": {
+            "stringValue": "sushi"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:18.773796Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/sushi-flambe",
+        "fields": {
+          "weight": {
+            "stringValue": "≈45 г / 1 шт."
+          },
+          "price": {
+            "integerValue": "180"
+          },
+          "name": {
+            "stringValue": "Запечённые суши"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "image": {
+            "stringValue": "/images/menu/sushi-flambe.jpg"
+          },
+          "description": {
+            "stringValue": "Лосось, сливочный соус, рис, зелёный лук"
+          },
+          "category": {
+            "stringValue": "sushi"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-06T11:44:13.033550Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/sushi-salmon",
+        "fields": {
+          "image": {
+            "stringValue": "/images/menu/sushi-salmon.jpg"
+          },
+          "description": {
+            "stringValue": "Нежный лосось, рис для суши"
+          },
+          "weight": {
+            "stringValue": "≈35 г / 1 шт."
+          },
+          "category": {
+            "stringValue": "sushi"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "price": {
+            "integerValue": "150"
+          },
+          "name": {
+            "stringValue": "Суши с лососем"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:22.151716Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/sushi-shrimp",
+        "fields": {
+          "category": {
+            "stringValue": "sushi"
+          },
+          "price": {
+            "integerValue": "140"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "weight": {
+            "stringValue": "≈35 г / 1 шт."
+          },
+          "name": {
+            "stringValue": "Суши с креветкой"
+          },
+          "image": {
+            "stringValue": "/images/menu/sushi-shrimp.jpg"
+          },
+          "description": {
+            "stringValue": "Тигровая креветка, рис, лёгкий васаби"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:23.229513Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/sushi-tuna",
+        "fields": {
+          "category": {
+            "stringValue": "sushi"
+          },
+          "inStock": {
+            "booleanValue": false
+          },
+          "price": {
+            "integerValue": "160"
+          },
+          "image": {
+            "stringValue": "/images/menu/sushi-tuna.jpg"
+          },
+          "description": {
+            "stringValue": "Свежий тунец, рис для суши"
+          },
+          "weight": {
+            "stringValue": "≈35 г / 1 шт."
+          },
+          "name": {
+            "stringValue": "Суши с тунцом"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:24.177844Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/products/sushi-unagi",
+        "fields": {
+          "inStock": {
+            "booleanValue": false
+          },
+          "category": {
+            "stringValue": "sushi"
+          },
+          "description": {
+            "stringValue": "Копчёный угорь, соус унаги, кунжут, рис"
+          },
+          "name": {
+            "stringValue": "Суши с угрём"
+          },
+          "image": {
+            "stringValue": "/images/menu/sushi-unagi.jpg"
+          },
+          "weight": {
+            "stringValue": "≈35 г / 1 шт."
+          },
+          "price": {
+            "integerValue": "170"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-09T17:07:25.119247Z"
+      }
+    ],
+    "categories": [
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/categories/sushi",
+        "fields": {
+          "name": {
+            "stringValue": "sushi"
+          },
+          "order": {
+            "integerValue": "0"
+          }
+        },
+        "createTime": "2026-10-06T11:44:13.522854Z",
+        "updateTime": "2026-10-06T11:44:13.522854Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/categories/Горячее",
+        "fields": {
+          "order": {
+            "integerValue": "3"
+          },
+          "name": {
+            "stringValue": "Горячее"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-03T09:38:12.281425Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/categories/Напитки",
+        "fields": {
+          "order": {
+            "integerValue": "4"
+          },
+          "name": {
+            "stringValue": "Напитки"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-03T09:38:12.281425Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/categories/Роллы",
+        "fields": {
+          "name": {
+            "stringValue": "Роллы"
+          },
+          "order": {
+            "integerValue": "1"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-05T07:34:02.893395Z"
+      },
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/categories/Сеты",
+        "fields": {
+          "order": {
+            "integerValue": "2"
+          },
+          "name": {
+            "stringValue": "Сеты"
+          }
+        },
+        "createTime": "2026-10-03T09:38:12.281425Z",
+        "updateTime": "2026-10-03T09:38:12.281425Z"
+      }
+    ],
+    "settings": [
+      {
+        "name": "projects/sushi-bar-no1/databases/(default)/documents/settings/cafe",
+        "fields": {
+          "paymentMethods": {
+            "stringValue": "перевод по мбанк"
+          },
+          "whatsappNumber": {
+            "stringValue": "996990435943"
+          },
+          "phone": {
+            "stringValue": "+996 990 435 943"
+          },
+          "minimumOrder": {
+            "integerValue": "100"
+          },
+          "address": {
+            "stringValue": "Алымбек датка 702"
+          },
+          "openingHours": {
+            "stringValue": "10:00–01:00"
+          },
+          "freeDeliveryFrom": {
+            "integerValue": "0"
+          },
+          "acceptingDinein": {
+            "booleanValue": true
+          },
+          "deliveryTime": {
+            "stringValue": "40–60 минут"
+          },
+          "deliveryCost": {
+            "stringValue": ""
+          },
+          "acceptingOrders": {
+            "booleanValue": true
+          },
+          "mapUrl": {
+            "stringValue": "https://go.2gis.com/hOxwI"
+          }
+        },
+        "createTime": "2026-10-03T09:39:46.016774Z",
+        "updateTime": "2026-10-07T13:42:12.364261Z"
+      }
+    ]
+  }
+}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, type FormEventHandler } from "react";
-import { useScrollLock } from "@/hooks/use-scroll-lock";
+import { useScrollLock, useModalBackHandler } from "@/hooks/use-scroll-lock";
+import { useVisualViewportScroll } from "@/hooks/use-visual-viewport-scroll";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { X } from "lucide-react";
 import { CartContent, type CartContentProps } from "@/components/cart/cart-content";
@@ -27,6 +28,8 @@ export function CartPanel(props: CartPanelProps) {
   const panelRef = useRef<HTMLElement>(null);
   useScrollLock(true);
   const { onClose } = props;
+  useModalBackHandler(true, onClose);
+  useVisualViewportScroll();
   useFocusTrap(panelRef, onClose);
   const contentProps: CartContentProps = {
     lines: props.lines, onAdd: props.onAdd, onChange: props.onChange, onSubmit: props.onSubmit, pending: props.pending,
@@ -40,7 +43,14 @@ export function CartPanel(props: CartPanelProps) {
   };
   const { lines, orderSent, receiptUrl, warning, onGoMenu, onClearAndClose } = props;
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-transparent sm:items-center sm:bg-black/70 sm:backdrop-blur-[2px] sm:p-5 lg:items-stretch lg:justify-end lg:p-0" onClick={props.onClose}>
+    <div
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-transparent sm:items-center sm:bg-black/70 sm:backdrop-blur-[2px] sm:p-5 lg:items-stretch lg:justify-end lg:p-0"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          props.onClose();
+        }
+      }}
+    >
       <section ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="cart-title" className="sheet-enter fixed inset-0 flex h-dvh w-full flex-col overflow-hidden rounded-none border-0 bg-panel shadow-2xl outline-none sm:relative sm:inset-auto sm:h-auto sm:max-h-[90dvh] sm:w-full sm:max-w-xl sm:rounded-3xl sm:border sm:border-line lg:h-full lg:max-h-none lg:w-[420px] lg:max-w-[420px] lg:rounded-none lg:border-y-0 lg:border-r-0" onClick={(event) => event.stopPropagation()}>
         <header className="flex h-14 shrink-0 items-center justify-between bg-panel px-4">
           <h2 id="cart-title" className="text-xl font-extrabold">{props.orderSent ? "Спасибо за заказ!" : "Корзина"}</h2>

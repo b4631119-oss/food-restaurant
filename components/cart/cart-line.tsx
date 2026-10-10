@@ -44,7 +44,7 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex items-start justify-between gap-2">
-          <p className="line-clamp-2 min-w-0 text-sm font-bold">{product.name}</p>
+          <p className="line-clamp-2 min-w-0 text-sm font-bold [overflow-wrap:anywhere]">{product.name}</p>
           <span className="shrink-0 whitespace-nowrap text-right text-sm font-bold text-accent">{money(product.price * quantity)}</span>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -53,7 +53,7 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
         <button
           type="button"
           onClick={() => onChange(product.id, -1)}
-          className="press grid size-10 shrink-0 place-items-center rounded-full border border-line text-muted hover:border-accent/50 hover:text-text"
+          className="press grid size-11 shrink-0 place-items-center rounded-full border border-line text-muted hover:border-accent/50 hover:text-text"
           aria-label={`Убрать один: ${product.name}`}
         >
           <Minus className="size-4" aria-hidden="true" />
@@ -64,7 +64,7 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
         <button
           type="button"
           onClick={() => onAdd(product.id)}
-          className="press grid size-10 shrink-0 place-items-center rounded-full bg-accent text-background hover:bg-accent-hover"
+          className="press grid size-11 shrink-0 place-items-center rounded-full bg-accent text-background hover:bg-accent-hover"
           aria-label={`Добавить один: ${product.name}`}
         >
           <Plus className="size-4" aria-hidden="true" />

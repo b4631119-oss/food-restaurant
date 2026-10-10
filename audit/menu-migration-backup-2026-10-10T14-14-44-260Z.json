@@ -1,0 +1,309 @@
+{
+  "createdAt": "2026-10-10T14:14:46.362Z",
+  "products": [
+    {
+      "id": "drink-green-tea",
+      "popular": false,
+      "price": 220,
+      "category": "Напитки",
+      "description": "Японский зелёный чай — чайник 0,6 л",
+      "name": "Зелёный чай",
+      "image": "/images/menu/drink-green-tea.jpg",
+      "inStock": false,
+      "weight": "0,6 л"
+    },
+    {
+      "id": "drink-iced-tea",
+      "name": "Холодный чай",
+      "price": 160,
+      "description": "Чёрный чай с лимоном и льдом — 0,5 л",
+      "image": "/images/menu/drink-iced-tea.jpg",
+      "category": "Напитки",
+      "inStock": false,
+      "weight": "0,5 л"
+    },
+    {
+      "id": "drink-juice",
+      "image": "/images/menu/drink-juice.jpg",
+      "description": "Натуральный апельсиновый сок — 0,3 л",
+      "inStock": false,
+      "name": "Апельсиновый сок",
+      "weight": "0,3 л",
+      "category": "Напитки",
+      "price": 210
+    },
+    {
+      "id": "drink-lemonade",
+      "weight": "0,5 л",
+      "image": "/images/menu/drink-lemonade.jpg",
+      "name": "Домашний лимонад",
+      "inStock": false,
+      "category": "Напитки",
+      "price": 180,
+      "description": "Лимон, мята, содовая, лёд — 0,5 л"
+    },
+    {
+      "id": "drink-water",
+      "category": "Напитки",
+      "weight": "0,5 л",
+      "description": "Газированная или негазированная — 0,5 л",
+      "image": "/images/menu/drink-water.jpg",
+      "price": 90,
+      "inStock": false,
+      "name": "Минеральная вода"
+    },
+    {
+      "id": "hot-chicken",
+      "description": "Куриное филе, соус терияки, рис, кунжут",
+      "weight": "≈300 г",
+      "image": "/images/menu/hot-chicken.jpg",
+      "inStock": false,
+      "name": "Курица терияки",
+      "category": "Горячее",
+      "price": 390
+    },
+    {
+      "id": "hot-miso",
+      "inStock": false,
+      "price": 190,
+      "category": "Горячее",
+      "weight": "≈300 мл",
+      "name": "Мисо-суп",
+      "image": "/images/menu/hot-miso.jpg",
+      "description": "Мисо-бульон, тофу, вакаме, зелёный лук"
+    },
+    {
+      "id": "hot-spring-rolls",
+      "image": "/images/menu/hot-spring-rolls.jpg",
+      "category": "Горячее",
+      "description": "Хрустящие роллы с овощами, кисло-сладкий соус",
+      "inStock": false,
+      "name": "Спринг-роллы",
+      "weight": "≈200 г",
+      "price": 280
+    },
+    {
+      "id": "hot-tempura-shrimp",
+      "inStock": false,
+      "description": "Креветки в лёгком кляре, соус спайси",
+      "weight": "≈200 г",
+      "image": "/images/menu/hot-tempura-shrimp.jpg",
+      "price": 420,
+      "name": "Креветки темпура",
+      "category": "Горячее"
+    },
+    {
+      "id": "hot-udon",
+      "weight": "≈350 г",
+      "image": "/images/menu/hot-udon.jpg",
+      "category": "Горячее",
+      "inStock": false,
+      "description": "Пшеничная лапша, курица, овощи, соус терияки",
+      "price": 420,
+      "name": "Удон с курицей"
+    },
+    {
+      "id": "roll-california",
+      "name": "Калифорния",
+      "popular": true,
+      "description": "Краб, авокадо, огурец, икра тобико, рис, нори",
+      "price": 390,
+      "inStock": false,
+      "category": "Роллы",
+      "image": "/images/menu/roll-california.jpg",
+      "weight": "≈250 г"
+    },
+    {
+      "id": "roll-philadelphia",
+      "popular": true,
+      "image": "/images/menu/roll-philadelphia.jpg",
+      "description": "Лосось, сливочный сыр, огурец, рис, нори",
+      "name": "Филадельфия",
+      "inStock": false,
+      "category": "Роллы",
+      "weight": "≈250 г",
+      "price": 520
+    },
+    {
+      "id": "roll-spicy-salmon",
+      "weight": "≈250 г",
+      "image": "/images/menu/roll-spicy-salmon.jpg",
+      "price": 420,
+      "inStock": false,
+      "description": "Лосось, острый соус, зелёный лук, рис, нори",
+      "popular": true,
+      "category": "Роллы",
+      "name": "Спайси лосось"
+    },
+    {
+      "id": "roll-tempura",
+      "name": "Темпура с креветкой",
+      "weight": "≈260 г",
+      "price": 460,
+      "image": "/images/menu/roll-tempura.jpg",
+      "inStock": false,
+      "category": "Роллы",
+      "description": "Креветка, сливочный сыр, огурец, хрустящая темпура",
+      "popular": true
+    },
+    {
+      "id": "roll-unagi",
+      "name": "Унаги маки",
+      "weight": "≈240 г",
+      "price": 440,
+      "image": "/images/menu/roll-unagi.jpg",
+      "category": "Роллы",
+      "inStock": false,
+      "popular": true,
+      "description": "Угорь, кунжут, соус унаги, рис, нори"
+    },
+    {
+      "id": "roll-veggie",
+      "description": "Авокадо, огурец, сладкий перец, кунжут, рис, нори",
+      "inStock": false,
+      "price": 300,
+      "name": "Овощной ролл",
+      "image": "/images/menu/roll-veggie.jpg",
+      "weight": "≈220 г",
+      "category": "Роллы",
+      "popular": true
+    },
+    {
+      "id": "set-classic",
+      "description": "Филадельфия, Калифорния, маки с огурцом — 24 шт.",
+      "price": 1190,
+      "category": "Сеты",
+      "inStock": false,
+      "weight": "24 шт.",
+      "name": "Классический сет",
+      "image": "/images/menu/set-classic.jpg"
+    },
+    {
+      "id": "set-for-two",
+      "category": "Сеты",
+      "price": 1890,
+      "description": "Три популярных ролла и суши с лососем — 40 шт.",
+      "weight": "40 шт.",
+      "inStock": false,
+      "name": "Сет на двоих",
+      "image": "/images/menu/set-for-two.jpg"
+    },
+    {
+      "id": "set-party",
+      "price": 2590,
+      "name": "Большой сет",
+      "inStock": false,
+      "category": "Сеты",
+      "description": "Ассорти из роллов и суши для компании — 56 шт.",
+      "image": "/images/menu/set-party.jpg",
+      "weight": "56 шт."
+    },
+    {
+      "id": "set-salmon",
+      "price": 1490,
+      "name": "Лосось сет",
+      "inStock": false,
+      "image": "/images/menu/set-salmon.jpg",
+      "weight": "28 шт.",
+      "category": "Сеты",
+      "description": "Ролл с лососем, нигири с лососем, маки — 28 шт."
+    },
+    {
+      "id": "set-tempura",
+      "image": "/images/menu/set-tempura.jpg",
+      "weight": "24 шт.",
+      "category": "Сеты",
+      "name": "Темпура сет",
+      "description": "Темпура с креветкой, темпура с лососем — 24 шт.",
+      "inStock": false,
+      "price": 1350
+    },
+    {
+      "id": "sushi-avocado",
+      "category": "sushi",
+      "price": 120,
+      "description": "Спелый авокадо, рис, кунжут",
+      "inStock": false,
+      "weight": "≈35 г / 1 шт.",
+      "name": "Суши с авокадо",
+      "image": "/images/menu/sushi-avocado.jpg"
+    },
+    {
+      "id": "sushi-flambe",
+      "name": "Запечённые суши",
+      "category": "sushi",
+      "inStock": false,
+      "image": "/images/menu/sushi-flambe.jpg",
+      "weight": "≈45 г / 1 шт.",
+      "description": "Лосось, сливочный соус, рис, зелёный лук",
+      "price": 180
+    },
+    {
+      "id": "sushi-salmon",
+      "category": "sushi",
+      "name": "Суши с лососем",
+      "price": 150,
+      "image": "/images/menu/sushi-salmon.jpg",
+      "description": "Нежный лосось, рис для суши",
+      "weight": "≈35 г / 1 шт.",
+      "inStock": false
+    },
+    {
+      "id": "sushi-shrimp",
+      "inStock": false,
+      "description": "Тигровая креветка, рис, лёгкий васаби",
+      "price": 140,
+      "weight": "≈35 г / 1 шт.",
+      "name": "Суши с креветкой",
+      "image": "/images/menu/sushi-shrimp.jpg",
+      "category": "sushi"
+    },
+    {
+      "id": "sushi-tuna",
+      "weight": "≈35 г / 1 шт.",
+      "image": "/images/menu/sushi-tuna.jpg",
+      "name": "Суши с тунцом",
+      "category": "sushi",
+      "inStock": false,
+      "description": "Свежий тунец, рис для суши",
+      "price": 160
+    },
+    {
+      "id": "sushi-unagi",
+      "weight": "≈35 г / 1 шт.",
+      "image": "/images/menu/sushi-unagi.jpg",
+      "inStock": false,
+      "category": "sushi",
+      "name": "Суши с угрём",
+      "price": 170,
+      "description": "Копчёный угорь, соус унаги, кунжут, рис"
+    }
+  ],
+  "categories": [
+    {
+      "id": "sushi",
+      "name": "sushi",
+      "order": 0
+    },
+    {
+      "id": "Горячее",
+      "name": "Горячее",
+      "order": 3
+    },
+    {
+      "id": "Напитки",
+      "name": "Напитки",
+      "order": 4
+    },
+    {
+      "id": "Роллы",
+      "name": "Роллы",
+      "order": 1
+    },
+    {
+      "id": "Сеты",
+      "name": "Сеты",
+      "order": 2
+    }
+  ]
+}

@@ -18,14 +18,19 @@ export function CartFooter({ total, fulfillment, pending, table, warning }: Cart
   const toFree = delivery && freeFrom > 0 && total < freeFrom ? freeFrom - total : 0;
   const openAt = openingTime(settings.openingHours);
   return <>
-    <div className="space-y-1 border-t border-line pt-2 text-sm"><div className="flex justify-between text-muted"><span>Блюда</span><span>{money(total)}</span></div>{dinein && <div className="flex justify-between text-muted"><span>{`Стол №${table}`}</span><span>официант подойдёт</span></div>}{delivery && <div className="flex justify-between text-muted"><span>Доставка</span><span>{fee === null ? "уточним при подтверждении" : fee === 0 ? "бесплатно" : money(fee)}</span></div>}<div className="flex justify-between font-semibold text-text"><span>Итого к оплате</span><span className="text-lg font-extrabold text-accent">{delivery && fee === null ? `${money(total)} + доставка` : money(total + (fee ?? 0))}</span></div></div>
-    {toFree > 0 && <p className="text-center text-xs text-muted">Добавьте ещё на {money(toFree)}, и доставка бесплатная</p>}
-    {!settings.acceptingOrders && <p className="text-center text-sm text-muted">Сейчас заказы не принимаются</p>}
-    {dinein && settings.acceptingOrders && !settings.acceptingDinein && <p className="text-center text-sm text-muted">Заказы со столов временно не принимаются</p>}
-    {belowMinimum && <p className="text-center text-sm text-muted">Минимальный заказ {money(minimum)}, добавьте ещё на {money(minimum - total)}</p>}
-    {getOpenStatus(new Date(), settings.openingHours).text === "Закрыто" && <p className="text-center text-sm text-muted">Сейчас закрыто. Заказ обработаем{openAt ? ` с ${openAt}` : " после открытия"}.</p>}
+    <div className="space-y-1.5 border-t border-line pt-3 text-sm">
+      <div className="flex justify-between text-muted"><span>Блюда ({total > 0 ? "в корзине" : "0"})</span><span className="font-medium text-text">{money(total)}</span></div>
+      {dinein && <div className="flex justify-between text-muted"><span>{`Стол №${table}`}</span><span className="text-accent">официант подойдёт</span></div>}
+      {delivery && <div className="flex justify-between text-muted"><span>Доставка по городу</span><span className="font-medium text-text">{fee === null ? "уточним при подтверждении" : fee === 0 ? "бесплатно" : money(fee)}</span></div>}
+      <div className="flex items-baseline justify-between border-t border-line/50 pt-2 font-bold text-text"><span>Итого к оплате</span><span className="text-xl font-extrabold text-accent">{delivery && fee === null ? `${money(total)} + доставка` : money(total + (fee ?? 0))}</span></div>
+    </div>
+    {toFree > 0 && <div className="rounded-lg bg-accent/10 px-2.5 py-1 text-center text-xs text-accent">Добавьте ещё на {money(toFree)} для бесплатной доставки!</div>}
+    {!settings.acceptingOrders && <p className="text-center text-sm font-medium text-red-400">Сейчас заказы не принимаются</p>}
+    {dinein && settings.acceptingOrders && !settings.acceptingDinein && <p className="text-center text-sm font-medium text-red-400">Заказы со столов временно не принимаются</p>}
+    {belowMinimum && <div className="rounded-lg bg-amber-500/15 p-2 text-center text-xs font-semibold text-amber-300">Минимальный заказ для доставки — {money(minimum)}. Добавьте ещё на {money(minimum - total)}</div>}
+    {getOpenStatus(new Date(), settings.openingHours).text === "Закрыто" && <p className="text-center text-xs text-muted">Сейчас ресторан закрыт. Заказ обработаем{openAt ? ` с ${openAt}` : " сразу после открытия"}.</p>}
     {warning && <p role="alert" className="text-center text-sm text-[#F87171]">{warning}</p>}
-    <button type="submit" disabled={loading || belowMinimum || closed || pending} className="press flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 font-bold text-background hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50">{dinein ? <Bell className="size-5" aria-hidden="true" /> : <WhatsAppIcon />}{pending ? "Отправляем заказ…" : "Оформить заказ"}</button>
-    <p className="text-center text-xs leading-tight text-muted">{dinein ? "Дальше откроется WhatsApp — отправьте заказ официанту." : "Мы получим заказ и свяжемся с вами. WhatsApp откроется для подтверждения."}</p>
+    <button type="submit" disabled={loading || belowMinimum || closed || pending} className="press flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 font-bold text-background shadow-lg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50">{dinein ? <Bell className="size-5" aria-hidden="true" /> : <WhatsAppIcon />}{pending ? "Отправляем заказ…" : "Оформить заказ"}</button>
+    <p className="text-center text-xs leading-tight text-muted">{dinein ? "Дальше откроется WhatsApp — отправьте сформированный заказ официанту." : "Мы получим заказ и сразу свяжемся с вами. WhatsApp откроется для быстрого подтверждения."}</p>
   </>;
 }
