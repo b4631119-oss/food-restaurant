@@ -4,7 +4,6 @@ import type { FormEventHandler } from "react";
 import { CartFooter } from "@/components/cart/cart-footer";
 import { CartForm } from "@/components/cart/cart-form";
 import { CartLine } from "@/components/cart/cart-line";
-import type { GeoPoint, GeoStatus } from "@/hooks/use-customer";
 import type { CartLine as CartLineType, Fulfillment } from "@/lib/types";
 
 export type CartContentProps = {
@@ -22,15 +21,6 @@ export type CartContentProps = {
   setPhone: (value: string) => void;
   address: string;
   setAddress: (value: string) => void;
-  addressFromMap: boolean;
-  location: GeoPoint | null;
-  geoStatus: GeoStatus;
-  geoError: string;
-  geoSuggestion: string;
-  geoFilledAt: number;
-  onUseSuggestion: () => void;
-  onLocate: () => void;
-  onClearLocation: () => void;
   comment: string;
   setComment: (value: string) => void;
   trap: string;
@@ -62,15 +52,6 @@ export function CartContent(props: CartContentProps) {
             setPhone={props.setPhone}
             address={props.address}
             setAddress={props.setAddress}
-            addressFromMap={props.addressFromMap}
-            location={props.location}
-            geoStatus={props.geoStatus}
-            geoError={props.geoError}
-            geoSuggestion={props.geoSuggestion}
-            geoFilledAt={props.geoFilledAt}
-            onUseSuggestion={props.onUseSuggestion}
-            onLocate={props.onLocate}
-            onClearLocation={props.onClearLocation}
             comment={props.comment}
             setComment={props.setComment}
             trap={props.trap}

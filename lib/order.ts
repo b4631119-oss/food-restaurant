@@ -1,6 +1,5 @@
 import { CAFE } from "@/lib/config";
 import { money } from "@/lib/format";
-import { googleMapsLink } from "@/lib/map-links";
 import type { CartLine, Fulfillment } from "@/lib/types";
 
 export type OrderInfo = {
@@ -12,7 +11,6 @@ export type OrderInfo = {
   name: string;
   phone: string;
   address: string;
-  location?: { lat: number; lng: number } | null;
 };
 export type TableOrderInfo = {
   orderNumber: number;
@@ -22,7 +20,7 @@ export type TableOrderInfo = {
   comment?: string;
   name?: string;
 };
-export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, name, phone, address, location }: OrderInfo): string {
+export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, name, phone, address }: OrderInfo): string {
   return [
     `Заказ №${orderNumber} · ${CAFE.name}`,
     "------------------",
@@ -35,7 +33,6 @@ export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, 
     `Телефон: ${phone.trim()}`,
     `Получение: ${fulfillment === "delivery" ? "Доставка" : "Самовывоз"}`,
     ...(fulfillment === "delivery" ? [`Адрес: ${address.trim()}`] : []),
-    ...(fulfillment === "delivery" && location ? [`Местоположение: ${googleMapsLink(location.lat, location.lng)}`] : []),
     "Оплата при получении. Пожалуйста, подтвердите заказ.",
   ].join("\n");
 }
