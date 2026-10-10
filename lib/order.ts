@@ -23,7 +23,6 @@ export type TableOrderInfo = {
   comment?: string;
   name?: string;
 };
-
 export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, name, phone, address, location }: OrderInfo): string {
   return [
     `Заказ №${orderNumber} · ${CAFE.name}`,
