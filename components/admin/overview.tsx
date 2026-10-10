@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { OrderDetails } from "@/components/admin/order-details";
 import { PeriodPicker } from "@/components/admin/period-picker";
 import { ReportChart, type Bar } from "@/components/admin/overview-chart";
@@ -11,13 +11,13 @@ import { ReportTables } from "@/components/admin/report-tables";
 import { ReportTypes } from "@/components/admin/report-types";
 import { useReportOrders } from "@/hooks/use-report-orders";
 import { useReportPeriod } from "@/hooks/use-report-period";
-import { previousPeriod } from "@/lib/report-period";
 import { byDay, byHour, byTable, byType, orderTotals, topDishes } from "@/lib/report-stats";
 import type { DemoOrder } from "@/lib/models";
 
 export function AdminOverview() {
-  const { period, chooseKey } = useReportPeriod();
-  const previous = useMemo(() => (period ? previousPeriod(period) : null), [period]);
+  const { period, previous, chooseKey } = useReportPeriod();
+  // Пока период не закончился, динамика считается по такому же отрезку прошлого периода.
+  const sameSlice = Boolean(period && previous && previous.end.getTime() < period.end.getTime());
   const current = useReportOrders(period);
   const past = useReportOrders(previous);
   const [selected, setSelected] = useState<DemoOrder | null>(null);
@@ -33,7 +33,7 @@ export function AdminOverview() {
       <button type="button" onClick={refresh} disabled={!period} className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold disabled:opacity-50">Обновить</button>
     </header>
     <PeriodPicker period={period} onChoose={chooseKey} />
-    <p className="mt-3 text-xs text-muted">Считаются заказы, оформленные на сайте. Подтверждение приходит в WhatsApp.</p>
+    <p className="mt-3 text-xs text-muted">Считаются заказы, оформленные на сайте. Подтверждение приходит в WhatsApp.{sameSlice ? " Динамика в карточках — за тот же отрезок прошлого периода." : ""}</p>
     {current.error && <p role="alert" className="mt-3 text-sm text-red-400">{current.error}</p>}
     {current.loading ? <OverviewSkeleton /> : <>
       <ReportCards cards={cardsFor(orderTotals(orders), orderTotals(past.orders ?? []), past.orders !== null && !past.error && !current.error)} />

@@ -81,11 +81,16 @@ export function buildPeriod(key: PeriodKey, now: Date, custom?: { from: string; 
   return { key, start, end, label: rangeLabel(start, end) };
 }
 
-// Предыдущий период такой же длины — для сравнения показателей.
-export function previousPeriod(period: Period): Period {
+// Предыдущий период такой же длины — для сравнения показателей. Если текущий период ещё не
+// закончился (например, «Сегодня»), берём тот же отрезок прошлого периода: с его начала до
+// того же момента по времени, а не полные сутки — иначе неполный период сравнивался бы с полным.
+export function previousPeriod(period: Period, now: Date): Period {
   const length = period.end.getTime() - period.start.getTime();
   const start = new Date(period.start.getTime() - length);
-  return { key: period.key, start, end: period.start, label: rangeLabel(start, period.start) };
+  const elapsed = Math.min(length, Math.max(0, now.getTime() - period.start.getTime()));
+  const end = new Date(start.getTime() + elapsed);
+  const label = elapsed < length ? `${formatDay(start)} · тот же отрезок` : rangeLabel(start, end);
+  return { key: period.key, start, end, label };
 }
 
 export function periodFromKey(period: Period): string { return reportDayKey(period.start); }

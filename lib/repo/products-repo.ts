@@ -1,5 +1,6 @@
 import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, writeBatch, type Unsubscribe, type WriteBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { bumpSyncVersion } from "@/lib/repo/settings-repo";
 import type { ImportItem } from "@/lib/menu-import";
 import type { DemoProduct } from "@/lib/models";
 
@@ -22,8 +23,10 @@ export async function saveProduct(product: DemoProduct): Promise<void> {
   if (image.length > maxImageLength) throw new Error("Ссылка на фото длиннее 500 символов.");
   if (new TextEncoder().encode(JSON.stringify(data)).length > maxDocumentBytes) throw new Error("Карточка блюда превышает лимит 900 КБ. Уменьшите изображение.");
   await setDoc(doc(db, "products", id), data);
+  await bumpSyncVersion();
 }
-export async function deleteProduct(id: string): Promise<void> { await deleteDoc(doc(db, "products", id)); }
+// Удаление тоже сдвигает версию: витрина перечитает каталог при следующей проверке.
+export async function deleteProduct(id: string): Promise<void> { await deleteDoc(doc(db, "products", id)); await bumpSyncVersion(); }
 type BatchOp = (batch: WriteBatch) => void;
 async function commitChunks(ops: BatchOp[]): Promise<void> {
   for (let i = 0; i < ops.length; i += batchLimit) {
@@ -46,4 +49,5 @@ export async function importProducts(items: ImportItem[], mode: "add" | "replace
   }
   items.forEach((item) => ops.push((batch) => batch.set(doc(products), { name: item.name, description: item.description, weight: item.weight, price: item.price, category: item.category, image: item.image, inStock: true, popular: item.popular })));
   await commitChunks(ops);
+  await bumpSyncVersion();
 }
