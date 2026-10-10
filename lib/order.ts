@@ -14,7 +14,6 @@ export type OrderInfo = {
   address: string;
   location?: { lat: number; lng: number } | null;
 };
-
 export type TableOrderInfo = {
   orderNumber: number;
   table: number;
