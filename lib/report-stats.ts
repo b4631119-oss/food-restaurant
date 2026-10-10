@@ -23,9 +23,14 @@ export function orderTotals(orders: DemoOrder[]): Totals {
   return { count: items.length, revenue, average: items.length ? Math.round(revenue / items.length) : 0 };
 }
 
-// Изменение в процентах к прошлому периоду; null — сравнивать не с чем.
+// Изменение в процентах к прошлому периоду.
+// 0 — без изменений (в том числе когда заказов не было ни в текущем, ни в прошлом периоде);
+// +100 — рост с нуля; null — сравнивать не с чем (нечисловые или отрицательные значения).
+// Красный -100% возможен только когда в прошлом периоде были заказы, а в текущем их не стало.
 export function changePercent(current: number, previous: number): number | null {
-  return previous > 0 ? Math.round((current - previous) / previous * 100) : null;
+  if (!Number.isFinite(current) || !Number.isFinite(previous) || current < 0 || previous < 0) return null;
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return Math.round((current - previous) / previous * 100);
 }
 
 export function byType(orders: DemoOrder[]): TypeRow[] {

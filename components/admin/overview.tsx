@@ -36,7 +36,7 @@ export function AdminOverview() {
     <p className="mt-3 text-xs text-muted">Считаются заказы, оформленные на сайте. Подтверждение приходит в WhatsApp.</p>
     {current.error && <p role="alert" className="mt-3 text-sm text-red-400">{current.error}</p>}
     {current.loading ? <OverviewSkeleton /> : <>
-      <ReportCards cards={cardsFor(orderTotals(orders), orderTotals(past.orders ?? []))} />
+      <ReportCards cards={cardsFor(orderTotals(orders), orderTotals(past.orders ?? []), past.orders !== null && !past.error && !current.error)} />
       <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-2"><ReportTypes rows={byType(orders)} /><ReportTables rows={byTable(orders)} /></div>
       <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-2">
         {singleDay ? <ReportChart title="Заказы по часам" bars={hourBars} /> : <ReportChart title="Заказы по дням" bars={dayBars} />}

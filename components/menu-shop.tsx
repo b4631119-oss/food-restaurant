@@ -19,6 +19,7 @@ import { useShopUi } from "@/hooks/use-shop-ui";
 import { useTable } from "@/hooks/use-table";
 import { cooldownLeft, markOrderSent, ORDER_LIMIT } from "@/lib/table";
 import { deliveryFee } from "@/lib/delivery";
+import { popularProducts } from "@/lib/popular";
 import { buildReceipt, buildTableReceipt, openWhatsApp, whatsappUrl } from "@/lib/order";
 import { createOrder } from "@/lib/repo/orders-repo";
 
@@ -36,10 +37,14 @@ export function MenuShop() {
   const [orderWarning, setOrderWarning] = useState("");
   const [orderPending, setOrderPending] = useState(false); const orderSubmittingRef = useRef(false);
   const search = ui.searchQuery.trim().toLocaleLowerCase("ru");
-  const visibleProducts = availableProducts.filter((product) => search
-    ? `${product.name} ${product.description}`.toLocaleLowerCase("ru").includes(search)
-    : ui.activeCategory === "Популярное" ? "popular" in product && product.popular
-      : ui.activeCategory === "Все" || product.category === ui.activeCategory);
+  // «Популярное» наполняется автоматически: явные хиты, иначе — топ ключевых категорий,
+  // поэтому вкладка не пустует даже если флаг «Популярное» нигде не выставлен.
+  const popular = popularProducts(availableProducts);
+  const visibleProducts = search
+    ? availableProducts.filter((product) => `${product.name} ${product.description}`.toLocaleLowerCase("ru").includes(search))
+    : ui.activeCategory === "Популярное" ? popular
+      : ui.activeCategory === "Все" ? availableProducts
+        : availableProducts.filter((product) => product.category === ui.activeCategory);
   const productGroups = categories.filter((category) => !["Популярное", "Все"].includes(category)).map((category) => ({
     category, products: visibleProducts.filter((product) => product.category === category),
   })).filter((group) => group.products.length > 0);
