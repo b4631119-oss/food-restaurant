@@ -39,6 +39,10 @@ export function CartLine({ line, onAdd, onChange }: CartLineProps) {
         <img
           src="/images/favicon.jpg"
           alt=""
+          width={64}
+          height={64}
+          loading="lazy"
+          decoding="async"
           className="size-full object-cover opacity-25"
         />
       </div>

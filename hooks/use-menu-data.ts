@@ -9,6 +9,16 @@ import type { Product } from "@/lib/types";
 type MenuCache = { products: Product[]; categories: string[] };
 const cacheName = "menu";
 
+// Одновременные монтирования (React StrictMode и возврат на страницу) переиспользуют один
+// и тот же запрос, поэтому Firestore читается максимум один раз за загрузку страницы.
+let pending: Promise<MenuCache> | null = null;
+function loadMenu(): Promise<MenuCache> {
+  if (!pending) pending = Promise.all([getProducts(), getCategories()])
+    .then(([items, names]) => ({ products: items, categories: names }))
+    .finally(() => { pending = null; });
+  return pending;
+}
+
 export function useMenuData() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -19,7 +29,7 @@ export function useMenuData() {
     let cancelled = false;
     const cached = readCache<MenuCache>(cacheName);
     if (cached) window.setTimeout(() => { if (!cancelled) { setProducts(cached.products); setCategories(cached.categories); setLoading(false); } }, 0);
-    void Promise.all([getProducts(), getCategories()]).then(([items, names]) => {
+    void loadMenu().then(({ products: items, categories: names }) => {
       if (cancelled) return;
       writeCache(cacheName, { products: items, categories: names });
       setProducts(items); setCategories(names); setLoading(false); setError(null);

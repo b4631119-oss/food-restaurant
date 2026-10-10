@@ -19,7 +19,7 @@ export function ProductCard({ product, quantity, eager = false, onAdd, onChange 
       <div className="product-photo relative aspect-[4/3] w-full overflow-hidden bg-surface">
         {product.image ? (
           /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={cloudImage(product.image, 600)} alt={product.name} width={600} height={450} loading={eager ? "eager" : "lazy"} className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" onError={(event) => { event.currentTarget.closest(".product-photo")?.classList.add("hidden"); event.currentTarget.closest("article")?.classList.add("product-photo-failed"); }} />
+          <img src={cloudImage(product.image, 600)} alt={product.name} width={600} height={450} loading={eager ? "eager" : "lazy"} decoding="async" className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" onError={(event) => { event.currentTarget.closest(".product-photo")?.classList.add("hidden"); event.currentTarget.closest("article")?.classList.add("product-photo-failed"); }} />
         ) : (
           <div className="grid size-full place-items-center text-muted" aria-hidden="true"><ImageOff className="size-8" /></div>
         )}

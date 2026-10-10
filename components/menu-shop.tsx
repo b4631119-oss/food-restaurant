@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useDemoSettings } from "@/hooks/use-demo-settings";
 import { useMenuData } from "@/hooks/use-menu-data";
 import { CartPanel } from "@/components/cart/cart-panel";
@@ -27,7 +27,7 @@ export function MenuShop() {
   const { products, categories: menuCategories, loading: menuLoading, error: menuError, retry: retryMenu } = useMenuData();
   const categories = ["Популярное", "Все", ...menuCategories];
   const { settings, loading: settingsLoading } = useDemoSettings();
-  const availableProducts = products.filter((product) => product.inStock);
+  const availableProducts = useMemo(() => products.filter((product) => product.inStock), [products]);
   const cart = useCart(availableProducts);
   const table = useTable();
   const customer = useCustomer(table);
@@ -39,7 +39,7 @@ export function MenuShop() {
   const search = ui.searchQuery.trim().toLocaleLowerCase("ru");
   // «Популярное» наполняется автоматически: явные хиты, иначе — топ ключевых категорий,
   // поэтому вкладка не пустует даже если флаг «Популярное» нигде не выставлен.
-  const popular = popularProducts(availableProducts);
+  const popular = useMemo(() => popularProducts(availableProducts), [availableProducts]);
   const visibleProducts = search
     ? availableProducts.filter((product) => `${product.name} ${product.description}`.toLocaleLowerCase("ru").includes(search))
     : ui.activeCategory === "Популярное" ? popular

@@ -30,7 +30,7 @@ export function QrCards() {
     <div className="qr-print mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{cards.map((card) => (
       <figure key={card.table} className="qr-card rounded-2xl border border-line bg-white p-5 text-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={card.image} alt={`QR-код для стола №${card.table}`} className="mx-auto size-48" />
+        <img src={card.image} alt={`QR-код для стола №${card.table}`} width={192} height={192} loading="lazy" decoding="async" className="mx-auto size-48" />
         <figcaption className="mt-3 text-2xl font-extrabold text-black">Стол №{card.table}</figcaption>
         <p className="mt-1 break-all text-xs text-muted">{card.url}</p>
       </figure>

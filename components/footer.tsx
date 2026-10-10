@@ -14,7 +14,7 @@ export function Footer() {
       <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-6 px-4 sm:px-8 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:px-6">
         <div className="flex items-center gap-3 lg:justify-self-start">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/favicon.jpg" alt="" className="size-10 rounded-full border border-accent/40 object-cover" />
+          <img src="/images/favicon.jpg" alt="" width={40} height={40} loading="lazy" decoding="async" className="size-10 rounded-full border border-accent/40 object-cover" />
           <div><p className="text-base font-semibold text-text">{CAFE.name}</p><p className="text-xs">Суши и роллы · {CAFE.city}</p></div>
         </div>
         <nav className="flex items-center gap-5 text-sm font-semibold lg:justify-self-center">
