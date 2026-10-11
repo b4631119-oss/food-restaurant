@@ -9,6 +9,7 @@ import { watchProducts, saveProduct } from "@/lib/repo/products-repo";
 import type { DemoProduct } from "@/lib/models";
 
 export default function CategoriesPage() {
+  
   const [categories, setList] = useState<string[]>([]); const [products, setProductsState] = useState<DemoProduct[]>([]);
   const [name, setName] = useState(""); const [rename, setRename] = useState<string | null>(null); const [remove, setRemove] = useState<string | null>(null);
   const [target, setTarget] = useState(""); const [error, setError] = useState(""); const [confirmEmpty, setConfirmEmpty] = useState(false);
