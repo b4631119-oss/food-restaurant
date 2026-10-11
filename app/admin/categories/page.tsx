@@ -14,8 +14,9 @@ export default function CategoriesPage() {
   const [target, setTarget] = useState(""); const [error, setError] = useState(""); const [confirmEmpty, setConfirmEmpty] = useState(false);
   useModalBackHandler(Boolean(remove && !confirmEmpty), () => setRemove(null));
   useEffect(() => { const a = watchCategories(setList); const b = watchProducts(setProductsState); return () => { a(); b(); }; }, []);
-  async function persist(next: string[]) { try { await saveCategories(next); setError(""); } catch { setError("Не удалось сохранить категории в Firebase."); } }
-  async function add() { const value = name.trim(); if (value && !categories.includes(value)) await persist([...categories, value]); setName(""); }
+  // Ошибка сохранения показывается, а введённое имя остаётся — так категорию можно добавить повторно.
+  async function persist(next: string[]): Promise<boolean> { try { await saveCategories(next); setError(""); return true; } catch { setError("Не удалось сохранить категории в Firebase."); return false; } }
+  async function add() { const value = name.trim(); if (!value || categories.includes(value)) return; if (await persist([...categories, value])) setName(""); }
   async function renameCategory() { if (!rename || !name.trim() || categories.includes(name.trim())) return; const nextName = name.trim(); try { await Promise.all(products.filter((item) => item.category === rename).map((item) => saveProduct({ ...item, category: nextName }))); await persist(categories.map((item) => item === rename ? nextName : item)); } catch { setError("Не удалось переименовать категорию."); } setRename(null); setName(""); }
   async function move(delta: number, index: number) { const next = [...categories]; const other = index + delta; if (other < 0 || other >= next.length) return; [next[index], next[other]] = [next[other], next[index]]; await persist(next); }
   async function confirmDelete() { if (!remove) return; try { await Promise.all(products.filter((item) => item.category === remove).map((item) => saveProduct({ ...item, category: target }))); await persist(categories.filter((item) => item !== remove)); } catch { setError("Не удалось удалить категорию."); } setRemove(null); setTarget(""); setConfirmEmpty(false); }

@@ -1,5 +1,6 @@
 import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, writeBatch, type Unsubscribe, type WriteBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { categoryId } from "@/lib/repo/categories-repo";
 import { bumpSyncVersion } from "@/lib/repo/settings-repo";
 import type { ImportItem } from "@/lib/menu-import";
 import type { DemoProduct } from "@/lib/models";
@@ -39,13 +40,21 @@ export async function importProducts(items: ImportItem[], mode: "add" | "replace
   const [savedProducts, savedCategories] = await Promise.all([getDocs(products), getDocs(categories)]);
   const ops: BatchOp[] = [];
   const names = [...new Set(items.map((item) => item.category))];
+  // Категории сопоставляются по имени, а не по id: после миграции меню id документов —
+  // слаги каталога (category-12-…), и сравнение по id плодило бы дубли. Имя с «/» больше
+  // не используется как id — иначе doc() падает и импорт не сохраняется.
+  const idsByName = new Map(savedCategories.docs.map((item) => [String(item.data().name ?? item.id), item.id]));
+  const taken = new Set(savedCategories.docs.map((item) => item.id));
+  const addCategory = (name: string, order: number) => {
+    const id = idsByName.get(name) ?? categoryId(name, taken);
+    ops.push((batch) => batch.set(doc(db, "categories", id), { name, order }));
+  };
   if (mode === "replace") {
     savedProducts.docs.forEach((item) => ops.push((batch) => batch.delete(item.ref)));
     savedCategories.docs.forEach((item) => ops.push((batch) => batch.delete(item.ref)));
-    names.forEach((name, order) => ops.push((batch) => batch.set(doc(db, "categories", name), { name, order })));
+    names.forEach((name, order) => addCategory(name, order));
   } else {
-    const existing = new Set(savedCategories.docs.map((item) => item.id));
-    names.filter((name) => !existing.has(name)).forEach((name, index) => ops.push((batch) => batch.set(doc(db, "categories", name), { name, order: savedCategories.size + index })));
+    names.filter((name) => !idsByName.has(name)).forEach((name, index) => addCategory(name, savedCategories.size + index));
   }
   items.forEach((item) => ops.push((batch) => batch.set(doc(products), { name: item.name, description: item.description, weight: item.weight, price: item.price, category: item.category, image: item.image, inStock: true, popular: item.popular })));
   await commitChunks(ops);
