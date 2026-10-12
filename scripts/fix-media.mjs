@@ -10,6 +10,7 @@
 
 import { readFile, writeFile, copyFile } from "node:fs/promises";
 import path from "node:path";
+import { loadServiceAccount } from "./lib/service-account.mjs";
 
 const root = process.cwd();
 const dir = path.join(root, "audit/menu-pdf-audit");
@@ -96,7 +97,8 @@ console.log("image-mapping.csv обновлён.");
 // Firestore
 const { initializeApp, cert } = await import("firebase-admin/app");
 const fs = await import("firebase-admin/firestore");
-const sa = JSON.parse(await readFile(path.join(root, "service-account.json"), "utf8"));
+// Ключ читается из GOOGLE_APPLICATION_CREDENTIALS или --service-account, всегда вне репозитория.
+const sa = await loadServiceAccount();
 const app = initializeApp({ credential: cert(sa), projectId: sa.project_id });
 const db = fs.getFirestore(app);
 let batch = db.batch();

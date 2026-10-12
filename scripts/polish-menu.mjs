@@ -6,13 +6,14 @@
 //
 // Использование:
 //   node scripts/polish-menu.mjs --dry-run   # только проверка, без записи
-//   node scripts/polish-menu.mjs --commit    # JSON + Firestore (нужен ./service-account.json)
+//   node scripts/polish-menu.mjs --commit    # JSON + Firestore (ключ берётся вне репозитория)
 //
 // Firestore: update изменившихся документов (description/name/updatedAt),
 // delete 1 документа без цены. Категории, Cloudinary-ссылки, ID не трогаются.
 
 import { readFile, writeFile, copyFile } from "node:fs/promises";
 import path from "node:path";
+import { loadServiceAccount } from "./lib/service-account.mjs";
 
 const root = process.cwd();
 const catalogPath = path.join(root, "audit/menu-pdf-audit/cloudinary-menu-catalog-ready.json");
@@ -123,7 +124,8 @@ console.log(`JSON перезаписан: ${catalog.products.length} товар�
 
 const { initializeApp, cert } = await import("firebase-admin/app");
 const fs = await import("firebase-admin/firestore");
-const sa = JSON.parse(await readFile(path.join(root, "service-account.json"), "utf8"));
+// Ключ читается из GOOGLE_APPLICATION_CREDENTIALS или --service-account, всегда вне репозитория.
+const sa = await loadServiceAccount();
 const app = initializeApp({ credential: cert(sa), projectId: sa.project_id });
 const db = fs.getFirestore(app);
 

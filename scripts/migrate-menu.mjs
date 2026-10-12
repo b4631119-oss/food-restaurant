@@ -96,7 +96,7 @@ function productDoc(p) {
 if (mode === "dry-run") {
   const sample = productDoc(catalog.products[0]);
   console.log(`DRY-RUN OK. Пример документа products/${catalog.products[0].id}: ${JSON.stringify(sample).slice(0, 300)}…`);
-  console.log("Запись не выполнялась. Для реальной миграции: node scripts/migrate-menu.mjs --commit --service-account ./service-account.json");
+  console.log("Запись не выполнялась. Для реальной миграции: node scripts/migrate-menu.mjs --commit (путь к ключу — GOOGLE_APPLICATION_CREDENTIALS или --service-account, файл вне репозитория)");
   process.exit(0);
 }
 
@@ -113,7 +113,7 @@ try {
   process.exit(1);
 }
 if (!serviceAccountPath) {
-  console.error("Нет service account. Положите ключ в ./service-account.json (не в чат!) и запустите с --service-account ./service-account.json");
+  console.error("Нет ключа. Укажите файл вне репозитория: GOOGLE_APPLICATION_CREDENTIALS=/path/key.json или --service-account /path/key.json");
   process.exit(1);
 }
 const sa = JSON.parse(await readFile(path.resolve(serviceAccountPath), "utf8"));
