@@ -3,7 +3,7 @@ export const LAST_ORDER_KEY = "sushi-bar-no1-last-order";
 export const ORDER_LIMIT = 30;
 // Лимиты количества согласованы с firestore.rules: больше в заказ не попадёт.
 export const MAX_QUANTITY = 20;
-export const ORDER_COOLDOWN_MS = 2 * 60 * 1000;
+export const ORDER_COOLDOWN_MS = 60 * 1000;
 export const TABLE_COUNT = 6;
 
 const validTable = (value: number) => Number.isInteger(value) && value >= 1 && value <= TABLE_COUNT;

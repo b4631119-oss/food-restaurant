@@ -45,7 +45,8 @@ export async function createOrder(input: NewOrder): Promise<DemoOrder> {
     const snapshot = await transaction.get(counter);
     const number = snapshot.exists() ? Number(snapshot.data().value) + 1 : 1001;
     const items = input.items.map(({ productId, productName, price, quantity }) => ({ productId, productName, price, quantity }));
-    const common = { type: input.fulfillment, status: "new" as const, number, createdAt, ...(input.source ? { source: input.source } : {}) };
+    // itemsCount пишем ровно по числу позиций: правила проверяют его как целое 1..30.
+    const common = { type: input.fulfillment, status: "new" as const, number, createdAt, itemsCount: items.length, ...(input.source ? { source: input.source } : {}) };
     // Геометка и ссылка клиента — только валидные, и только для доставки.
     const location = input.fulfillment === "delivery" && isValidLocation(input.location) ? { lat: input.location.lat, lng: input.location.lng } : undefined;
     const mapLink = input.fulfillment === "delivery" && typeof input.mapLink === "string" && isValidMapLink(input.mapLink) ? input.mapLink.trim() : undefined;

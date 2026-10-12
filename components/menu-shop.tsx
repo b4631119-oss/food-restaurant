@@ -52,12 +52,13 @@ export function MenuShop() {
   async function sendOrder(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (orderSubmittingRef.current) return;
+    // Лимит позиций согласован с firestore.rules: больше заказ не сохранится.
+    if (orderItems.length > ORDER_LIMIT) { setOrderWarning(`В заказе не больше ${ORDER_LIMIT} позиций. Уберите лишние блюда.`); return; }
     if (table !== null) {
       if (customer.trap.trim() || !settings.acceptingDinein || !settings.acceptingOrders) return;
       if (!customer.validateForm()) return;
-      if (cart.itemCount > ORDER_LIMIT) { setOrderWarning(`В заказе не больше ${ORDER_LIMIT} позиций. Уберите лишние блюда.`); return; }
       const wait = cooldownLeft();
-      if (wait > 0) { setOrderWarning(`Заказ можно отправлять не чаще одного раза в 2 минуты. Подождите ещё ${Math.ceil(wait / 1000)} секунд.`); return; }
+      if (wait > 0) { setOrderWarning("Подождите минуту перед следующим заказом"); return; }
       orderSubmittingRef.current = true; setOrderPending(true);
       try {
         const created = await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: "", fulfillment: "dinein", tableNumber: table, address: "", comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website" });
@@ -75,7 +76,7 @@ export function MenuShop() {
     if (customer.fulfillment === "delivery" && cart.total < settings.minimumOrder) return;
     // Тот же интервал между заказами, что и для зала: это удобство, а не защита.
     const wait = cooldownLeft();
-    if (wait > 0) { setOrderWarning(`Заказ можно отправлять не чаще одного раза в 2 минуты. Подождите ещё ${Math.ceil(wait / 1000)} секунд.`); return; }
+    if (wait > 0) { setOrderWarning("Подождите минуту перед следующим заказом"); return; }
     const fee = deliveryFee(cart.total, customer.fulfillment, settings);
     orderSubmittingRef.current = true; setOrderPending(true);
     try {
