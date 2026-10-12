@@ -4,6 +4,7 @@
   "description": "Суши и роллы в Оше с быстрой доставкой",
   "start_url": "/",
   "id": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0A1424",

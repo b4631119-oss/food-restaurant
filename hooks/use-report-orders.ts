@@ -9,6 +9,12 @@ import type { Period } from "@/lib/report-period";
 const cache = new Map<string, DemoOrder[]>();
 const cacheKey = (period: Period) => `${period.start.toISOString()}_${period.end.toISOString()}`;
 
+// Очистка кэша отчётов: вызывается при выходе из админки, чтобы данные заказов
+// не оставались в памяти вкладки для следующего пользователя.
+export function clearReportCache(): void {
+  cache.clear();
+}
+
 export type ReportOrders = { orders: DemoOrder[] | null; loading: boolean; error: string; refresh: () => void };
 
 export function useReportOrders(period: Period | null): ReportOrders {

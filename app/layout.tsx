@@ -11,10 +11,11 @@ export const metadata: Metadata = {
   },
   description: `${CAFE.slogan}. Адрес: ${CAFE.address}, ${CAFE.city}. Заказы: ${CAFE.phone}.`,
   manifest: "/manifest.json",
+  // Заголовок для домашнего экрана iOS задаётся на самой странице (app/page.tsx):
+  // в корневом layout он дублировался бы в /admin, и Safari брал бы имя сайта вместо «Админка».
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Суши Бар №1",
   },
   openGraph: {
     title: `${CAFE.name} — суши и роллы в Оше`,
@@ -56,7 +57,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="Суши Бар №1" />
       </head>
       <body className="min-h-dvh bg-background font-sans text-text antialiased">
         <ServiceWorkerRegister />

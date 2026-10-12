@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { defaultSettings } from "@/hooks/use-demo-settings";
+import { AdminInstallCard } from "@/components/admin/install-app-card";
 import { watchSettings, saveSettings } from "@/lib/repo/settings-repo";
 import { normalizeWhatsapp, validateWhatsapp } from "@/lib/validation";
 import type { DemoSettings } from "@/lib/models";
@@ -28,5 +29,6 @@ export default function SettingsPage() {
     <label className="block text-sm">График работы<input value={settings.openingHours} onChange={(event) => update("openingHours", event.target.value)} placeholder="10:00–01:00" className={field} /></label><label className="block text-sm">Адрес кафе<input value={settings.address} onChange={(event) => update("address", event.target.value)} className={field} /></label><label className="block text-sm">Ссылка на карту (2GIS или Google Maps)<input value={settings.mapUrl} onChange={(event) => update("mapUrl", event.target.value)} placeholder="Если пусто — ссылка построится по адресу" className={field} /></label>
     {error && <p role="alert" className="text-sm text-red-400">{error}</p>}{saved && <p role="status" className="text-sm text-accent">Настройки сохранены</p>}<button className="min-h-12 w-full rounded-lg bg-accent font-bold text-background">Сохранить настройки</button>
   </form>
+  <AdminInstallCard />
   </section>;
 }
