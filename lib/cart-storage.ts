@@ -1,4 +1,5 @@
 import type { Cart } from "@/lib/types";
+import { MAX_QUANTITY } from "@/lib/table";
 
 export const CART_KEY = "sushi-bar-no1-cart";
 
@@ -9,7 +10,8 @@ export function readCart(): Cart {
     const next: Cart = {};
     for (const [id, value] of Object.entries(parsed)) {
       if (id && Number.isInteger(value) && Number(value) > 0) {
-        next[id] = Number(value);
+        // Количество держим в тех же лимитах, что и правила Firestore.
+        next[id] = Math.min(Number(value), MAX_QUANTITY);
       }
     }
     return next;

@@ -6,7 +6,9 @@ import { formatPhone } from "@/lib/format";
 import type { Fulfillment } from "@/lib/types";
 
 const CUSTOMER_KEY = "sushi-bar-no1-customer";
+// Лимиты согласованы с firestore.rules, чтобы заказ не отклонялся на сервере.
 const ADDRESS_MAX = 200;
+const NAME_MAX = 80;
 type Field = "name" | "phone" | "address";
 type Saved = { name?: string; phone?: string; address?: string; street?: string };
 
@@ -25,7 +27,7 @@ export function useCustomer(table: number | null = null) {
     const timer = window.setTimeout(() => {
       try {
         const saved = JSON.parse(localStorage.getItem(CUSTOMER_KEY) ?? "{}") as Saved;
-        setName(saved.name ?? ""); setPhone(formatPhone(saved.phone ?? ""));
+        setName((saved.name ?? "").slice(0, NAME_MAX)); setPhone(formatPhone(saved.phone ?? ""));
         setAddress((saved.street ?? saved.address ?? "").slice(0, ADDRESS_MAX));
       } catch { /* Continue with empty fields when storage is unavailable. */ }
       finally { setReady(true); }
@@ -34,7 +36,7 @@ export function useCustomer(table: number | null = null) {
   }, []);
   useEffect(() => {
     if (!ready) return;
-    try { localStorage.setItem(CUSTOMER_KEY, JSON.stringify({ name, phone, address })); } catch { /* Keep fields usable without storage. */ }
+    try { localStorage.setItem(CUSTOMER_KEY, JSON.stringify({ name: name.slice(0, NAME_MAX), phone, address: address.slice(0, ADDRESS_MAX) })); } catch { /* Keep fields usable without storage. */ }
   }, [name, phone, address, ready]);
 
   // Адрес заказа — только то, что клиент ввёл вручную в поле «Адрес».

@@ -2,12 +2,14 @@ import type { User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-export const ADMIN_EMAIL = "suhibarno1@gmail.com";
-// Админ-доступ: существующий аккаунт ADMIN_EMAIL (вход продолжает работать)
-// либо документ admins/{uid}, созданный вручную в Firebase Console.
+// Админ-доступ определяется ТОЛЬКО документом admins/{uid}, созданным вручную
+// в Firebase Console. Почта в правилах и в клиенте не участвует: смена email
+// не выдаёт и не отнимает доступ, а утечка адреса не даёт прав.
 export async function isAdminUser(user: User | null): Promise<boolean> {
   if (!user) return false;
-  if (user.email === ADMIN_EMAIL) return true;
-  try { return (await getDoc(doc(db, "admins", user.uid))).exists(); }
-  catch { return false; }
+  try {
+    return (await getDoc(doc(db, "admins", user.uid))).exists();
+  } catch {
+    return false;
+  }
 }
