@@ -22,23 +22,38 @@
 
 # misc
 .DS_Store
-*.pem
 /.freebuff/
+
+# ключи и сертификаты
+*.pem
+*.key
+*.p12
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
+*.pid
+.qa-server.*
 
 # env files
 .env*
 !.env.example
 
 # service account keys (never commit)
-service-account.json
-*-service-account.json
+service-account*.json
 sa-key*.json
+
+# внутренние артефакты аудита и QA — не для публичного репозитория
+/audit/
+/qa-screenshots/
+*.bak
+*backup*
+
+# выгрузки и документы
+*.pdf
 
 # vercel
 .vercel
