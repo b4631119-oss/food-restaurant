@@ -73,13 +73,16 @@ export function MenuShop() {
     }
     if (!customer.validateForm() || !settings.acceptingOrders) return;
     if (customer.fulfillment === "delivery" && cart.total < settings.minimumOrder) return;
+    // Тот же интервал между заказами, что и для зала: это удобство, а не защита.
+    const wait = cooldownLeft();
+    if (wait > 0) { setOrderWarning(`Заказ можно отправлять не чаще одного раза в 2 минуты. Подождите ещё ${Math.ceil(wait / 1000)} секунд.`); return; }
     const fee = deliveryFee(cart.total, customer.fulfillment, settings);
     orderSubmittingRef.current = true; setOrderPending(true);
     try {
       const created = await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.orderAddress, comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && fee !== null ? { deliveryFee: fee } : {}) });
       const receipt = buildReceipt({ orderNumber: created.number, cartLines: cart.cartLines, total: cart.total, fee, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.orderAddress });
       const url = whatsappUrl(settings.whatsappNumber, receipt);
-      setOrderWarning(""); setSentNumber(created.number); setReceiptUrl(url); ui.setOrderSent(true);
+      markOrderSent(); setOrderWarning(""); setSentNumber(created.number); setReceiptUrl(url); ui.setOrderSent(true);
       // Если браузер заблокирует новое окно, отправка остаётся кнопкой на экране заказа.
       openWhatsApp(url);
     }
