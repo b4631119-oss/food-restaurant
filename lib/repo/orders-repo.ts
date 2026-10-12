@@ -103,6 +103,7 @@ function decodeOrder(id: string, data: Record<string, unknown>, itemDocs: OrderI
     tableNumber: typeof data.tableNumber === "number" ? data.tableNumber : undefined,
     deliveryFee: isValidDeliveryFee(data.deliveryFee) ? data.deliveryFee : undefined,
     location: isValidLocation(data.location) ? { lat: data.location.lat, lng: data.location.lng } : undefined,
-    mapLink: typeof data.mapLink === "string" ? data.mapLink : undefined,
+    // Ссылку перепроверяем при чтении: в базе могли оказаться данные, записанные до валидации.
+    mapLink: typeof data.mapLink === "string" && isValidMapLink(data.mapLink) ? data.mapLink : undefined,
   } as DemoOrder;
 }
