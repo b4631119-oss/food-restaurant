@@ -99,6 +99,9 @@ async function fireFetch(url, mode = "no-cors") {
 const forbidden = [
   "https://shop.example/admin",
   "https://shop.example/admin/orders",
+  "https://shop.example/api/orders",
+  "https://shop.example/?order=abc123",
+  "https://shop.example/images/menu/roll.jpg?orderId=abc123",
   "https://firestore.googleapis.com/v1/projects/sushi-bar-no1/databases/(default)/documents/orders",
   "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword",
   "https://res.cloudinary.com/u6kw/image/upload/v1/menu.jpg",

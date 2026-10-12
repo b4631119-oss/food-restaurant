@@ -28,13 +28,16 @@ const NEVER_CACHE = [
 ];
 
 const isAdmin = (pathname) => pathname === "/admin" || pathname.startsWith("/admin/");
+const isApi = (pathname) => pathname === "/api" || pathname.startsWith("/api/");
 const isForbidden = (href) => NEVER_CACHE.some((pattern) => pattern.test(href));
+// Запросы с параметром заказа относятся к конкретному человеку — их не кэшируем.
+const hasOrderParam = (url) => url.searchParams.has("order") || url.searchParams.has("orderId");
 
-// Только собственные статические файлы; HTML и ответы с данными остаются сетевыми.
+// Только собственные статические файлы; HTML, API и ответы с данными остаются сетевыми.
 function isCacheableStatic(url) {
   if (url.origin !== self.location.origin) return false;
-  if (isAdmin(url.pathname)) return false;
-  if (isForbidden(url.href)) return false;
+  if (isAdmin(url.pathname) || isApi(url.pathname)) return false;
+  if (isForbidden(url.href) || hasOrderParam(url)) return false;
   if (url.pathname === OFFLINE_URL) return true;
   if (STATIC_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) return true;
   return STATIC_EXTENSIONS.test(url.pathname);
@@ -62,9 +65,9 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
 
-  // Админка, сторонние сервисы и всё, что может содержать данные, — только сеть.
+  // Админка, API, сторонние сервисы и всё, что может содержать данные, — только сеть.
   if (url.origin !== self.location.origin) return;
-  if (isAdmin(url.pathname) || isForbidden(url.href)) return;
+  if (isAdmin(url.pathname) || isApi(url.pathname) || isForbidden(url.href) || hasOrderParam(url)) return;
 
   // Навигация: сначала сеть; без сети показываем офлайн-страницу.
   if (request.mode === "navigate") {
