@@ -3,7 +3,6 @@ export const CAFE = {
   city: "Ош",
   address: "Алымбек датка 702",
   phone: "+996 990 435 943",
-  phoneDigits: "996559679787",
   whatsappNumber: "996990435943",
   currency: "сом",
   slogan: "Свежие роллы и суши в Оше",
