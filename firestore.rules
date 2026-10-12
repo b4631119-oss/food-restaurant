@@ -25,19 +25,24 @@ service cloud.firestore {
     function validCreatedAt() {
       return !('createdAt' in request.resource.data) || request.resource.data.createdAt is string;
     }
+    // Позиций в заказе не больше 30 — столько же держит корзина на клиенте.
+    function validItemsCount() {
+      return request.resource.data.itemsCount is int && request.resource.data.itemsCount >= 1
+        && request.resource.data.itemsCount <= 30;
+    }
     // Публичное создание заказа: без items/total (цены не принимаются на веру),
     // строгие лимиты полей и привязка к транзакции счётчика counters/orders.
     function validPublicOrder(orderId) {
       return request.resource.data.status == 'new' && request.resource.data.number is int
-        && request.resource.data.type in ['delivery', 'pickup', 'dinein']
+        && request.resource.data.type in ['delivery', 'pickup', 'dinein'] && validItemsCount()
         && getAfter(counterPath()).data.orderId == orderId
         && getAfter(counterPath()).data.value == request.resource.data.number
         && (request.resource.data.type == 'dinein' ? validDineinOrder() : validFulfillmentOrder());
     }
     // Заказ со стола: tableNumber 1..6, без телефона и адреса, имя и комментарий необязательны.
     function validDineinOrder() {
-      return request.resource.data.keys().hasAll(['type', 'status', 'number', 'tableNumber'])
-        && request.resource.data.keys().hasOnly(['type', 'status', 'number', 'tableNumber', 'name', 'comment', 'createdAt', 'source'])
+      return request.resource.data.keys().hasAll(['type', 'status', 'number', 'itemsCount', 'tableNumber'])
+        && request.resource.data.keys().hasOnly(['type', 'status', 'number', 'itemsCount', 'tableNumber', 'name', 'comment', 'createdAt', 'source'])
         && request.resource.data.tableNumber is int && request.resource.data.tableNumber >= 1
         && request.resource.data.tableNumber <= 6
         && optionalString('name', 80) && optionalString('comment', 300)
@@ -51,15 +56,15 @@ service cloud.firestore {
         && request.resource.data.location.lat >= -90 && request.resource.data.location.lat <= 90
         && request.resource.data.location.lng >= -180 && request.resource.data.location.lng <= 180;
     }
-    // Ссылка клиента на точку в картах: необязательная, https и не длиннее 300 символов.
+    // Ссылка клиента на карту: необязательная, https без пробелов и управляющих символов, до 300 знаков.
     function validOrderMapLink() {
       return request.resource.data.mapLink is string && request.resource.data.mapLink.size() <= 300
-        && request.resource.data.mapLink.matches('https://.*');
+        && request.resource.data.mapLink.matches('https://[!-~]+');
     }
     // Доставка/самовывоз: имя и телефон обязательны, адрес нужен для доставки, tableNumber запрещён.
     function validFulfillmentOrder() {
-      return request.resource.data.keys().hasAll(['name', 'phone', 'type', 'status', 'number'])
-        && request.resource.data.keys().hasOnly(['name', 'phone', 'type', 'status', 'number', 'address', 'comment', 'createdAt', 'source', 'location', 'mapLink', 'deliveryFee'])
+      return request.resource.data.keys().hasAll(['name', 'phone', 'type', 'status', 'number', 'itemsCount'])
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'type', 'status', 'number', 'itemsCount', 'address', 'comment', 'createdAt', 'source', 'location', 'mapLink', 'deliveryFee'])
         && requiredString('name', 2, 80) && requiredString('phone', 7, 20)
         && request.resource.data.type in ['delivery', 'pickup']
         && (request.resource.data.type == 'pickup' || requiredString('address', 5, 200))
@@ -86,10 +91,11 @@ service cloud.firestore {
         && getAfter(orderPath(request.resource.data.orderId)).data.status == 'new'
         && getAfter(counterPath()).data.orderId == request.resource.data.orderId;
     }
-    // Фото блюда — только ссылка: без data URL и не длиннее 500 символов.
+    // Фото блюда: если поле есть — это ссылка (не data: и не длиннее 500 знаков).
     function validProductImage() {
-      return request.resource.data.image is string && request.resource.data.image.size() <= 500
-        && !request.resource.data.image.matches('data:.*');
+      return !('image' in request.resource.data)
+        || (request.resource.data.image is string && request.resource.data.image.size() <= 500
+          && !request.resource.data.image.matches('data:.*'));
     }
     // Витрина: меню и настройки читает любой, пишет только админ.
     match /products/{productId} {
