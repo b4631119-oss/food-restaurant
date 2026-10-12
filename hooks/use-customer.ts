@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { validateAddress, validateName, validatePhone } from "@/lib/validation";
 import { formatPhone } from "@/lib/format";
+import { ADDRESS_MAX, NAME_MAX, forgetCustomer, readSavedCustomer, saveCustomer } from "@/lib/customer-storage";
 import type { Fulfillment } from "@/lib/types";
 
-const CUSTOMER_KEY = "sushi-bar-no1-customer";
-// Лимиты согласованы с firestore.rules, чтобы заказ не отклонялся на сервере.
-const ADDRESS_MAX = 200;
-const NAME_MAX = 80;
 type Field = "name" | "phone" | "address";
-type Saved = { name?: string; phone?: string; address?: string; street?: string };
 
 export function useCustomer(table: number | null = null) {
   const [name, setName] = useState("");
@@ -19,25 +15,39 @@ export function useCustomer(table: number | null = null) {
   const [comment, setComment] = useState("");
   const [trap, setTrap] = useState("");
   const [fulfillment, setFulfillment] = useState<Fulfillment>("delivery");
+  const [remember, setRemember] = useState(true);
   const [touched, setTouched] = useState<Record<Field, boolean>>({ name: false, phone: false, address: false });
   const [submitted, setSubmitted] = useState(false);
   const [ready, setReady] = useState(false);
+  const restored = useRef(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      try {
-        const saved = JSON.parse(localStorage.getItem(CUSTOMER_KEY) ?? "{}") as Saved;
-        setName((saved.name ?? "").slice(0, NAME_MAX)); setPhone(formatPhone(saved.phone ?? ""));
+      const saved = readSavedCustomer();
+      if (saved) {
+        setName((saved.name ?? "").slice(0, NAME_MAX));
+        setPhone(formatPhone(saved.phone ?? ""));
         setAddress((saved.street ?? saved.address ?? "").slice(0, ADDRESS_MAX));
-      } catch { /* Continue with empty fields when storage is unavailable. */ }
-      finally { setReady(true); }
+      }
+      setReady(true);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
+
   useEffect(() => {
     if (!ready) return;
-    try { localStorage.setItem(CUSTOMER_KEY, JSON.stringify({ name: name.slice(0, NAME_MAX), phone, address: address.slice(0, ADDRESS_MAX) })); } catch { /* Keep fields usable without storage. */ }
-  }, [name, phone, address, ready]);
+    // Первый прогон — только восстановление: без правок клиента срок хранения не продлеваем.
+    if (!restored.current) {
+      restored.current = true;
+      return;
+    }
+    // Чекбокс выключен — в браузере не остаётся ничего персонального.
+    if (!remember) {
+      forgetCustomer();
+      return;
+    }
+    saveCustomer({ name, phone, address });
+  }, [name, phone, address, remember, ready]);
 
   // Адрес заказа — только то, что клиент ввёл вручную в поле «Адрес».
   const orderAddress = address.trim().slice(0, ADDRESS_MAX);
@@ -63,6 +73,7 @@ export function useCustomer(table: number | null = null) {
   return {
     name, setName, phone, setPhone: (value: string) => setPhone(formatPhone(value)),
     address, setAddress, orderAddress, comment, setComment, trap, setTrap,
-    fulfillment, setFulfillment, errors: visibleErrors, blurField, validateForm,
+    fulfillment, setFulfillment, remember, setRemember,
+    errors: visibleErrors, blurField, validateForm,
   };
 }

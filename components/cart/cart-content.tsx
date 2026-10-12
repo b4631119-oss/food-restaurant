@@ -25,6 +25,8 @@ export type CartContentProps = {
   setComment: (value: string) => void;
   trap: string;
   setTrap: (value: string) => void;
+  remember: boolean;
+  setRemember: (value: boolean) => void;
   table: number | null;
   warning?: string;
   errors: { name: string; phone: string; address: string };
@@ -56,6 +58,8 @@ export function CartContent(props: CartContentProps) {
             setComment={props.setComment}
             trap={props.trap}
             setTrap={props.setTrap}
+            remember={props.remember}
+            setRemember={props.setRemember}
             table={props.table}
           />
         </div>

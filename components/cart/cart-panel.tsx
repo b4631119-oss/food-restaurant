@@ -17,7 +17,7 @@ type CartPanelProps = {
   setFulfillment: (value: Fulfillment) => void; name: string;  setName: (value: string) => void;
   phone: string;  setPhone: (value: string) => void;
   address: string; setAddress: (value: string) => void;
-  comment: string; setComment: (value: string) => void;  trap: string; setTrap: (value: string) => void; table: number | null; orderNumber: number;
+  comment: string; setComment: (value: string) => void;  trap: string; setTrap: (value: string) => void; remember: boolean; setRemember: (value: boolean) => void; table: number | null; orderNumber: number;
   errors: { name: string; phone: string; address: string }; onBlur: (field: "name" | "phone" | "address") => void;
 };
 
@@ -34,7 +34,7 @@ export function CartPanel(props: CartPanelProps) {
     name: props.name, setName: props.setName, phone: props.phone, setPhone: props.setPhone,
     address: props.address, setAddress: props.setAddress,
     comment: props.comment, setComment: props.setComment,
-    trap: props.trap, setTrap: props.setTrap, table: props.table, warning: props.warning,
+    trap: props.trap, setTrap: props.setTrap, remember: props.remember, setRemember: props.setRemember, table: props.table, warning: props.warning,
     errors: props.errors, onBlur: props.onBlur,
   };
   const { lines, orderSent, receiptUrl, warning, onGoMenu, onClearAndClose } = props;
