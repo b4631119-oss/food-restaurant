@@ -1,13 +1,27 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
-// Значения приходят из .env.local локально и из переменных проекта Vercel на хостинге.
-// Firebase SDK проверяет формат ключа уже при импорте модуля, поэтому при сборке без переменных
-// окружения нельзя передавать undefined: иначе падает пререндер страниц (auth/invalid-api-key).
-// Резервный конфиг синтаксически корректен, сеть на этапе сборки не используется, а на клиенте
-// всегда работают реальные значения из переменных окружения.
-const fromEnv = {
+// Публичные значения Firebase приходят из .env.local локально и из переменных проекта
+// Vercel на хостинге. Резервного конфига больше нет: с фиктивным ключом приложение
+// молча уходит в никуда, поэтому в production сборка падает, а в development
+// подставляется заглушка с предупреждением.
+//
+// Значения читаются только статически: Next подставляет process.env.NEXT_PUBLIC_*
+// на этапе сборки, динамический доступ process.env[имя] в клиенте не работает.
+const NAMES = {
+  apiKey: "NEXT_PUBLIC_FIREBASE_API_KEY",
+  authDomain: "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+  projectId: "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+  storageBucket: "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+  messagingSenderId: "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+  appId: "NEXT_PUBLIC_FIREBASE_APP_ID",
+} as const;
+
+type ConfigKey = keyof typeof NAMES;
+
+const raw: Record<ConfigKey, string | undefined> = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -16,30 +30,41 @@ const fromEnv = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const fallback = {
-  apiKey: "AIzaSyA00000000000000000000000000000000",
-  authDomain: "sushi-bar-no1.firebaseapp.com",
-  projectId: "sushi-bar-no1",
-  storageBucket: "sushi-bar-no1.appspot.com",
-  messagingSenderId: "0",
-  appId: "1:000000000000:web:0000000000000000000000",
-};
-
-const missing = Object.entries(fromEnv).filter(([, value]) => !value).map(([key]) => key);
-// Пишем только в лог сборки: посетителям браузера это сообщение не нужно.
-if (missing.length && typeof window === "undefined") {
-  console.warn(`[firebase] Не заданы переменные окружения: ${missing.join(", ")}. Использован резервный конфиг — добавьте их в Vercel → Settings → Environment Variables.`);
+const missing = (Object.keys(raw) as ConfigKey[]).filter((key) => !raw[key]);
+if (missing.length) {
+  const names = missing.map((key) => NAMES[key]).join(", ");
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(`[firebase] Не заданы переменные окружения: ${names}. Добавьте их в Vercel → Settings → Environment Variables и пересоберите проект.`);
+  }
+  console.warn(`[firebase] В development не заданы: ${names}. Используется заглушка — заполните .env.local.`);
 }
 
 const firebaseConfig = {
-  apiKey: fromEnv.apiKey || fallback.apiKey,
-  authDomain: fromEnv.authDomain || fallback.authDomain,
-  projectId: fromEnv.projectId || fallback.projectId,
-  storageBucket: fromEnv.storageBucket || fallback.storageBucket,
-  messagingSenderId: fromEnv.messagingSenderId || fallback.messagingSenderId,
-  appId: fromEnv.appId || fallback.appId,
+  apiKey: raw.apiKey ?? "AIzaSyA-development-placeholder-00000000000",
+  authDomain: raw.authDomain ?? "development.invalid",
+  projectId: raw.projectId ?? "development",
+  storageBucket: raw.storageBucket ?? "development.invalid",
+  messagingSenderId: raw.messagingSenderId ?? "0",
+  appId: raw.appId ?? "1:0:web:0",
 };
 
-export const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+// App Check подтверждает, что запросы идут из нашего приложения, а не из скрипта.
+// Включается только при заданном публичном ключе reCAPTCHA v3; принудительную
+// проверку включают вручную в консоли Firebase. Без ключа приложение работает как раньше.
+const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+if (typeof window !== "undefined" && recaptchaSiteKey) {
+  if (process.env.NODE_ENV === "development") {
+    // Без отладочного токена App Check блокирует localhost.
+    (globalThis as { FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+  }
+  initializeAppCheck(firebaseApp, {
+    provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
+
+export { firebaseApp };
 export const db = getFirestore(firebaseApp);
 export const auth = getAuth(firebaseApp);
