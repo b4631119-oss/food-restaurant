@@ -4,9 +4,12 @@ import type { DemoOrder } from "@/lib/models";
 
 const HEADER = ["номер", "дата", "время", "тип", "стол", "имя", "телефон", "адрес", "блюда", "сумма блюд", "доставка", "комментарий"];
 
+// Защита от CSV-инъекций: значение, начинающееся с =, +, -, @ или управляющего
+// символа, Excel и Google Sheets могут выполнить как формулу — экранируем апострофом.
 function cell(value: string | number): string {
   const text = String(value);
-  return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  return /[";\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
 export function ordersCsv(orders: DemoOrder[]): string {
