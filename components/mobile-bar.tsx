@@ -23,7 +23,7 @@ export function MobileBar({
   whatsappNumber = CAFE.whatsappNumber,
 }: MobileBarProps) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 safe-bottom border-t border-accent/25 bg-background/95 px-2 pt-2 backdrop-blur lg:hidden">
+    <div className="mobile-bar fixed inset-x-0 bottom-0 z-30 safe-bottom border-t border-accent/25 bg-background/95 px-2 pt-2 backdrop-blur lg:hidden">
       <div
         className={`mx-auto grid w-full max-w-2xl gap-2 ${itemCount > 0 ? "grid-cols-[auto_auto_minmax(0,1fr)]" : "grid-cols-[auto_auto] justify-center"}`}
       >

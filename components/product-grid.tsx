@@ -1,8 +1,9 @@
 "use client";
 
-import type { RefObject } from "react";
+import { useCallback, useState, type RefObject } from "react";
 import { Search, X } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
+import { ProductSheet } from "@/components/product-sheet";
 import type { Product } from "@/lib/types";
 
 type ProductGridProps = {
@@ -14,14 +15,25 @@ type ProductGridProps = {
   query: string;
   onQuery: (query: string) => void;
   cart: Record<string, number>;
+  cartOpen: boolean;
   onAdd: (productId: string) => void;
   onChange: (productId: string, amount: number) => void;
   listRef: RefObject<HTMLDivElement | null>;
 };
 
-export function ProductGrid({ products, title, groups, isAll, onShowAll, query, onQuery, cart, onAdd, onChange, listRef }: ProductGridProps) {
+export function ProductGrid({ products, title, groups, isAll, onShowAll, query, onQuery, cart, cartOpen, onAdd, onChange, listRef }: ProductGridProps) {
   const eagerIds = new Set(products.slice(0, 4).map((product) => product.id));
-  const card = (product: Product) => <ProductCard key={product.id} product={product} quantity={cart[product.id] ?? 0} eager={eagerIds.has(product.id)} onAdd={() => onAdd(product.id)} onChange={(amount) => onChange(product.id, amount)} />;
+  // Выбранное блюдо живёт здесь: окно рендерится один раз на страницу, а не на каждой карточке.
+  // Контекст храним вместе с id, чтобы смена категории, поиска или открытие корзины закрывали окно.
+  const context = `${title}|${query}|${cartOpen}`;
+  const [selected, setSelected] = useState<{ id: string; context: string } | null>(null);
+  const openProduct = selected ? products.find((product) => product.id === selected.id) ?? null : null;
+  // Закрываем окно без эффектов: если контекст изменился или блюдо пропало из каталога,
+  // устаревший выбор сбрасывается прямо в рендере (документированный приём React).
+  if (selected && (selected.context !== context || !openProduct)) setSelected(null);
+  // Стабильный onClose: иначе фокус-ловушка окна перезапускается при каждом рендере.
+  const closeSheet = useCallback(() => setSelected(null), []);
+  const card = (product: Product) => <ProductCard key={product.id} product={product} quantity={cart[product.id] ?? 0} eager={eagerIds.has(product.id)} onAdd={() => onAdd(product.id)} onChange={(amount) => onChange(product.id, amount)} onOpen={() => setSelected({ id: product.id, context })} />;
   return (
     <div ref={listRef} className="scroll-mt-[120px] pt-1">
       <label className="flex h-11 min-h-11 items-center gap-3 rounded-xl border border-line bg-surface px-3.5 focus-within:border-accent">
@@ -40,6 +52,7 @@ export function ProductGrid({ products, title, groups, isAll, onShowAll, query, 
       ) : (
         <div className="rounded-xl border border-line bg-surface px-4 py-8 text-center text-sm text-muted"><p>Ничего не найдено. Попробуйте изменить запрос.</p><button type="button" onClick={onShowAll} className="press mt-4 min-h-11 rounded-sm bg-accent px-4 font-semibold text-background hover:bg-accent-hover">Показать всё</button></div>
       )}
+      {openProduct && <ProductSheet product={openProduct} quantity={cart[openProduct.id] ?? 0} onAdd={onAdd} onChange={onChange} onClose={closeSheet} />}
     </div>
   );
 }
