@@ -5,7 +5,7 @@ import { CAFE } from "@/lib/config";
 import { useDemoSettings } from "@/hooks/use-demo-settings";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
-const devLink = "https://portfolio-devroot.vercel.app";
+const devLink = "https://www.bilolidin.dev/";
 
 // Ссылки не переносятся внутри себя: на узких экранах переносится вся ссылка целиком.
 const navLink = "press inline-flex min-h-11 items-center whitespace-nowrap rounded-md px-1 text-sm font-semibold hover:text-accent";
