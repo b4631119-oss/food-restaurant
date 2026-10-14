@@ -1,7 +1,8 @@
-import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, writeBatch, type Unsubscribe, type WriteBatch } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, setDoc, writeBatch, type WriteBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { categoryId } from "@/lib/repo/categories-repo";
 import { bumpSyncVersion } from "@/lib/repo/settings-repo";
+import { scheduleMenuPublish } from "@/lib/repo/menu-repo";
 import type { ImportItem } from "@/lib/menu-import";
 import type { DemoProduct } from "@/lib/models";
 
@@ -14,9 +15,6 @@ export async function getProducts(): Promise<DemoProduct[]> {
   const snapshot = await getDocs(products);
   return snapshot.docs.map((item) => ({ ...item.data(), id: item.id }) as DemoProduct);
 }
-export function watchProducts(onChange: (items: DemoProduct[]) => void, onError?: (error: Error) => void): Unsubscribe {
-  return onSnapshot(products, (snapshot) => onChange(snapshot.docs.map((item) => ({ ...item.data(), id: item.id }) as DemoProduct)), (error) => onError?.(error));
-}
 export async function saveProduct(product: DemoProduct): Promise<void> {
   const { id, ...data } = product;
   const image = String(data.image ?? "");
@@ -25,9 +23,10 @@ export async function saveProduct(product: DemoProduct): Promise<void> {
   if (new TextEncoder().encode(JSON.stringify(data)).length > maxDocumentBytes) throw new Error("Карточка блюда превышает лимит 900 КБ. Уменьшите изображение.");
   await setDoc(doc(db, "products", id), data);
   await bumpSyncVersion();
+  scheduleMenuPublish();
 }
 // Удаление тоже сдвигает версию: витрина перечитает каталог при следующей проверке.
-export async function deleteProduct(id: string): Promise<void> { await deleteDoc(doc(db, "products", id)); await bumpSyncVersion(); }
+export async function deleteProduct(id: string): Promise<void> { await deleteDoc(doc(db, "products", id)); await bumpSyncVersion(); scheduleMenuPublish(); }
 type BatchOp = (batch: WriteBatch) => void;
 async function commitChunks(ops: BatchOp[]): Promise<void> {
   for (let i = 0; i < ops.length; i += batchLimit) {
@@ -59,4 +58,5 @@ export async function importProducts(items: ImportItem[], mode: "add" | "replace
   items.forEach((item) => ops.push((batch) => batch.set(doc(products), { name: item.name, description: item.description, weight: item.weight, price: item.price, category: item.category, image: item.image, inStock: true, popular: item.popular })));
   await commitChunks(ops);
   await bumpSyncVersion();
+  scheduleMenuPublish();
 }

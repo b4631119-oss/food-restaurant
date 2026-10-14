@@ -10,7 +10,7 @@
 
 ## Автоматическая проверка (тот же набор без консоли)
 
-37 кейсов из таблицы прогоняются скриптом [scripts/check-firestore-rules.mjs](../scripts/check-firestore-rules.mjs)
+40 кейсов из таблицы прогоняются скриптом [scripts/check-firestore-rules.mjs](../scripts/check-firestore-rules.mjs)
 через REST API локального эмулятора. Он очищает только данные эмулятора и откажется работать, если эмулятор не отвечает.
 
 ```bash
@@ -26,7 +26,7 @@ npx firebase-tools emulators:start --only firestore --project demo-test --config
 node scripts/check-firestore-rules.mjs
 ```
 
-Текущее состояние правил: 37 из 37 кейсов совпали с ожиданием.
+Текущее состояние правил: 40 из 40 кейсов совпали с ожиданием.
 
 ## Как подготовить
 
@@ -73,6 +73,9 @@ node scripts/check-firestore-rules.mjs
 | 32 | update `/counters/orders` | `value` = текущее + 2 | deny |
 | 33 | update `/counters/orders` | `value` = текущее + 1 без создания заказа | deny |
 | 34 | create `/secrets/{любой}` | без входа и с входом админом | deny |
+| 35 | get `/menu/public` | без входа (витрина читает одно чтение вместо коллекций) | allow |
+| 36 | create/update `/menu/public` | без входа | deny |
+| 37 | create/update `/menu/public` | вход админом (публикация меню из админки) | allow |
 
 ## Проверка на тестовом проекте (после публикации правил)
 

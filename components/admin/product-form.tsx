@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Loader2, Trash2, Upload } from "lucide-react";
-import { watchCategories } from "@/lib/repo/categories-repo";
+import { getCategories } from "@/lib/repo/categories-repo";
 import { saveProduct } from "@/lib/repo/products-repo";
 import { uploadImage } from "@/lib/cloudinary";
 import type { DemoProduct } from "@/lib/models";
@@ -17,7 +17,8 @@ export function ProductForm({ product, onSave, onCancel }: Props) {
   const [inStock, setInStock] = useState(product?.inStock ?? true); const [image, setImage] = useState(product?.image ?? "");
   const [preview, setPreview] = useState(""); const [uploading, setUploading] = useState(false);
   const [imageError, setImageError] = useState(""); const [errors, setErrors] = useState({ name: "", price: "", category: "" });
-  useEffect(() => watchCategories(setCategories), []);
+  // Список категорий нужен один раз при открытии формы: подписка на коллекцию лишний раз читала бы её.
+  useEffect(() => { void getCategories().then(setCategories).catch(() => setCategories([])); }, []);
   async function upload(file?: File) {
     if (!file || uploading) return;
     setImageError(""); setUploading(true);

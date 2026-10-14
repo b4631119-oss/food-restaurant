@@ -1,6 +1,7 @@
-import { collection, doc, getDocs, onSnapshot, writeBatch, type Unsubscribe } from "firebase/firestore";
+import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { bumpSyncVersion } from "@/lib/repo/settings-repo";
+import { scheduleMenuPublish } from "@/lib/repo/menu-repo";
 
 const categories = collection(db, "categories");
 
@@ -27,9 +28,6 @@ export async function getCategories(): Promise<string[]> {
   const snapshot = await getDocs(categories);
   return snapshot.docs.map((item) => ({ id: item.id, name: String(item.data().name ?? item.id), order: Number(item.data().order ?? 0) })).sort((a, b) => a.order - b.order).map((item) => item.name);
 }
-export function watchCategories(onChange: (items: string[]) => void, onError?: (error: Error) => void): Unsubscribe {
-  return onSnapshot(categories, (snapshot) => onChange(snapshot.docs.map((item) => ({ id: item.id, name: String(item.data().name ?? item.id), order: Number(item.data().order ?? 0) })).sort((a, b) => a.order - b.order).map((item) => item.name)), (error) => onError?.(error));
-}
 export async function saveCategories(names: string[]): Promise<void> {
   const unique = [...new Set(names)];
   const existing = await getDocs(categories);
@@ -47,4 +45,5 @@ export async function saveCategories(names: string[]): Promise<void> {
   existing.docs.forEach((item) => { if (!keep.has(item.id)) batch.delete(item.ref); });
   await batch.commit();
   await bumpSyncVersion();
+  scheduleMenuPublish();
 }

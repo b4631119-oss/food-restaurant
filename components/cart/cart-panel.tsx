@@ -17,7 +17,7 @@ type CartPanelProps = {
   setFulfillment: (value: Fulfillment) => void; name: string;  setName: (value: string) => void;
   phone: string;  setPhone: (value: string) => void;
   address: string; setAddress: (value: string) => void;
-  comment: string; setComment: (value: string) => void;  trap: string; setTrap: (value: string) => void; remember: boolean; setRemember: (value: boolean) => void; table: number | null; orderNumber: number;
+  comment: string; setComment: (value: string) => void;  trap: string; setTrap: (value: string) => void; remember: boolean; setRemember: (value: boolean) => void; table: number | null; orderNumber: number | null;
   errors: { name: string; phone: string; address: string }; onBlur: (field: "name" | "phone" | "address") => void;
 };
 

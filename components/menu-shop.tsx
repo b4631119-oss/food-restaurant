@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDemoSettings } from "@/hooks/use-demo-settings";
 import { useMenuData } from "@/hooks/use-menu-data";
 import { CartPanel } from "@/components/cart/cart-panel";
@@ -21,7 +21,7 @@ import { cooldownLeft, markOrderSent, ORDER_LIMIT } from "@/lib/table";
 import { deliveryFee } from "@/lib/delivery";
 import { popularProducts } from "@/lib/popular";
 import { buildReceipt, buildTableReceipt, openWhatsApp, whatsappUrl } from "@/lib/order";
-import { createOrder } from "@/lib/repo/orders-repo";
+import { retryQueuedOrders, submitOrder } from "@/lib/order-flow";
 
 export function MenuShop() {
   const { products, categories: menuCategories, loading: menuLoading, error: menuError, retry: retryMenu } = useMenuData();
@@ -33,9 +33,11 @@ export function MenuShop() {
   const customer = useCustomer(table);
   const ui = useShopUi(cart.itemCount, cart.addProduct);
   const [receiptUrl, setReceiptUrl] = useState("");
-  const [sentNumber, setSentNumber] = useState(0);
+  const [sentNumber, setSentNumber] = useState<number | null>(null);
   const [orderWarning, setOrderWarning] = useState("");
   const [orderPending, setOrderPending] = useState(false); const orderSubmittingRef = useRef(false);
+  // Один раз за визит дозаписываем заказы, которые не попали в Firestore на прошлом заходе.
+  useEffect(() => { retryQueuedOrders(); }, []);
   const search = ui.searchQuery.trim().toLocaleLowerCase("ru");
   // «Популярное» наполняется автоматически: явные хиты, иначе — топ ключевых категорий,
   // поэтому вкладка не пустует даже если флаг «Популярное» нигде не выставлен.
@@ -54,6 +56,7 @@ export function MenuShop() {
     if (orderSubmittingRef.current) return;
     // Лимит позиций согласован с firestore.rules: больше заказ не сохранится.
     if (orderItems.length > ORDER_LIMIT) { setOrderWarning(`В заказе не больше ${ORDER_LIMIT} позиций. Уберите лишние блюда.`); return; }
+    // Ошибок базы клиент не видит: не записалось — чек уходит в WhatsApp без номера.
     if (table !== null) {
       if (customer.trap.trim() || !settings.acceptingDinein || !settings.acceptingOrders) return;
       if (!customer.validateForm()) return;
@@ -61,14 +64,12 @@ export function MenuShop() {
       if (wait > 0) { setOrderWarning("Подождите минуту перед следующим заказом"); return; }
       orderSubmittingRef.current = true; setOrderPending(true);
       try {
-        const created = await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: "", fulfillment: "dinein", tableNumber: table, address: "", comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website" });
-        // Заказ уже сохранён для отчётов; гостю остаётся отправить чек официанту в WhatsApp.
-        const tableReceipt = buildTableReceipt({ orderNumber: created.number, table, cartLines: cart.cartLines, total: cart.total, comment: customer.comment, name: customer.name });
+        const { order } = await submitOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: "", fulfillment: "dinein", tableNumber: table, address: "", comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website" });
+        const tableReceipt = buildTableReceipt({ orderNumber: order?.number ?? null, table, cartLines: cart.cartLines, total: cart.total, comment: customer.comment, name: customer.name });
         const tableUrl = whatsappUrl(settings.whatsappDineIn || settings.whatsappNumber, tableReceipt);
-        markOrderSent(); setOrderWarning(""); setSentNumber(created.number); setReceiptUrl(tableUrl); ui.setOrderSent(true);
+        markOrderSent(); setOrderWarning(""); setSentNumber(order?.number ?? null); setReceiptUrl(tableUrl); ui.setOrderSent(true);
         openWhatsApp(tableUrl);
       }
-      catch { setOrderWarning("Не удалось отправить заказ. Проверьте подключение к интернету и попробуйте ещё раз."); }
       finally { orderSubmittingRef.current = false; setOrderPending(false); }
       return;
     }
@@ -80,14 +81,13 @@ export function MenuShop() {
     const fee = deliveryFee(cart.total, customer.fulfillment, settings);
     orderSubmittingRef.current = true; setOrderPending(true);
     try {
-      const created = await createOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.orderAddress, comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && fee !== null ? { deliveryFee: fee } : {}) });
-      const receipt = buildReceipt({ orderNumber: created.number, cartLines: cart.cartLines, total: cart.total, fee, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.orderAddress });
+      const { order } = await submitOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.orderAddress, comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && fee !== null ? { deliveryFee: fee } : {}) });
+      const receipt = buildReceipt({ orderNumber: order?.number ?? null, cartLines: cart.cartLines, total: cart.total, fee, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.orderAddress });
       const url = whatsappUrl(settings.whatsappNumber, receipt);
-      markOrderSent(); setOrderWarning(""); setSentNumber(created.number); setReceiptUrl(url); ui.setOrderSent(true);
+      markOrderSent(); setOrderWarning(""); setSentNumber(order?.number ?? null); setReceiptUrl(url); ui.setOrderSent(true);
       // Если браузер заблокирует новое окно, отправка остаётся кнопкой на экране заказа.
       openWhatsApp(url);
     }
-    catch { setOrderWarning("Не удалось оформить заказ. Проверьте подключение к интернету и попробуйте ещё раз."); }
     finally { orderSubmittingRef.current = false; setOrderPending(false); }
   }
   return <main className="min-h-dvh overflow-x-clip text-text">

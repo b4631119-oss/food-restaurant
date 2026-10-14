@@ -111,6 +111,8 @@ service cloud.firestore {
       allow read: if true;
       allow create, update, delete: if isAdmin();
     }
+    // Витрина меню: menu/public читает любой, публикует только админ (одно чтение вместо коллекций).
+    match /menu/{docId} { allow read: if true; allow write: if isAdmin(); }
     // Администраторы: документ создаётся только вручную через Firebase Console.
     match /admins/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowDown, ArrowUp, Edit2, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useModalBackHandler } from "@/hooks/use-scroll-lock";
-import { watchCategories, saveCategories } from "@/lib/repo/categories-repo";
-import { watchProducts, saveProduct } from "@/lib/repo/products-repo";
+import { getCategories, saveCategories } from "@/lib/repo/categories-repo";
+import { getProducts, saveProduct } from "@/lib/repo/products-repo";
 import type { DemoProduct } from "@/lib/models";
 
 export default function CategoriesPage() {
@@ -14,9 +14,14 @@ export default function CategoriesPage() {
   const [name, setName] = useState(""); const [rename, setRename] = useState<string | null>(null); const [remove, setRemove] = useState<string | null>(null);
   const [target, setTarget] = useState(""); const [error, setError] = useState(""); const [confirmEmpty, setConfirmEmpty] = useState(false);
   useModalBackHandler(Boolean(remove && !confirmEmpty), () => setRemove(null));
-  useEffect(() => { const a = watchCategories(setList); const b = watchProducts(setProductsState); return () => { a(); b(); }; }, []);
+  // Категории и блюда читаются один раз при открытии: подписки на коллекции множили чтения Firestore.
+  const reload = useCallback(async () => {
+    try { const [names, items] = await Promise.all([getCategories(), getProducts()]); setList(names); setProductsState(items); setError(""); }
+    catch { setError("Не удалось загрузить категории."); }
+  }, []);
+  useEffect(() => { void Promise.resolve().then(reload); }, [reload]);
   // Ошибка сохранения показывается, а введённое имя остаётся — так категорию можно добавить повторно.
-  async function persist(next: string[]): Promise<boolean> { try { await saveCategories(next); setError(""); return true; } catch { setError("Не удалось сохранить категории в Firebase."); return false; } }
+  async function persist(next: string[]): Promise<boolean> { try { await saveCategories(next); await reload(); setError(""); return true; } catch { setError("Не удалось сохранить категории в Firebase."); return false; } }
   async function add() { const value = name.trim(); if (!value || categories.includes(value)) return; if (await persist([...categories, value])) setName(""); }
   async function renameCategory() { if (!rename || !name.trim() || categories.includes(name.trim())) return; const nextName = name.trim(); try { await Promise.all(products.filter((item) => item.category === rename).map((item) => saveProduct({ ...item, category: nextName }))); await persist(categories.map((item) => item === rename ? nextName : item)); } catch { setError("Не удалось переименовать категорию."); } setRename(null); setName(""); }
   async function move(delta: number, index: number) { const next = [...categories]; const other = index + delta; if (other < 0 || other >= next.length) return; [next[index], next[other]] = [next[other], next[index]]; await persist(next); }

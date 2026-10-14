@@ -2,8 +2,10 @@ import { CAFE } from "@/lib/config";
 import { money } from "@/lib/format";
 import type { CartLine, Fulfillment } from "@/lib/types";
 
+// orderNumber === null — заказ в Firestore записать не удалось (квота, сеть, таймаут),
+// но чек всё равно формируется: он уходит в WhatsApp без номера.
 export type OrderInfo = {
-  orderNumber: number;
+  orderNumber: number | null;
   cartLines: CartLine[];
   total: number;
   fee: number | null;
@@ -13,7 +15,7 @@ export type OrderInfo = {
   address: string;
 };
 export type TableOrderInfo = {
-  orderNumber: number;
+  orderNumber: number | null;
   table: number;
   cartLines: CartLine[];
   total: number;
@@ -22,7 +24,7 @@ export type TableOrderInfo = {
 };
 export function buildReceipt({ orderNumber, cartLines, total, fee, fulfillment, name, phone, address }: OrderInfo): string {
   return [
-    `Заказ №${orderNumber} · ${CAFE.name}`,
+    `${orderNumber === null ? "Заказ без номера" : `Заказ №${orderNumber}`} · ${CAFE.name}`,
     "------------------",
     ...cartLines.map(({ product, quantity }) => `${quantity} × ${product.name} — ${money(product.price * quantity)}`),
     "------------------",
@@ -42,7 +44,7 @@ export function buildTableReceipt({ orderNumber, table, cartLines, total, commen
   const trimmedComment = (comment ?? "").trim();
   const trimmedName = (name ?? "").trim();
   return [
-    `Заказ №${orderNumber} · Стол №${table}`,
+    `${orderNumber === null ? "Заказ без номера" : `Заказ №${orderNumber}`} · Стол №${table}`,
     "------------------",
     ...cartLines.map(({ product, quantity }) => `${quantity} × ${product.name} — ${money(product.price * quantity)}`),
     "------------------",

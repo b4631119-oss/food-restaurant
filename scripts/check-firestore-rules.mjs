@@ -71,6 +71,9 @@ const full = (id, number, over = {}) => batch([order(id, number, over), item(id,
 const CASES = [
   ["чтение меню без входа", "allow", "GET", "/products/p-roll", null],
   ["чтение настроек без входа", "allow", "GET", "/settings/cafe", null],
+  ["чтение меню одним документом без входа", "allow", "GET", "/menu/public", null],
+  ["публикация меню без входа", "deny", "PATCH", "/menu/public", null, { fields: { updatedAt: str("2026-10-14") } }],
+  ["публикация меню админом", "allow", "PATCH", "/menu/public", ADMIN, { fields: { updatedAt: str("2026-10-14") } }],
   ["чтение счётчика без входа", "allow", "GET", "/counters/orders", null],
   ["список заказов без входа", "deny", "GET", "/orders", null],
   ["чтение заказа без входа", "deny", "GET", "/orders/o1", null],
@@ -118,6 +121,7 @@ for (const [collection, id, fields] of [
   ["products", "p-tea", product("p-tea", "Чай", 100, true)],
   ["products", "p-stop", product("p-stop", "Стоп-лист", 200, false)],
   ["settings", "cafe", { phone: str("+996 990 435 943") }],
+  ["menu", "public", { updatedAt: str("2026-10-14"), categories: str("[]"), products: str("[]") }],
   ["admins", "user-admin", { note: str("admin") }],
 ]) {
   const seeded = await req("PATCH", `/${collection}/${id}?currentDocument.exists=false`, { token: OWNER, body: { fields } });
