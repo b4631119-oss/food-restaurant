@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, limit, orderBy, query, runTransaction, where, writeBatch } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, runTransaction, where, writeBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { isValidLocation, isValidMapLink } from "@/lib/map-links";
 import type { DemoOrder, OrderItem, OrderStatus } from "@/lib/models";
@@ -6,6 +6,10 @@ import type { DemoOrder, OrderItem, OrderStatus } from "@/lib/models";
 const orders = collection(db, "orders");
 const orderItems = collection(db, "orderItems");
 const counter = doc(db, "counters", "orders");
+const orderRefs = collection(db, "orderRefs");
+// Ключ попытки → номер заказа. Пишется только вместе со своим заказом (см. firestore.rules),
+// читается по неугадываемому clientOrderId — так повтор находит первоначальный номер,
+// даже если счётчик уже указывает на другой заказ.
 const MAX_PERIOD_ORDERS = 2000;
 const IDS_PER_ITEM_QUERY = 30;
 const itemKey = (orderId: string, productId: string) => `${orderId}_${productId}`;
@@ -37,13 +41,21 @@ export async function getAllOrderIds(): Promise<string[]> {
   const snapshot = await getDocs(orders);
   return snapshot.docs.map((entry) => entry.id);
 }
-export type NewOrder = Omit<DemoOrder, "id" | "number" | "createdAt"> & { createdAt?: string };
-export async function createOrder(input: NewOrder): Promise<DemoOrder> {
-  const reference = doc(orders);
+export type NewOrder = Omit<DemoOrder, "id" | "number" | "createdAt"> & { createdAt?: string; clientOrderId: string };
+// Созданный заказ: id попытки и номер, который показан клиенту и уходит в WhatsApp.
+export type CreatedOrder = { id: string; number: number };
+// Один checkout — один clientOrderId, и он же id документа заказа. Повторный запрос с тем же
+// ключом (двойной клик, повтор после таймаута) не создаёт второй заказ, а возвращает первый.
+// Готовый заказ ищем в counters/orders: его читать публично можно, а сам orders/{id} —
+// содержит данные клиента и по правилам закрыт. Связь счётчика с заказом гарантируют правила.
+export async function createOrder(input: NewOrder): Promise<CreatedOrder> {
+  const reference = doc(orders, input.clientOrderId);
   const createdAt = input.createdAt ?? new Date().toISOString();
   return runTransaction(db, async (transaction) => {
     const snapshot = await transaction.get(counter);
-    const number = snapshot.exists() ? Number(snapshot.data().value) + 1 : 1001;
+    const last = snapshot.exists() ? snapshot.data() : null;
+    if (last && String(last.orderId) === input.clientOrderId) return { id: input.clientOrderId, number: Number(last.value) };
+    const number = snapshot.exists() ? Number(last?.value) + 1 : 1001;
     const items = input.items.map(({ productId, productName, price, quantity }) => ({ productId, productName, price, quantity }));
     // itemsCount пишем ровно по числу позиций: правила проверяют его как целое 1..30.
     const common = { type: input.fulfillment, status: "new" as const, number, createdAt, itemsCount: items.length, ...(input.source ? { source: input.source } : {}) };
@@ -55,9 +67,19 @@ export async function createOrder(input: NewOrder): Promise<DemoOrder> {
       ? { ...common, tableNumber: input.tableNumber ?? 0, ...(input.name.trim() ? { name: input.name.trim() } : {}), ...(input.comment.trim() ? { comment: input.comment.trim() } : {}) }
       : { ...common, name: input.name, phone: input.phone, address: input.address, comment: input.comment, ...(input.fulfillment === "delivery" && isValidDeliveryFee(input.deliveryFee) ? { deliveryFee: input.deliveryFee } : {}), ...(location ? { location } : {}), ...(mapLink ? { mapLink } : {}) });
     items.forEach((item) => transaction.set(doc(orderItems, itemKey(reference.id, item.productId)), encodeItem(item, reference.id)));
+    transaction.set(doc(orderRefs, reference.id), { number });
     transaction.set(counter, { value: number, orderId: reference.id });
-    return { ...input, id: reference.id, number, createdAt, status: "new" as const };
+    return { id: reference.id, number };
   });
+}
+// Заказ можно найти по ключу попытки (orderRefs/{clientOrderId}) в любой момент: и после
+// повторного клика, и после перезагрузки страницы. Счётчик для восстановления не используется —
+// он хранит только последний заказ и не находит исходный, если между попытками был другой заказ.
+export async function existingOrderNumber(clientOrderId: string): Promise<number | null> {
+  const snapshot = await getDoc(doc(orderRefs, clientOrderId));
+  if (!snapshot.exists()) return null;
+  const value = Number(snapshot.data().number);
+  return Number.isFinite(value) ? value : null;
 }
 export async function updateOrder(id: string, changes: Partial<DemoOrder>): Promise<void> {
   const data = { ...changes } as Record<string, unknown>;

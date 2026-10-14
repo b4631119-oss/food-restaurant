@@ -1,6 +1,6 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { connectAuthEmulator, getAuth } from "firebase/auth";
+import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 // Публичные значения Firebase приходят из .env.local локально и из переменных проекта
@@ -67,4 +67,20 @@ if (typeof window !== "undefined" && recaptchaSiteKey) {
 
 export { firebaseApp };
 export const db = getFirestore(firebaseApp);
+
+// Локальные тесты и E2E идут только в эмулятор: хост включается переменной
+// NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST (например, 127.0.0.1:8080). В production её нет,
+// поэтому поведение и адрес Firestore не меняются.
+const emulatorHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST;
+if (emulatorHost) {
+  const [host, port] = emulatorHost.split(":");
+  connectFirestoreEmulator(db, host || "127.0.0.1", Number(port) || 8080);
+}
+
 export const auth = getAuth(firebaseApp);
+
+// Локальный E2E входа в админку идёт в Auth-эмулятор: хост включается переменной
+// NEXT_PUBLIC_AUTH_EMULATOR_HOST (например, 127.0.0.1:9099). В production её нет,
+// поэтому адрес и поведение Firebase Auth не меняются.
+const authEmulatorHost = process.env.NEXT_PUBLIC_AUTH_EMULATOR_HOST;
+if (authEmulatorHost) connectAuthEmulator(auth, `http://${authEmulatorHost}`, { disableWarnings: true });

@@ -12,3 +12,14 @@ export function firestoreCode(error: unknown): string {
 export function warnFirestore(operation: string, error: unknown): void {
   console.warn(`${operation}: ${firestoreCode(error)}`);
 }
+
+// Сбой записи заказа — ошибка, а не предупреждение: её видно в журнале как console.error.
+// В строке только имя операции и код, содержимое заказа и данные клиента не пишутся.
+export function errorFirestore(operation: string, error: unknown): void {
+  console.error(`${operation}: ${firestoreCode(error)}`);
+}
+
+// Событие без объекта ошибки: например, отказ заказа из-за изменившихся цен.
+export function warnFirestoreCode(operation: string, code: string): void {
+  console.warn(`${operation}: ${code}`);
+}

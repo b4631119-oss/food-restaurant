@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useDemoSettings } from "@/hooks/use-demo-settings";
 import { useMenuData } from "@/hooks/use-menu-data";
 import { CartPanel } from "@/components/cart/cart-panel";
@@ -21,7 +21,9 @@ import { cooldownLeft, markOrderSent, ORDER_LIMIT } from "@/lib/table";
 import { deliveryFee } from "@/lib/delivery";
 import { popularProducts } from "@/lib/popular";
 import { buildReceipt, buildTableReceipt, openWhatsApp, whatsappUrl } from "@/lib/order";
-import { retryQueuedOrders, submitOrder } from "@/lib/order-flow";
+import { newClientOrderId, submitOrder } from "@/lib/order-flow";
+import { clearPendingAttempt, readPendingAttempt, savePendingAttempt } from "@/lib/order-attempt";
+import { OrderError, orderErrorMessage } from "@/lib/order-error";
 
 export function MenuShop() {
   const { products, categories: menuCategories, loading: menuLoading, error: menuError, retry: retryMenu } = useMenuData();
@@ -33,11 +35,9 @@ export function MenuShop() {
   const customer = useCustomer(table);
   const ui = useShopUi(cart.itemCount, cart.addProduct);
   const [receiptUrl, setReceiptUrl] = useState("");
-  const [sentNumber, setSentNumber] = useState<number | null>(null);
+  const [sentNumber, setSentNumber] = useState(0);
   const [orderWarning, setOrderWarning] = useState("");
   const [orderPending, setOrderPending] = useState(false); const orderSubmittingRef = useRef(false);
-  // Один раз за визит дозаписываем заказы, которые не попали в Firestore на прошлом заходе.
-  useEffect(() => { retryQueuedOrders(); }, []);
   const search = ui.searchQuery.trim().toLocaleLowerCase("ru");
   // «Популярное» наполняется автоматически: явные хиты, иначе — топ ключевых категорий,
   // поэтому вкладка не пустует даже если флаг «Популярное» нигде не выставлен.
@@ -51,43 +51,59 @@ export function MenuShop() {
     category, products: visibleProducts.filter((product) => product.category === category),
   })).filter((group) => group.products.length > 0);
   const orderItems = cart.cartLines.map(({ product, quantity }) => ({ productId: product.id, productName: product.name, price: product.price, quantity }));
+  // Один checkout — один ключ идемпотентности: повторная отправка той же корзины (двойной клик,
+  // повтор после ошибки) приходит с тем же ключом, поэтому второй заказ не создаётся.
+  // Ключ хранится в localStorage и переживает перезагрузку: неизвестный результат не превратится
+  // в новую попытку. Новый ключ берётся только для другой корзины — и после подтверждённого заказа.
+  const orderSignature = orderItems.map((item) => `${item.productId}x${item.quantity}`).join("|");
+  function attemptId(): string {
+    const pending = readPendingAttempt();
+    if (pending && pending.signature === orderSignature) return pending.id;
+    return savePendingAttempt(newClientOrderId(), orderSignature).id;
+  }
+  function finishAttempt(): void { clearPendingAttempt(); }
+  // Ошибка записи заказа — это отсутствие заказа: WhatsApp не открывается, клиент видит причину
+  // и может повторить попытку той же кнопкой. Меню перечитываем, если изменились цены.
+  function failOrder(error: unknown) {
+    const kind = error instanceof OrderError ? error.kind : "unknown";
+    setOrderWarning(orderErrorMessage(kind));
+    if (kind === "price-changed") retryMenu();
+  }
   async function sendOrder(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (orderSubmittingRef.current) return;
     // Лимит позиций согласован с firestore.rules: больше заказ не сохранится.
     if (orderItems.length > ORDER_LIMIT) { setOrderWarning(`В заказе не больше ${ORDER_LIMIT} позиций. Уберите лишние блюда.`); return; }
-    // Ошибок базы клиент не видит: не записалось — чек уходит в WhatsApp без номера.
+    // WhatsApp открывается ТОЛЬКО после подтверждённой записи в Firestore (см. submitOrder).
     if (table !== null) {
       if (customer.trap.trim() || !settings.acceptingDinein || !settings.acceptingOrders) return;
       if (!customer.validateForm()) return;
-      const wait = cooldownLeft();
-      if (wait > 0) { setOrderWarning("Подождите минуту перед следующим заказом"); return; }
-      orderSubmittingRef.current = true; setOrderPending(true);
+      if (cooldownLeft() > 0) { setOrderWarning("Подождите минуту перед следующим заказом"); return; }
+      orderSubmittingRef.current = true; setOrderPending(true); setOrderWarning("");
       try {
-        const { order } = await submitOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: "", fulfillment: "dinein", tableNumber: table, address: "", comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website" });
-        const tableReceipt = buildTableReceipt({ orderNumber: order?.number ?? null, table, cartLines: cart.cartLines, total: cart.total, comment: customer.comment, name: customer.name });
-        const tableUrl = whatsappUrl(settings.whatsappDineIn || settings.whatsappNumber, tableReceipt);
-        markOrderSent(); setOrderWarning(""); setSentNumber(order?.number ?? null); setReceiptUrl(tableUrl); ui.setOrderSent(true);
+        const order = await submitOrder({ createdAt: new Date().toISOString(), clientOrderId: attemptId(), name: customer.name.trim(), phone: "", fulfillment: "dinein", tableNumber: table, address: "", comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website" });
+        const tableUrl = whatsappUrl(settings.whatsappDineIn || settings.whatsappNumber, buildTableReceipt({ orderNumber: order.number, table, cartLines: cart.cartLines, total: cart.total, comment: customer.comment, name: customer.name }));
+        markOrderSent(); setSentNumber(order.number); setReceiptUrl(tableUrl); ui.setOrderSent(true);
+        finishAttempt();
         openWhatsApp(tableUrl);
-      }
+      } catch (error) { failOrder(error); }
       finally { orderSubmittingRef.current = false; setOrderPending(false); }
       return;
     }
     if (!customer.validateForm() || !settings.acceptingOrders) return;
     if (customer.fulfillment === "delivery" && cart.total < settings.minimumOrder) return;
     // Тот же интервал между заказами, что и для зала: это удобство, а не защита.
-    const wait = cooldownLeft();
-    if (wait > 0) { setOrderWarning("Подождите минуту перед следующим заказом"); return; }
+    if (cooldownLeft() > 0) { setOrderWarning("Подождите минуту перед следующим заказом"); return; }
     const fee = deliveryFee(cart.total, customer.fulfillment, settings);
-    orderSubmittingRef.current = true; setOrderPending(true);
+    orderSubmittingRef.current = true; setOrderPending(true); setOrderWarning("");
     try {
-      const { order } = await submitOrder({ createdAt: new Date().toISOString(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.orderAddress, comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && fee !== null ? { deliveryFee: fee } : {}) });
-      const receipt = buildReceipt({ orderNumber: order?.number ?? null, cartLines: cart.cartLines, total: cart.total, fee, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.orderAddress });
-      const url = whatsappUrl(settings.whatsappNumber, receipt);
-      markOrderSent(); setOrderWarning(""); setSentNumber(order?.number ?? null); setReceiptUrl(url); ui.setOrderSent(true);
+      const order = await submitOrder({ createdAt: new Date().toISOString(), clientOrderId: attemptId(), name: customer.name.trim(), phone: customer.phone, fulfillment: customer.fulfillment, address: customer.orderAddress, comment: customer.comment.trim(), items: orderItems, total: cart.total, status: "new", source: "website", ...(customer.fulfillment === "delivery" && fee !== null ? { deliveryFee: fee } : {}) });
+      const url = whatsappUrl(settings.whatsappNumber, buildReceipt({ orderNumber: order.number, cartLines: cart.cartLines, total: cart.total, fee, fulfillment: customer.fulfillment, name: customer.name, phone: customer.phone, address: customer.orderAddress }));
+      markOrderSent(); setSentNumber(order.number); setReceiptUrl(url); ui.setOrderSent(true);
+      finishAttempt();
       // Если браузер заблокирует новое окно, отправка остаётся кнопкой на экране заказа.
       openWhatsApp(url);
-    }
+    } catch (error) { failOrder(error); }
     finally { orderSubmittingRef.current = false; setOrderPending(false); }
   }
   return <main className="min-h-dvh overflow-x-clip text-text">
@@ -100,6 +116,6 @@ export function MenuShop() {
     {settingsLoading ? <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8 lg:px-6"><div className="my-8 h-64 animate-pulse rounded-2xl bg-surface" /></div> : <InfoSection settings={settings} />}
     <Footer />{ui.notice && <Toast message={ui.notice} />}
     {!ui.cartDialogOpen && <MobileBar itemCount={cart.itemCount} total={cart.total} pulse={ui.cartPulse} onOpenCart={ui.openCart} phone={settings.phone} whatsappNumber={settings.whatsappNumber} />}
-    {ui.cartDialogOpen && <CartPanel pending={orderPending} warning={orderWarning} lines={cart.cartLines} orderSent={ui.orderSent} orderNumber={sentNumber} table={table} onAdd={ui.addProduct} onChange={cart.changeQuantity} onSubmit={sendOrder} onClose={ui.closeCart} onGoMenu={ui.closeAndGoToMenu} onClearAndClose={() => { cart.clearCart(); ui.setOrderSent(false); ui.closeCart(); }} onOrderMore={() => { cart.clearCart(); customer.setComment(""); ui.setOrderSent(false); ui.closeAndGoToMenu(); }} receiptUrl={receiptUrl} total={cart.total} fulfillment={customer.fulfillment} setFulfillment={customer.setFulfillment} name={customer.name} setName={customer.setName} phone={customer.phone} setPhone={customer.setPhone} address={customer.address} setAddress={customer.setAddress} comment={customer.comment} setComment={customer.setComment} trap={customer.trap} setTrap={customer.setTrap} remember={customer.remember} setRemember={customer.setRemember} errors={customer.errors} onBlur={customer.blurField} />}
+    {ui.cartDialogOpen && <CartPanel pending={orderPending} warning={orderWarning} lines={cart.cartLines} orderSent={ui.orderSent} orderNumber={sentNumber} table={table} onAdd={ui.addProduct} onChange={cart.changeQuantity} onSubmit={sendOrder} onClose={ui.closeCart} onGoMenu={ui.closeAndGoToMenu} onClearAndClose={() => { cart.clearCart(); finishAttempt(); ui.setOrderSent(false); ui.closeCart(); }} onOrderMore={() => { cart.clearCart(); finishAttempt(); customer.setComment(""); ui.setOrderSent(false); ui.closeAndGoToMenu(); }} receiptUrl={receiptUrl} total={cart.total} fulfillment={customer.fulfillment} setFulfillment={customer.setFulfillment} name={customer.name} setName={customer.setName} phone={customer.phone} setPhone={customer.setPhone} address={customer.address} setAddress={customer.setAddress} comment={customer.comment} setComment={customer.setComment} trap={customer.trap} setTrap={customer.setTrap} remember={customer.remember} setRemember={customer.setRemember} errors={customer.errors} onBlur={customer.blurField} />}
   </main>;
 }

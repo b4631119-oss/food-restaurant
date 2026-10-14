@@ -5,7 +5,7 @@ import { useDemoSettings } from "@/hooks/use-demo-settings";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import type { Fulfillment } from "@/lib/types";
 
-type CartSentProps = { receiptUrl: string; orderNumber: number | null; table: number | null; fulfillment: Fulfillment; onClearAndClose: () => void; onOrderMore: () => void };
+type CartSentProps = { receiptUrl: string; orderNumber: number; table: number | null; fulfillment: Fulfillment; onClearAndClose: () => void; onOrderMore: () => void };
 
 export function CartSent({ receiptUrl, orderNumber, table, fulfillment, onClearAndClose, onOrderMore }: CartSentProps) {
   const { settings } = useDemoSettings();
@@ -15,8 +15,7 @@ export function CartSent({ receiptUrl, orderNumber, table, fulfillment, onClearA
   return (
     <div className="flex flex-col items-center px-6 py-10 text-center">
       <span className="grid size-16 place-items-center rounded-full bg-accent/10 text-accent"><Check className="size-8" aria-hidden="true" /></span>
-      <p className="mt-5 text-2xl font-extrabold">{orderNumber === null ? "Заказ оформлен" : `Заказ №${orderNumber} оформлен`}</p>
-      {orderNumber === null && <p className="mt-2 text-xs text-muted">Заказ уйдёт в WhatsApp</p>}
+      <p className="mt-5 text-2xl font-extrabold">{`Заказ №${orderNumber} оформлен`}</p>
       <p role="alert" className="mt-3 max-w-sm text-base font-bold text-[#F87171]">Нажмите «Отправить» в WhatsApp, иначе заказ не дойдёт до кафе</p>
       <a href={receiptUrl} target="_blank" rel="noopener noreferrer" className="press mt-5 inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-2 rounded-xl bg-accent px-6 text-lg font-bold text-background hover:bg-accent-hover">{dinein ? "Отправить официанту в WhatsApp" : "Открыть WhatsApp"} <WhatsAppIcon /></a>
       <button type="button" onClick={onOrderMore} className="press mt-3 inline-flex min-h-12 w-full max-w-sm items-center justify-center rounded-xl border border-line px-6 font-semibold">Заказать ещё</button>

@@ -140,6 +140,20 @@ service cloud.firestore {
         && getAfter(orderPath(request.resource.data.orderId)).data.number == request.resource.data.value
         && getAfter(orderPath(request.resource.data.orderId)).data.status == 'new';
     }
+    // Ссылка «ключ попытки → номер заказа». Нужна, чтобы повторная отправка того же
+    // clientOrderId (двойной клик, повтор после таймаута или перезагрузки) вернула
+    // первоначальный номер заказа, даже если между попытками успел оформиться другой заказ.
+    // Документ создаётся только вместе со своим заказом в той же транзакции; в нём нет
+    // персональных данных, а читать его можно лишь зная неугадываемый id попытки.
+    match /orderRefs/{attemptId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        || (request.resource.data.keys().hasOnly(['number'])
+          && request.resource.data.number is int
+          && getAfter(orderPath(attemptId)).data.number == request.resource.data.number
+          && getAfter(orderPath(attemptId)).data.status == 'new');
+      allow delete: if isAdmin();
+    }
     // Всё остальное закрыто: для путей без явного правила доступа нет.
     match /{document=**} {
       allow read, write: if false;

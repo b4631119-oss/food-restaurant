@@ -6,6 +6,7 @@ import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useModalBackHandler } from "@/hooks/use-scroll-lock";
 import { getCategories, saveCategories } from "@/lib/repo/categories-repo";
 import { getProducts, saveProduct } from "@/lib/repo/products-repo";
+import { ensureMenuPublished } from "@/lib/repo/menu-repo";
 import type { DemoProduct } from "@/lib/models";
 
 export default function CategoriesPage() {
@@ -20,6 +21,8 @@ export default function CategoriesPage() {
     catch { setError("Не удалось загрузить категории."); }
   }, []);
   useEffect(() => { void Promise.resolve().then(reload); }, [reload]);
+  // Открытие админки догоняет публикацию, потерянную при закрытой вкладке.
+  useEffect(() => { ensureMenuPublished(); }, []);
   // Ошибка сохранения показывается, а введённое имя остаётся — так категорию можно добавить повторно.
   async function persist(next: string[]): Promise<boolean> { try { await saveCategories(next); await reload(); setError(""); return true; } catch { setError("Не удалось сохранить категории в Firebase."); return false; } }
   async function add() { const value = name.trim(); if (!value || categories.includes(value)) return; if (await persist([...categories, value])) setName(""); }

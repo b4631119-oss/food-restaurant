@@ -30,7 +30,7 @@ export function CartFooter({ total, fulfillment, pending, table, warning }: Cart
     {belowMinimum && <div className="rounded-lg bg-amber-500/15 p-2 text-center text-xs font-semibold text-amber-300">Минимальный заказ для доставки — {money(minimum)}. Добавьте ещё на {money(minimum - total)}</div>}
     {getOpenStatus(new Date(), settings.openingHours).text === "Закрыто" && <p className="text-center text-xs text-muted">Сейчас ресторан закрыт. Заказ обработаем{openAt ? ` с ${openAt}` : " сразу после открытия"}.</p>}
     {warning && <p role="alert" className="text-center text-sm text-[#F87171]">{warning}</p>}
-    <button type="submit" disabled={loading || belowMinimum || closed || pending} className="press flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 font-bold text-background shadow-lg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50">{dinein ? <Bell className="size-5" aria-hidden="true" /> : <WhatsAppIcon />}{pending ? "Отправляем заказ…" : "Оформить заказ"}</button>
-    <p className="text-center text-xs leading-tight text-muted">{dinein ? "Дальше откроется WhatsApp — отправьте сформированный заказ официанту." : "Мы получим заказ и сразу свяжемся с вами. WhatsApp откроется для быстрого подтверждения."}</p>
+    <button type="submit" disabled={loading || belowMinimum || closed || pending} className="press flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 font-bold text-background shadow-lg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50">{dinein ? <Bell className="size-5" aria-hidden="true" /> : <WhatsAppIcon />}{pending ? "Отправляем заказ…" : warning ? "Повторить" : "Оформить заказ"}</button>
+    <p className="text-center text-xs leading-tight text-muted">{dinein ? "Сначала заказ сохраняется, затем откроется WhatsApp — отправьте его официанту." : "Заказ сохраняется в кассе, WhatsApp откроется для быстрого подтверждения."}</p>
   </>;
 }

@@ -1,11 +1,15 @@
-import { createOrder, type NewOrder } from "@/lib/repo/orders-repo";
-import { flushOrderQueue, queueOrder } from "@/lib/order-queue";
-import { warnFirestore } from "@/lib/firestore-log";
-import type { DemoOrder } from "@/lib/models";
+import { changedPrices, changedPricesDirect } from "@/lib/order-prices";
+import { OrderError, orderErrorKind } from "@/lib/order-error";
+import { errorFirestore, warnFirestoreCode } from "@/lib/firestore-log";
+import { createOrder, existingOrderNumber, type CreatedOrder, type NewOrder } from "@/lib/repo/orders-repo";
 
-// Заказ важнее базы: клиент всё равно отправляет его в WhatsApp, поэтому запись в Firestore
-// ограничена таймаутом, а сбой (квота, сеть, правила) не показывается как ошибка оформления.
+// Клиент ждёт подтверждения Firestore не дольше 8 секунд. Не дождались — заказа нет,
+// WhatsApp не открывается, а повтор с тем же clientOrderId вернёт уже созданный заказ,
+// если транзакция всё-таки успела завершиться.
 export const ORDER_WRITE_TIMEOUT_MS = 8000;
+// Сверка цен — быстрый шаг: на медленной сети она не должна съедать бюджет оформления.
+// Не успела — запись всё равно пойдёт, и её проверит firestore.rules.
+export const PRICE_CHECK_TIMEOUT_MS = 4000;
 
 type CodedError = Error & { code?: string };
 
@@ -20,20 +24,37 @@ function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
   });
 }
 
-export type OrderSubmitResult = { order: DemoOrder | null; queued: boolean };
-
-// Успели записать — есть номер и чек с номером. Не успели — чек без номера, заказ в очереди,
-// а WhatsApp открывается всё равно: без базы клиент не остаётся.
-export async function submitOrder(input: NewOrder, create = createOrder): Promise<OrderSubmitResult> {
-  try {
-    const order = await withTimeout(create(input), ORDER_WRITE_TIMEOUT_MS);
-    return { order, queued: false };
-  } catch (error) {
-    warnFirestore("orders", error);
-    queueOrder(input);
-    return { order: null, queued: true };
-  }
+// Уникальный ключ попытки оформления: он же id документа заказа (см. createOrder).
+export function newClientOrderId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  return `ord-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-// Фоновая дозапись отложенных заказов при открытии сайта: ошибки пишутся в консоль без данных клиента.
-export function retryQueuedOrders(): void { flushOrderQueue(createOrder); }
+// Заказ считается оформленным только после подтверждённой записи в Firestore: функция либо
+// возвращает реальный номер заказа, либо бросает OrderError — тогда WhatsApp не открывается.
+export async function submitOrder(input: NewOrder): Promise<CreatedOrder> {
+  // Тот же clientOrderId уже мог сохраниться: двойной клик, повтор после таймаута или перезагрузки.
+  // Тогда возвращаем первоначальный номер и НЕ создаём новую попытку — второй заказ невозможен.
+  const known = await existingOrderNumber(input.clientOrderId).catch(() => null);
+  if (known !== null) return { id: input.clientOrderId, number: known };
+  // Цены сверяем до записи: заказ со старой ценой не должен уйти клиенту. Если проверить
+  // не удалось (например, квота), запись всё равно произойдёт — её проверит firestore.rules.
+  const stale = await withTimeout(changedPrices(input.items), PRICE_CHECK_TIMEOUT_MS).catch(() => []);
+  if (stale.length) { warnFirestoreCode("orders", "price-changed"); throw new OrderError("price-changed"); }
+  try {
+    return await withTimeout(createOrder(input), ORDER_WRITE_TIMEOUT_MS);
+  } catch (error) {
+    const kind = orderErrorKind(error);
+    errorFirestore("orders", error);
+    // Запись могла состояться уже после клиентского таймаута или отказа — проверяем ещё раз
+    // по ключу попытки: если заказ есть, это готовый номер, а не ошибка.
+    const existing = await existingOrderNumber(input.clientOrderId).catch(() => null);
+    if (existing !== null) return { id: input.clientOrderId, number: existing };
+    if (kind === "denied" || kind === "invalid") {
+      // Отказ правил также означает изменившуюся цену или снятое блюдо: показываем это клиенту.
+      const direct = await changedPricesDirect(input.items).catch(() => []);
+      if (direct.length) throw new OrderError("price-changed");
+    }
+    throw new OrderError(kind);
+  }
+}

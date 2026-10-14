@@ -21,8 +21,34 @@ const categoriesRef = collection(db, "categories");
 const text = (value: unknown): string => (typeof value === "string" ? value : "");
 const number = (value: unknown, fallback: number): number => (typeof value === "number" && Number.isFinite(value) ? value : fallback);
 
-// Снимок витрины. Коллекции читаются только здесь — при публикации, а не на каждый визит гостя.
+// Состояние публикации снимка: админка показывает его, чтобы не думать, что правка уже на сайте.
+export type PublishStatus = { state: "idle" | "pending" | "ok" | "error"; at: number | null; detail: string };
+let publishStatus: PublishStatus = { state: "idle", at: null, detail: "" };
+const publishListeners = new Set<(value: PublishStatus) => void>();
+function setPublishStatus(next: PublishStatus): void { publishStatus = next; publishListeners.forEach((listener) => listener(next)); }
+export function subscribePublishStatus(listener: (value: PublishStatus) => void): () => void {
+  publishListeners.add(listener);
+  listener(publishStatus);
+  return () => { publishListeners.delete(listener); };
+}
+
+// Публикация атомарна: клиент видит либо прежний документ, либо целиком новый.
+// Если запись не удалась, старый снимок остаётся на месте — половины меню на сайте не бывает.
 export async function republishMenu(): Promise<{ products: number; categories: number }> {
+  setPublishStatus({ state: "pending", at: publishStatus.at, detail: "Публикуем меню на сайте…" });
+  try {
+    const result = await writeMenuSnapshot();
+    clearDirty();
+    setPublishStatus({ state: "ok", at: Date.now(), detail: `${result.products} блюд, ${result.categories} категорий` });
+    return result;
+  } catch (error) {
+    setPublishStatus({ state: "error", at: Date.now(), detail: error instanceof Error ? error.message : "Не удалось записать документ меню." });
+    throw error;
+  }
+}
+
+// Снимок витрины. Коллекции читаются только здесь — при публикации, а не на каждый визит гостя.
+async function writeMenuSnapshot(): Promise<{ products: number; categories: number }> {
   const [categoryDocs, productDocs] = await Promise.all([getDocs(categoriesRef), getDocs(productsRef)]);
   const categories: MenuDocCategory[] = categoryDocs.docs
     .map((entry) => ({ id: entry.id, name: text(entry.data().name) || entry.id, order: number(entry.data().order, 0) }))
@@ -53,15 +79,31 @@ export async function republishMenu(): Promise<{ products: number; categories: n
   return { products: products.length, categories: categories.length };
 }
 
+const DIRTY_KEY = "sushi-bar-no1-menu-dirty";
+// Метка «есть неопубликованные правки» переживает закрытие вкладки: таймер публикации живёт
+// в браузере админа, поэтому без метки правка могла бы не доехать до сайта.
+function markDirty(): void { try { window.localStorage.setItem(DIRTY_KEY, "1"); } catch { /* без метки */ } }
+function clearDirty(): void { try { window.localStorage.removeItem(DIRTY_KEY); } catch { /* без метки */ } }
+function isDirty(): boolean { try { return window.localStorage.getItem(DIRTY_KEY) === "1"; } catch { return false; } }
+
 let publishTimer: number | null = null;
 // Вызывается после сохранения, удаления, импорта блюда и смены наличия: одна публикация на серию правок.
 export function scheduleMenuPublish(): void {
   if (typeof window === "undefined") return;
+  markDirty();
   if (publishTimer) window.clearTimeout(publishTimer);
+  setPublishStatus({ state: "pending", at: publishStatus.at, detail: "Публикуем изменения меню на сайте…" });
   publishTimer = window.setTimeout(() => {
     publishTimer = null;
     void republishMenu().catch((error: unknown) => warnFirestore("menu:publish", error));
   }, PUBLISH_DELAY_MS);
+}
+
+// Самовосстановление: если прошлая правка осталась неопубликованной (вкладку закрыли раньше
+// таймера или публикация упала), публикуем её при следующем открытии админки.
+export function ensureMenuPublished(): void {
+  if (typeof window === "undefined" || !isDirty()) return;
+  scheduleMenuPublish();
 }
 
 // Пустой или отсутствующий документ — это «меню ещё не опубликовано»: витрина идёт прежним путём.

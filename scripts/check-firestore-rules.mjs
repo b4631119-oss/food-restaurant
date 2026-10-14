@@ -38,6 +38,7 @@ const int = (value) => ({ integerValue: String(value) });
 const bool = (value) => ({ booleanValue: value });
 const update = (collection, id, fields) => ({ update: { name: `projects/${PROJECT}/databases/(default)/documents/${collection}/${id}`, fields } });
 const counter = (value, orderId) => update("counters", "orders", { value: int(value), orderId: str(orderId) });
+const ref = (attemptId, number) => update("orderRefs", attemptId, { number: int(number) });
 const product = (id, name, price, inStock) => ({
   name: str(name), price: int(price), inStock: bool(inStock), image: str(`https://res.cloudinary.com/demo/${id}.jpg`),
 });
@@ -109,6 +110,16 @@ const CASES = [
   ["админ пишет заказ без публичной валидации", "allow", "PATCH", "/orders/a1", ADMIN, { fields: { type: str("delivery"), status: str("new"), number: int(7) } }],
   ["админ восстанавливает заказ без itemsCount", "allow", "PATCH", "/orders/a2", ADMIN, { fields: { name: str("Старый"), phone: str("+996 111 223 344"), type: str("pickup"), status: str("completed"), number: int(5) } }],
   ["посетитель: заказ без itemsCount", "deny", "PATCH", "/orders/c1", CLIENT, { fields: { type: str("delivery"), status: str("new"), number: int(7), name: str("Клиент"), phone: str("+996 111 223 344"), address: str("Холматова 10") } }],
+  // Идемпотентность заказа: clientOrderId — это id документа. Повторная отправка (двойной клик)
+  // не должна ни создать второй заказ, ни перезаписать первый. Отдельно проверяется заказ со стола.
+  ["дубль clientOrderId не создаёт второй заказ", "deny", "POST", ":commit", CLIENT, full("o1", 1002)],
+  ["заказ со стола: стол 4 сохранён", "allow", "POST", ":commit", CLIENT, full("ord-table-4a", 1002, { type: "dinein", tableNumber: 4 })],
+  // Ссылка «ключ попытки → номер»: создаётся только вместе со своим заказом и хранит его номер.
+  ["ссылка на заказ: чтение без входа", "allow", "GET", "/orderRefs/r-ok", null],
+  ["ссылка на заказ: создана вместе со своим заказом", "allow", "POST", ":commit", CLIENT, batch([order("r-ok", 1003), item("r-ok", "p-roll"), item("r-ok", "p-tea"), counter(1003, "r-ok"), ref("r-ok", 1003)])],
+  ["ссылка на заказ: без самого заказа", "deny", "POST", ":commit", CLIENT, batch([ref("r-none", 1004)])],
+  ["ссылка на заказ: чужой номер", "deny", "POST", ":commit", CLIENT, batch([order("r-bad", 1004), item("r-bad", "p-roll"), item("r-bad", "p-tea"), counter(1004, "r-bad"), ref("r-bad", 9999)])],
+  ["ссылка на заказ: лишнее поле", "deny", "POST", ":commit", CLIENT, batch([order("r-extra", 1004), item("r-extra", "p-roll"), item("r-extra", "p-tea"), counter(1004, "r-extra"), update("orderRefs", "r-extra", { number: int(1004), extra: str("x") })])],
 ];
 
 const probe = await fetch(RESET, { method: "DELETE" }).catch(() => null);
