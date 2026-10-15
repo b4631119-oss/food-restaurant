@@ -40,6 +40,7 @@ export function Footer() {
         </div>
         <div className="mt-8 flex flex-col items-center gap-2 border-t border-line pt-5 text-xs lg:mt-10 lg:flex-row lg:justify-between">
           <span className="whitespace-nowrap">© {year} {CAFE.name}</span>
+          <a href="/privacy" className="press inline-flex min-h-11 items-center rounded-md px-1 font-semibold text-muted underline-offset-2 hover:text-accent hover:underline lg:min-h-0">Политика конфиденциальности</a>
           <span className="text-center lg:text-right">Сайт разработал <a href={devLink} target="_blank" rel="noopener noreferrer" className="press font-semibold text-accent underline-offset-2 hover:underline">BILOLIDIN</a></span>
         </div>
       </div>
